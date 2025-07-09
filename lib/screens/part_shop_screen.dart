@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-// 만들어 둔 Product 모델과 ProductDetailScreen을 import 합니다.
 import '../models/product_model.dart';
+import '../utils/auth_utils.dart';
 import 'product_detail_screen.dart';
 
 class PartShopScreen extends StatefulWidget {
@@ -14,22 +15,17 @@ class PartShopScreen extends StatefulWidget {
 
 class _PartShopScreenState extends State<PartShopScreen> {
   String _selectedCategory = 'All';
-  String _selectedSort = '인기순'; // 정렬 기준: 인기순, 최신순, 낮은 가격순, 높은 가격순
+  String _selectedSort = '인기순';
 
-  // Firestore 쿼리를 동적으로 생성하는 함수
   Query<Map<String, dynamic>> _buildQuery() {
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('products');
 
-    // 카테고리 필터링
     if (_selectedCategory != 'All') {
-      // Firestore에서는 'brand' 필드를 카테고리처럼 사용하기로 했습니다.
       query = query.where('brand', isEqualTo: _selectedCategory);
     }
 
-    // 정렬 조건
     switch (_selectedSort) {
       case '최신순':
-      // 'createdAt' 같은 필드가 Firestore 문서에 있어야 합니다.
         query = query.orderBy('createdAt', descending: true);
         break;
       case '낮은 가격순':
@@ -40,7 +36,6 @@ class _PartShopScreenState extends State<PartShopScreen> {
         break;
       case '인기순':
       default:
-      // 'likes' 같은 필드가 Firestore 문서에 있어야 합니다.
         query = query.orderBy('likes', descending: true);
         break;
     }
@@ -53,14 +48,19 @@ class _PartShopScreenState extends State<PartShopScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('부품 스토어'),
-        // TODO: 고급 필터 기능 구현
-        actions: [IconButton(icon: const Icon(Icons.tune), onPressed: () {})],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.tune),
+            onPressed: () {
+              // TODO: 고급 필터 기능 구현
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
           _buildFilterRow(),
           Expanded(
-            // FutureBuilder를 사용하여 Firestore 쿼리 결과를 비동기적으로 처리
             child: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
               future: _buildQuery().get(),
               builder: (context, snapshot) {
@@ -74,7 +74,6 @@ class _PartShopScreenState extends State<PartShopScreen> {
                   return const Center(child: Text('해당하는 상품이 없습니다.'));
                 }
 
-                // Firestore 문서들을 Product 객체 리스트로 변환
                 final products = snapshot.data!.docs
                     .map((doc) => Product.fromFirestore(doc))
                     .toList();
@@ -83,7 +82,7 @@ class _PartShopScreenState extends State<PartShopScreen> {
                   padding: const EdgeInsets.all(16),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.7, // 아이템 비율
+                    childAspectRatio: 0.7,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
@@ -100,7 +99,6 @@ class _PartShopScreenState extends State<PartShopScreen> {
     );
   }
 
-  // 필터 및 정렬 UI
   Widget _buildFilterRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -138,13 +136,11 @@ class _PartShopScreenState extends State<PartShopScreen> {
     );
   }
 
-  // 개별 상품 카드 UI
   Widget _buildProductItem(Product product) {
     final formatter = NumberFormat('#,###');
 
     return GestureDetector(
       onTap: () {
-        // ProductDetailScreen으로 이동, 이제 Product 객체 대신 productId를 전달합니다.
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ProductDetailScreen(productId: product.id),
         ));
@@ -154,47 +150,145 @@ class _PartShopScreenState extends State<PartShopScreen> {
           borderRadius: BorderRadius.circular(12),
           color: Colors.white,
           boxShadow: [
-            BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 2, blurRadius: 6),
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 6,
+            ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
+              flex: 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: Image.network(product.imageUrl, fit: BoxFit.cover,
+                child: Image.network(
+                  product.imageUrl,
+                  fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
                   const Icon(Icons.broken_image, size: 40, color: Colors.grey),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${formatter.format(product.lowestAsk ?? 0)} 원~', // 즉시 구매가 표시
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        product.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${formatter.format(product.lowestAsk)} 원~',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => _handleQuickBuy(product),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              textStyle: const TextStyle(fontSize: 12),
+                            ),
+                            child: const Text('구매'),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => _handleQuickSell(product),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              textStyle: const TextStyle(fontSize: 12),
+                            ),
+                            child: const Text('판매'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _handleQuickBuy(Product product) {
+    // 1차 인증 체크
+    if (!AuthUtils.requireAuth(context)) {
+      return;
+    }
+
+    // 2차 Firestore 쓰기 시도
+    AuthUtils.tryWriteWithLoginGuard(context, () async {
+      final user = FirebaseAuth.instance.currentUser!;
+
+      await FirebaseFirestore.instance.collection('orders').add({
+        'productId': product.id,
+        'userId': user.uid,
+        'type': 'buy',
+        'price': product.lowestAsk,
+        'status': 'pending',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('구매 주문이 접수되었습니다.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
+  }
+
+  void _handleQuickSell(Product product) {
+    // 1차 인증 체크
+    if (!AuthUtils.requireAuth(context)) {
+      return;
+    }
+
+    // 2차 Firestore 쓰기 시도
+    AuthUtils.tryWriteWithLoginGuard(context, () async {
+      final user = FirebaseAuth.instance.currentUser!;
+
+      await FirebaseFirestore.instance.collection('asks').add({
+        'productId': product.id,
+        'userId': user.uid,
+        'type': 'sell',
+        'price': product.highestBid,
+        'status': 'pending',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('판매 주문이 접수되었습니다.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'auth_gate.dart'; // AuthGate 위젯을 import
+import '/screens/home_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -17,8 +17,7 @@ class MyApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: Colors.white,
       ),
-      // 앱의 첫 화면을 AuthGate로 설정합니다.
-      home: const AuthGate(),
+      home: const HomeScreen(),
     );
   }
 }
