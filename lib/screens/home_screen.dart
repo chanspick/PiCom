@@ -109,6 +109,8 @@ class _ProductCard extends StatelessWidget {
             width: 56,
             height: 56,
             fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.broken_image, size: 40, color: Colors.grey),
           ),
         ),
         title: Text(
@@ -117,8 +119,8 @@ class _ProductCard extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: ProductPriceAndActions(product: product),
-        isThreeLine: true,
+        // 구매/판매 버튼이 들어가는 subtitle 완전히 제거!
+        isThreeLine: false,
         onTap: () {
           Navigator.push(
             context,
