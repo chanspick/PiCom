@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../models/product_model.dart';
-import '../utils/auth_utils.dart';
 import 'product_detail_screen.dart';
 
 class PartShopScreen extends StatefulWidget {
@@ -196,32 +194,6 @@ class _PartShopScreenState extends State<PartShopScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => _handleQuickBuy(product),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              textStyle: const TextStyle(fontSize: 12),
-                            ),
-                            child: const Text('구매'),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => _handleQuickSell(product),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              textStyle: const TextStyle(fontSize: 12),
-                            ),
-                            child: const Text('판매'),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -230,65 +202,5 @@ class _PartShopScreenState extends State<PartShopScreen> {
         ),
       ),
     );
-  }
-
-  void _handleQuickBuy(Product product) {
-    // 1차 인증 체크
-    if (!AuthUtils.requireAuth(context)) {
-      return;
-    }
-
-    // 2차 Firestore 쓰기 시도
-    AuthUtils.tryWriteWithLoginGuard(context, () async {
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance.collection('orders').add({
-        'productId': product.id,
-        'userId': user.uid,
-        'type': 'buy',
-        'price': product.lowestAsk,
-        'status': 'pending',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('구매 주문이 접수되었습니다.'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    });
-  }
-
-  void _handleQuickSell(Product product) {
-    // 1차 인증 체크
-    if (!AuthUtils.requireAuth(context)) {
-      return;
-    }
-
-    // 2차 Firestore 쓰기 시도
-    AuthUtils.tryWriteWithLoginGuard(context, () async {
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance.collection('asks').add({
-        'productId': product.id,
-        'userId': user.uid,
-        'type': 'sell',
-        'price': product.highestBid,
-        'status': 'pending',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('판매 주문이 접수되었습니다.'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    });
   }
 }

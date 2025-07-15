@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/product_model.dart'; // Product 모델 import
+import '../models/product_model.dart';
 import '../widgets/price_history_chart.dart';
+import '../widgets/bid_dialog.dart';
+import '../utils/auth_utils.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  final String productId; // Product 객체 대신 productId를 받습니다.
+  final String productId;
 
   const ProductDetailScreen({super.key, required this.productId});
 
@@ -16,7 +17,6 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  // StreamBuilder를 사용하여 Firestore의 상품 데이터를 실시간으로 수신합니다.
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -26,17 +26,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         if (snapshot.hasError || !snapshot.hasData || snapshot.data?.data() == null) {
-          return const Scaffold(
-            body: Center(child: Text('상품 정보를 불러올 수 없습니다.')),
-          );
+          return const Scaffold(body: Center(child: Text('상품 정보를 불러올 수 없습니다.')));
         }
 
-        // Firestore 문서로부터 Product 객체를 생성합니다.
         final product = Product.fromFirestore(snapshot.data!);
 
         return Scaffold(
@@ -51,23 +46,31 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildProductHeader(product),
+                _ProductHeader(product: product),
                 const Divider(),
-                _buildPriceInfo(context, product),
+                _PriceInfo(product: product),
                 const Divider(),
-                _buildPriceChart(product),
-                // 여기에 추가 정보 섹션을 넣을 수 있습니다.
+                PriceHistoryChart(
+                  priceHistory: product.priceHistory,
+                  currentPrice: product.lastTradedPrice,
+                ),
+                // 추가 정보 섹션 등
               ],
             ),
           ),
-          bottomNavigationBar: _buildTradeButtons(context, product),
+          bottomNavigationBar: _TradeButtons(product: product),
         );
       },
     );
   }
+}
 
-  // 위젯 함수들은 이제 product를 인자로 받습니다.
-  Widget _buildProductHeader(Product product) {
+class _ProductHeader extends StatelessWidget {
+  final Product product;
+  const _ProductHeader({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -79,9 +82,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               height: 250,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) => Container(
-                  height: 250,
-                  color: Colors.grey[200],
-                  child: const Center(child: Icon(Icons.broken_image, size: 50))),
+                height: 250,
+                color: Colors.grey[200],
+                child: const Center(child: Icon(Icons.broken_image, size: 50)),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -92,8 +96,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     );
   }
+}
 
-  Widget _buildPriceInfo(BuildContext context, Product product) {
+class _PriceInfo extends StatelessWidget {
+  final Product product;
+  const _PriceInfo({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
     final formatter = NumberFormat('#,###');
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -109,15 +119,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     );
   }
+}
 
-  Widget _buildPriceChart(Product product) {
-    return PriceHistoryChart(
-      priceHistory: product.priceHistory,
-      currentPrice: product.lastTradedPrice, // 현재 최근 거래가 전달
-    );
-  }
+class _TradeButtons extends StatelessWidget {
+  final Product product;
+  const _TradeButtons({required this.product});
 
-  Widget _buildTradeButtons(BuildContext context, Product product) {
+  @override
+  Widget build(BuildContext context) {
     final formatter = NumberFormat('#,###');
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -125,22 +134,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         children: [
           Expanded(
             child: ElevatedButton(
-              onPressed: () => _showBidDialog(context, product: product, isBuy: false),
-              // [핵심 수정] 버튼 스타일을 적용합니다.
+              onPressed: () => _handleTrade(context, isBuy: false),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade600,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: const StadiumBorder(), // 양 끝이 완전히 둥근 모양
+                shape: const StadiumBorder(),
                 elevation: 0,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                      const Text('판매', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
-                  Text(
-                    '${formatter.format(product.highestBid)}원',
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  const Text('판매', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text('${formatter.format(product.highestBid)}원', style: const TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -148,21 +153,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: () => _showBidDialog(context, product: product, isBuy: true),
+              onPressed: () => _handleTrade(context, isBuy: true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade600,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: const StadiumBorder(), // 양 끝이 완전히 둥근 모양
+                shape: const StadiumBorder(),
                 elevation: 0,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text('구매', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
-                  Text(
-                    '${formatter.format(product.lowestAsk)}원',
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  Text('${formatter.format(product.lowestAsk)}원', style: const TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -171,55 +173,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     );
   }
-  // 구매/판매 입찰을 위한 다이얼로그 표시 함수
-  void _showBidDialog(BuildContext context, {required Product product, required bool isBuy}) {
-    final priceController = TextEditingController();
-    final title = isBuy ? '구매 입찰' : '판매 입찰';
-    final collectionName = isBuy ? 'bids' : 'asks';
 
+  void _handleTrade(BuildContext context, {required bool isBuy}) {
+    // 인증 체크: 익명/미로그인 시 로그인 창으로 이동
+    if (!AuthUtils.requireAuth(context)) return;
+
+    // 정규 로그인 상태일 때만 입찰 다이얼로그 표시
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: TextField(
-            controller: priceController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: '희망가 (원)'),
-          ),
-          actions: [
-            TextButton(child: const Text('취소'), onPressed: () => Navigator.of(context).pop()),
-            ElevatedButton(
-              child: const Text('입찰 등록'),
-              onPressed: () async {
-                final price = double.tryParse(priceController.text);
-                final user = FirebaseAuth.instance.currentUser;
-
-                if (user == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그인이 필요합니다.')));
-                  return;
-                }
-                if (price == null || price <= 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('유효한 가격을 입력해주세요.')));
-                  return;
-                }
-
-                // 클라이언트는 'asks' 또는 'bids' 컬렉션에 입찰 문서만 생성합니다.
-                await FirebaseFirestore.instance.collection(collectionName).add({
-                  'productId': product.id,
-                  'userId': user.uid,
-                  'price': price,
-                  'createdAt': FieldValue.serverTimestamp(),
-                  'status': 'active', // 입찰 상태
-                });
-
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('입찰이 등록되었습니다.')));
-              },
-            ),
-          ],
-        );
-      },
+      builder: (context) => BidDialog(product: product, isBuy: isBuy),
     );
   }
 }
