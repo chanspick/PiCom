@@ -1,25 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
-import 'app.dart';
+import 'widgets/auth_wrapper.dart';
+import 'screens/home_screen.dart';
+import 'screens/auth_screen.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+void main() async {
+WidgetsFlutterBinding.ensureInitialized();
 
-  // 앱 실행 시 자동으로 익명 로그인 시도
-  final auth = FirebaseAuth.instance;
-  if (auth.currentUser == null) {
-    try {
-      await auth.signInAnonymously();
-    } catch (e) {
-      // 익명 로그인 실패 시 에러 처리 (필요시 스낵바, 로깅 등 추가)
-      debugPrint('익명 로그인 실패: $e');
-    }
-  }
+// Firebase 초기화
+await Firebase.initializeApp(
+options: DefaultFirebaseOptions.currentPlatform,
+);
 
-  runApp(const MyApp());
+runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+const MyApp({Key? key}) : super(key: key);
+
+@override
+Widget build(BuildContext context) {
+return MaterialApp(
+title: 'KREAM',
+theme: ThemeData(
+primarySwatch: Colors.deepPurple,
+useMaterial3: true,
+),
+debugShowCheckedModeBanner: false,
+home: AuthWrapper(),
+routes: {
+'/home': (context) => const HomeScreen(),
+'/auth': (context) => const AuthScreen(),
+},
+);
+}
 }

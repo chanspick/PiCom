@@ -18,7 +18,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const HomeSearchBar(),
-        actions: const [HomeAppBarActions()],
+        actions: [HomeAppBarActions()],
       ),
       body: const _HomeContent(),
     );
@@ -32,6 +32,7 @@ class _HomeContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _BannerSection(),
           SizedBox(height: 24),
@@ -54,7 +55,10 @@ class _ProductListSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Just Dropped', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text(
+            'Just Dropped',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: FirebaseFirestore.instance
@@ -67,14 +71,18 @@ class _ProductListSection extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
-                return const Center(child: Text('데이터를 불러오는 중 오류가 발생했습니다.'));
+                return const Center(
+                  child: Text('데이터를 불러오는 중 오류가 발생했습니다.'),
+                );
               }
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                 return const Center(child: Text('상품이 없습니다.'));
               }
+
               final products = snapshot.data!.docs
                   .map((doc) => Product.fromFirestore(doc))
                   .toList();
+
               return ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -91,44 +99,87 @@ class _ProductListSection extends StatelessWidget {
   }
 }
 
+// 핵심: 완전히 수정된 ProductCard
 class _ProductCard extends StatelessWidget {
   final Product product;
   const _ProductCard({required this.product});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(8),
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            product.imageUrl,
-            width: 56,
-            height: 56,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+    return Container(
+      // 고정 높이로 모든 카드 크기 통일
+      height: 120,
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailScreen(productId: product.id),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 상품 이미지 (고정 크기)
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.grey,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      product.imageUrl,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // 상품 정보 (Expanded로 남은 공간 모두 차지)
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 상품명 (반드시 한 줄)
+                      SizedBox(
+                        height: 24, // 텍스트 높이 고정
+                        child: Text(
+                          product.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // 가격 (고정 높이)
+                      ProductPriceAndActions(product: product),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        title: Text(
-          product.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        // 구매/판매 버튼이 들어가는 subtitle 완전히 제거!
-        isThreeLine: false,
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetailScreen(productId: product.id),
-            ),
-          );
-        },
       ),
     );
   }
@@ -157,29 +208,41 @@ class _CircleMenuSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> items = [
+    final items = [
       {
         'icon': 'https://via.placeholder.com/80?text=Parts',
         'label': '부품 샵',
         'onTap': () => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const PartShopScreen()),
-        )
+        ),
       },
       {
         'icon': 'https://via.placeholder.com/80?text=Brands',
         'label': '브랜드관',
-        'onTap': () {/* TODO */}
+        'onTap': () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('브랜드관 준비 중입니다.')),
+          );
+        }
       },
       {
         'icon': 'https://via.placeholder.com/80?text=Express',
         'label': '빠른 배송',
-        'onTap': () {/* TODO */}
+        'onTap': () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('빠른 배송 서비스 준비 중입니다.')),
+          );
+        }
       },
       {
         'icon': 'https://via.placeholder.com/80?text=Popular',
         'label': '인기 상품',
-        'onTap': () {/* TODO */}
+        'onTap': () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('인기 상품 리스트 준비 중입니다.')),
+          );
+        }
       },
     ];
 
@@ -192,9 +255,9 @@ class _CircleMenuSection extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = items[index];
           return CircleCategory(
-            iconUrl: item['icon']!,
-            label: item['label']!,
-            onTap: item['onTap'] as VoidCallback,
+              iconUrl: item['icon']! as String,
+              label: item['label']! as String,
+              onTap: item['onTap'] as VoidCallback
           );
         },
       ),

@@ -1,204 +1,300 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+const AuthScreen({Key? key}) : super(key: key);
 
-  @override
-  State<AuthScreen> createState() => _AuthScreenState();
+@override
+State<AuthScreen> createState() => _AuthScreenState();
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
-  String? _error;
-  bool _isSignUpMode = false;
+final AuthService _authService = AuthService();
+bool _isLoading = false;
 
-  Future<void> _signInWithEmail() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+body: Container(
+decoration: const BoxDecoration(
+gradient: LinearGradient(
+begin: Alignment.topCenter,
+end: Alignment.bottomCenter,
+colors: [
+Color(0xFF42A5F5),
+Color(0xFF1976D2),
+],
+),
+),
+child: SafeArea(
+child: Center(
+child: SingleChildScrollView(
+padding: const EdgeInsets.all(24.0),
+child: Column(
+mainAxisAlignment: MainAxisAlignment.center,
+children: [
+// 로고 섹션
+_buildLogo(),
+const SizedBox(height: 48),
 
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+// 타이틀 섹션
+_buildTitle(),
+const SizedBox(height: 48),
 
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('로그인 성공!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _error = _getErrorMessage(e);
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+// 로그인 버튼들
+_buildLoginButtons(),
+const SizedBox(height: 24),
 
-  Future<void> _registerWithEmail() async {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _error = '비밀번호가 일치하지 않습니다.';
-      });
-      return;
-    }
+// 로딩 표시
+if (_isLoading) const CircularProgressIndicator(),
+],
+),
+),
+),
+),
+),
+);
+}
 
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+Widget _buildLogo() {
+return Container(
+width: 120,
+height: 120,
+decoration: BoxDecoration(
+color: Colors.white,
+borderRadius: BorderRadius.circular(60),
+boxShadow: [
+BoxShadow(
+color: Colors.black.withOpacity(0.1),
+blurRadius: 20,
+offset: const Offset(0, 10),
+),
+],
+),
+child: const Icon(
+Icons.shopping_bag_outlined,
+size: 60,
+color: Color(0xFF6C5CE7),
+),
+);
+}
 
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+Widget _buildTitle() {
+return Column(
+children: [
+const Text(
+'PiCom',
+style: TextStyle(
+fontSize: 32,
+fontWeight: FontWeight.bold,
+color: Colors.white,
+letterSpacing: 2,
+),
+),
+const SizedBox(height: 8),
+Text(
+'중고 PC 부품 및 완제품 거래 플랫폼',
+style: TextStyle(
+fontSize: 16,
+color: Colors.white.withOpacity(0.8),
+),
+),
+],
+);
+}
 
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('회원가입 성공!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _error = _getErrorMessage(e);
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+Widget _buildLoginButtons() {
+return Column(
+children: [
+// 구글 로그인 버튼
+_buildGoogleLoginButton(),
+const SizedBox(height: 16),
 
-  String _getErrorMessage(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'user-not-found':
-        return '등록되지 않은 이메일입니다.';
-      case 'wrong-password':
-        return '잘못된 비밀번호입니다.';
-      case 'email-already-in-use':
-        return '이미 사용 중인 이메일입니다.';
-      case 'weak-password':
-        return '비밀번호가 너무 약합니다.';
-      case 'invalid-email':
-        return '유효하지 않은 이메일 형식입니다.';
-      default:
-        return e.message ?? '알 수 없는 오류가 발생했습니다.';
-    }
-  }
+// 게스트 로그인 버튼
+_buildGuestLoginButton(),
+const SizedBox(height: 32),
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isSignUpMode ? '회원가입' : '로그인'),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.storefront,
-                size: 80,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(height: 32),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: '이메일',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: '비밀번호',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              if (_isSignUpMode) ...[
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _confirmPasswordController,
-                  decoration: const InputDecoration(
-                    labelText: '비밀번호 확인',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                ),
-              ],
-              const SizedBox(height: 24),
-              if (_error != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    border: Border.all(color: Colors.red),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              const SizedBox(height: 16),
-              if (_isLoading)
-                const CircularProgressIndicator()
-              else ...[
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _isSignUpMode ? _registerWithEmail : _signInWithEmail,
-                    child: Text(_isSignUpMode ? '회원가입' : '로그인'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isSignUpMode = !_isSignUpMode;
-                      _error = null;
-                    });
-                  },
-                  child: Text(_isSignUpMode ? '이미 계정이 있나요? 로그인' : '계정이 없나요? 회원가입'),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+// 또는 구분선
+_buildOrDivider(),
+const SizedBox(height: 16),
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
+// 게스트로 계속하기 설명
+_buildGuestExplanation(),
+],
+);
+}
+
+Widget _buildGoogleLoginButton() {
+return SizedBox(
+width: double.infinity,
+height: 56,
+child: ElevatedButton.icon(
+onPressed: _isLoading ? null : _handleGoogleLogin,
+style: ElevatedButton.styleFrom(
+backgroundColor: Colors.white,
+foregroundColor: Colors.black87,
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(28),
+),
+elevation: 0,
+),
+icon: Image.asset(
+'assets/images/google_logo.png',
+height: 24,
+width: 24,
+errorBuilder: (context, error, stackTrace) {
+return const Icon(Icons.login, size: 24);
+},
+),
+label: const Text(
+'Google 계정으로 로그인',
+style: TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.w500,
+),
+),
+),
+);
+}
+
+Widget _buildGuestLoginButton() {
+return SizedBox(
+width: double.infinity,
+height: 56,
+child: OutlinedButton.icon(
+onPressed: _isLoading ? null : _handleGuestLogin,
+style: OutlinedButton.styleFrom(
+side: const BorderSide(color: Colors.white, width: 2),
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(28),
+),
+),
+icon: const Icon(
+Icons.person_outline,
+color: Colors.white,
+size: 24,
+),
+label: const Text(
+'게스트로 둘러보기',
+style: TextStyle(
+fontSize: 16,
+fontWeight: FontWeight.w500,
+color: Colors.white,
+),
+),
+),
+);
+}
+
+Widget _buildOrDivider() {
+return Row(
+children: [
+Expanded(
+child: Divider(
+color: Colors.white.withOpacity(0.5),
+thickness: 1,
+),
+),
+Padding(
+padding: const EdgeInsets.symmetric(horizontal: 16),
+child: Text(
+'또는',
+style: TextStyle(
+color: Colors.white.withOpacity(0.8),
+fontSize: 14,
+),
+),
+),
+Expanded(
+child: Divider(
+color: Colors.white.withOpacity(0.5),
+thickness: 1,
+),
+),
+],
+);
+}
+
+Widget _buildGuestExplanation() {
+return Container(
+padding: const EdgeInsets.all(16),
+decoration: BoxDecoration(
+color: Colors.white.withOpacity(0.1),
+borderRadius: BorderRadius.circular(12),
+),
+child: Row(
+children: [
+Icon(
+Icons.info_outline,
+color: Colors.white.withOpacity(0.8),
+size: 20,
+),
+const SizedBox(width: 8),
+Expanded(
+child: Text(
+'게스트로 로그인하면 둘러보기만 가능합니다.\n거래하려면 Google 계정으로 로그인해주세요.',
+style: TextStyle(
+color: Colors.white.withOpacity(0.8),
+fontSize: 12,
+),
+),
+),
+],
+),
+);
+}
+
+Future<void> _handleGoogleLogin() async {
+setState(() => _isLoading = true);
+
+try {
+final user = await _authService.signInWithGoogle();
+if (user != null) {
+if (mounted) {
+Navigator.of(context).pushReplacementNamed('/home');
+}
+} else {
+_showError('Google 로그인에 실패했습니다.');
+}
+} catch (e) {
+_showError('Google 로그인 중 오류가 발생했습니다: $e');
+} finally {
+if (mounted) {
+setState(() => _isLoading = false);
+}
+}
+}
+
+Future<void> _handleGuestLogin() async {
+setState(() => _isLoading = true);
+
+try {
+final user = await _authService.signInAnonymously();
+if (user != null) {
+if (mounted) {
+Navigator.of(context).pushReplacementNamed('/home');
+}
+} else {
+_showError('게스트 로그인에 실패했습니다.');
+}
+} catch (e) {
+_showError('게스트 로그인 중 오류가 발생했습니다: $e');
+} finally {
+if (mounted) {
+setState(() => _isLoading = false);
+}
+}
+}
+
+void _showError(String message) {
+if (mounted) {
+ScaffoldMessenger.of(context).showSnackBar(
+SnackBar(
+content: Text(message),
+backgroundColor: Colors.red,
+),
+);
+}
+}
 }
