@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'google_auth_service.dart';
-import 'firestore_service.dart';
+import '../services/google_auth_service.dart';
+import '../services/firestore_service.dart';
 import '../screens/auth_screen.dart';
 
 class AuthService {

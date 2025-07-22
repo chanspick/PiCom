@@ -36,7 +36,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(product.brand),
+            title: Text(
+              product.brand,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             actions: [
               IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
               IconButton(icon: const Icon(Icons.share), onPressed: () {}),
@@ -89,9 +93,21 @@ class _ProductHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text(product.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          // 상품명 한 줄 제한
+          Text(
+            product.name,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 4),
-          Text(product.modelCode, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          // 모델코드 한 줄 제한
+          Text(
+            product.modelCode,
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -109,11 +125,21 @@ class _PriceInfo extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
-          const Text('최근 거래가', style: TextStyle(fontSize: 16)),
+          const Text(
+            '최근 거래가',
+            style: TextStyle(fontSize: 16),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const Spacer(),
-          Text(
-            '${formatter.format(product.lastTradedPrice)}원',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Flexible(
+            child: Text(
+              '${formatter.format(product.lastTradedPrice)}원',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+            ),
           ),
         ],
       ),
@@ -128,44 +154,88 @@ class _TradeButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat('#,###');
-    return Padding(
+    return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Row(
         children: [
           Expanded(
-            child: ElevatedButton(
-              onPressed: () => _handleTrade(context, isBuy: false),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade600,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: const StadiumBorder(),
-                elevation: 0,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('판매', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
-                  Text('${formatter.format(product.highestBid)}원', style: const TextStyle(color: Colors.white)),
-                ],
+            child: Container(
+              height: 60, // 버튼 높이 고정
+              child: ElevatedButton(
+                onPressed: () => _handleTrade(context, isBuy: false),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade600,
+                  shape: const StadiumBorder(),
+                  elevation: 0,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      '판매',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Flexible(
+                      child: Text(
+                        '${formatter.format(product.highestBid)}원',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: ElevatedButton(
-              onPressed: () => _handleTrade(context, isBuy: true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade600,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: const StadiumBorder(),
-                elevation: 0,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('구매', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
-                  Text('${formatter.format(product.lowestAsk)}원', style: const TextStyle(color: Colors.white)),
-                ],
+            child: Container(
+              height: 60, // 버튼 높이 고정
+              child: ElevatedButton(
+                onPressed: () => _handleTrade(context, isBuy: true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade600,
+                  shape: const StadiumBorder(),
+                  elevation: 0,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      '구매',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Flexible(
+                      child: Text(
+                        '${formatter.format(product.lowestAsk)}원',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
