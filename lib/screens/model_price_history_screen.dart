@@ -1,7 +1,38 @@
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/product_model.dart'; // PricePoint 모델을 사용하기 위해 import
+import '../models/product_model.dart';
+
+// 이 파일은 사용자의 요청에 따라 기존의 가격 변동 그래프 코드를 보관하기 위해 생성되었습니다.
+// 현재 앱 내에서 직접적으로 사용되지 않으며, 향후 '모델별' 가격 추이 분석 화면을 만들 때 재사용될 수 있습니다.
+
+class ModelPriceHistoryScreen extends StatelessWidget {
+  final List<PricePoint> priceHistory;
+  final double currentPrice;
+
+  const ModelPriceHistoryScreen({
+    super.key,
+    required this.priceHistory,
+    required this.currentPrice,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('모델 가격 내역'),
+      ),
+      body: Center(
+        child: PriceHistoryChart(
+          priceHistory: priceHistory,
+          currentPrice: currentPrice,
+        ),
+      ),
+    );
+  }
+}
+
 
 /// 전문적인 가격 변동 차트 위젯.
 /// 스플라인 보간법, 현재가 반영, 데이터 정렬 등 고급 시각화 기법을 적용합니다.

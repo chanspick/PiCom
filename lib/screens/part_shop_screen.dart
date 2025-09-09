@@ -27,10 +27,10 @@ class _PartShopScreenState extends State<PartShopScreen> {
         query = query.orderBy('createdAt', descending: true);
         break;
       case '낮은 가격순':
-        query = query.orderBy('lowestAsk', descending: false);
+        query = query.orderBy('lastTradedPrice', descending: false);
         break;
       case '높은 가격순':
-        query = query.orderBy('lowestAsk', descending: true);
+        query = query.orderBy('lastTradedPrice', descending: true);
         break;
       case '인기순':
       default:
@@ -187,7 +187,9 @@ class _PartShopScreenState extends State<PartShopScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${formatter.format(product.lowestAsk)} 원~',
+                      product.lastTradedPrice > 0 
+                          ? '${formatter.format(product.lastTradedPrice)} 원'
+                          : '거래 내역 없음',
                       style: TextStyle(
                         fontSize: 16,
                         color: Theme.of(context).primaryColor,

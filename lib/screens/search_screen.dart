@@ -20,7 +20,13 @@ class _SearchScreenState extends State<SearchScreen> {
   // 임시 검색 결과 (실제론 API 연동)
   List<String> get _results {
     if (_keyword.isEmpty) return [];
-    return List.generate(5, (i) => '$_keyword 결과 ${i + 1}');
+    // 예시 데이터
+    final allParts = [
+      'Intel Core i9-13900K', 'Intel Core i7-13700K', 'AMD Ryzen 9 7950X', 'AMD Ryzen 7 7800X3D',
+      'NVIDIA GeForce RTX 4090', 'NVIDIA GeForce RTX 4080', 'AMD Radeon RX 7900 XTX', 'AMD Radeon RX 7800 XT',
+      'Samsung 980 Pro 2TB', 'SK Hynix Platinum P41 2TB',
+    ];
+    return allParts.where((part) => part.toLowerCase().contains(_keyword.toLowerCase())).toList();
   }
 
   void _clearSearch() {
@@ -34,7 +40,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('검색'),
+        title: const Text('부품 검색'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -42,8 +48,9 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             TextField(
               controller: _controller,
+              autofocus: true,
               decoration: InputDecoration(
-                hintText: '검색어를 입력하세요',
+                hintText: '제품 모델명 검색',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _keyword.isNotEmpty
                     ? IconButton(
@@ -58,28 +65,25 @@ class _SearchScreenState extends State<SearchScreen> {
               textInputAction: TextInputAction.search,
               onChanged: (val) {
                 setState(() => _keyword = val);
-                // 실제 API 연동 시 debounce 처리 권장
-              },
-              onSubmitted: (val) {
-                setState(() => _keyword = val);
-                // TODO: 실제 API 호출 로직
               },
             ),
             const SizedBox(height: 16),
             Expanded(
               child: _results.isEmpty
-                  ? const Center(child: Text('검색어를 입력해 주세요'))
+                  ? Center(child: Text(_keyword.isEmpty ? '검색어를 입력해 주세요' : '검색 결과가 없습니다'))
                   : ListView.builder(
                 itemCount: _results.length,
-                itemBuilder: (ctx, i) => ListTile(
-                  leading: const Icon(Icons.history),
-                  title: Text(_results[i]),
-                  onTap: () {
-                    // 키보드 내리기
-                    FocusScope.of(context).unfocus();
-                    // TODO: 결과 선택 시 원하는 동작
-                  },
-                ),
+                itemBuilder: (ctx, i) {
+                  final result = _results[i];
+                  return ListTile(
+                    leading: const Icon(Icons.memory),
+                    title: Text(result),
+                    onTap: () {
+                      // 현재 화면을 닫고 결과값을 반환
+                      Navigator.pop(context, result);
+                    },
+                  );
+                },
               ),
             ),
           ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../screens/auth_screen.dart';
+import '../screens/sell_request_screen.dart'; // 추가
 import '../services/auth_service.dart';
 import '../utils/auth_utils.dart';
 
@@ -21,11 +22,11 @@ class HomeAppBarActions extends StatelessWidget {
           icon: const Icon(Icons.notifications_none),
           onPressed: () => _handleNotificationPress(context),
         ),
-        // 장바구니 버튼
+        // 장바구니 버튼 (판매 요청 페이지로 변경)
         IconButton(
-          tooltip: '장바구니',
-          icon: const Icon(Icons.shopping_cart_outlined),
-          onPressed: () => _handleCartPress(context),
+          tooltip: '판매 요청', // 툴팁 변경
+          icon: const Icon(Icons.add_shopping_cart), // 아이콘 변경
+          onPressed: () => _handleSellRequestPress(context), // 함수 변경
         ),
         // 인증 상태 모니터
         StreamBuilder<User?>(
@@ -64,16 +65,14 @@ class HomeAppBarActions extends StatelessWidget {
     });
   }
 
-  void _handleCartPress(BuildContext context) {
-    if (!AuthUtils.requireAuth(context)) return;
-    AuthUtils.tryWriteWithLoginGuard(context, () async {
-      final user = FirebaseAuth.instance.currentUser!;
-      await FirebaseFirestore.instance
-          .collection('cart')
-          .where('userId', isEqualTo: user.uid)
-          .get();
-      // TODO: 장바구니 화면 이동
-    });
+  // 판매 요청 버튼 핸들러 (기존 _handleCartPress 수정)
+  void _handleSellRequestPress(BuildContext context) {
+    if (_authService.requireAuth(context)) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const SellRequestScreen()),
+      );
+    }
   }
 
   Widget _buildUserMenu(BuildContext context, User user, bool isAnon) {
