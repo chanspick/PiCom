@@ -58,39 +58,7 @@ throw e;
 }
 }
 
-// 상품 생성 (기존 로직 유지)
-Future<void> createProduct({
-required String productId,
-required Map<String, dynamic> productData,
-required String userId,
-}) async {
-try {
-final batch = _firestore.batch();
 
-// 상품 기본 정보 (userId 추가)
-productData['userId'] = userId;
-productData['createdAt'] = FieldValue.serverTimestamp();
-
-batch.set(
-_firestore.collection('products').doc(productId),
-productData,
-);
-
-// 초기 가격 정보
-batch.set(
-_firestore.collection('products').doc(productId).collection('currentPrice').doc('price'),
-{
-'price': productData['price'],
-'timestamp': FieldValue.serverTimestamp(),
-},
-);
-
-await batch.commit();
-} catch (e) {
-print('상품 생성 실패: $e');
-throw e;
-}
-}
 
 // 상품 목록 조회 (실시간 스트림)
 Stream<QuerySnapshot> getProductsStream() {
@@ -115,40 +83,5 @@ throw e;
 }
 }
 
-// 주문 생성 (스탁마켓 특화)
-Future<void> createOrder({
-required String orderId,
-required String productId,
-required String buyerId,
-required String sellerId,
-required double price,
-required int quantity,
-required String type, // 'buy' or 'sell'
-}) async {
-try {
-await _firestore.collection('orders').doc(orderId).set({
-'orderId': orderId,
-'productId': productId,
-'buyerId': buyerId,
-'sellerId': sellerId,
-'price': price,
-'quantity': quantity,
-'type': type,
-'status': 'pending',
-'createdAt': FieldValue.serverTimestamp(),
-});
-} catch (e) {
-print('주문 생성 실패: $e');
-throw e;
-}
-}
 
-// 거래 내역 조회
-Stream<QuerySnapshot> getUserOrdersStream(String userId) {
-return _firestore
-    .collection('orders')
-    .where('buyerId', isEqualTo: userId)
-    .orderBy('createdAt', descending: true)
-    .snapshots();
-}
 }

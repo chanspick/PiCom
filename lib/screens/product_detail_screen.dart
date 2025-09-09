@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product_model.dart';
-import '../widgets/price_history_chart.dart';
-import '../widgets/bid_dialog.dart';
 import '../utils/auth_utils.dart';
+import './model_price_history_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final String productId;
@@ -19,6 +17,8 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
+    final formatter = NumberFormat('#,###');
+
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection('products')
@@ -26,232 +26,194 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
         }
         if (snapshot.hasError || !snapshot.hasData || snapshot.data?.data() == null) {
-          return const Scaffold(body: Center(child: Text('상품 정보를 불러올 수 없습니다.')));
+          return const Scaffold(
+              body: Center(child: Text('상품 정보를 불러올 수 없습니다.')));
         }
 
         final product = Product.fromFirestore(snapshot.data!);
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(
-              product.brand,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: const BackButton(color: Colors.black),
             actions: [
-              IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.share), onPressed: () {}),
+              IconButton(
+                  icon: const Icon(Icons.share_outlined, color: Colors.black),
+                  onPressed: () {}),
+              IconButton(
+                  icon: const Icon(Icons.favorite_border, color: Colors.black),
+                  onPressed: () {}),
             ],
           ),
           body: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _ProductHeader(product: product),
-                const Divider(),
-                _PriceInfo(product: product),
-                const Divider(),
-                PriceHistoryChart(
-                  priceHistory: product.priceHistory,
-                  currentPrice: product.lastTradedPrice,
+                Image.network(
+                  product.imageUrl,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: MediaQuery.of(context).size.width,
+                    color: Colors.grey[200],
+                    child: const Center(
+                        child: Icon(Icons.broken_image,
+                            size: 50, color: Colors.grey)),
+                  ),
                 ),
-                // 추가 정보 섹션 등
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.brand,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        product.name,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        product.modelCode,
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(thickness: 1, height: 1),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        '최근 거래가',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        product.lastTradedPrice > 0
+                            ? '${formatter.format(product.lastTradedPrice)}원'
+                            : '거래 내역 없음',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(thickness: 8, color: Colors.grey[100]),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('시세', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          TextButton(
+                            onPressed: () {
+                              if (product.priceHistory.isNotEmpty) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ModelPriceHistoryScreen(
+                                      priceHistory: product.priceHistory,
+                                      currentPrice: product.lastTradedPrice,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('거래 내역이 없어 시세 정보를 볼 수 없습니다.')),
+                                );
+                              }
+                            },
+                            child: const Text('전체 보기 >'),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 150,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          product.priceHistory.isNotEmpty
+                              ? '최근 거래 내역을 보려면 전체보기를 클릭하세요.'
+                              : '거래 내역이 없습니다.',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          bottomNavigationBar: _TradeButtons(product: product),
+          bottomNavigationBar: _buildBottomPurchaseBar(context, product),
         );
       },
     );
   }
-}
 
-class _ProductHeader extends StatelessWidget {
-  final Product product;
-  const _ProductHeader({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Image.network(
-              product.imageUrl,
-              height: 250,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => Container(
-                height: 250,
-                color: Colors.grey[200],
-                child: const Center(child: Icon(Icons.broken_image, size: 50)),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // 상품명 한 줄 제한
-          Text(
-            product.name,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          // 모델코드 한 줄 제한
-          Text(
-            product.modelCode,
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PriceInfo extends StatelessWidget {
-  final Product product;
-  const _PriceInfo({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    final formatter = NumberFormat('#,###');
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          const Text(
-            '최근 거래가',
-            style: TextStyle(fontSize: 16),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Spacer(),
-          Flexible(
-            child: Text(
-              '${formatter.format(product.lastTradedPrice)}원',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.end,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TradeButtons extends StatelessWidget {
-  final Product product;
-  const _TradeButtons({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    final formatter = NumberFormat('#,###');
+  Widget _buildBottomPurchaseBar(BuildContext context, Product product) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           Expanded(
-            child: Container(
-              height: 60, // 버튼 높이 고정
-              child: ElevatedButton(
-                onPressed: () => _handleTrade(context, isBuy: false),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  shape: const StadiumBorder(),
-                  elevation: 0,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      '판매',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Flexible(
-                      child: Text(
-                        '${formatter.format(product.highestBid)}원',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Container(
-              height: 60, // 버튼 높이 고정
-              child: ElevatedButton(
-                onPressed: () => _handleTrade(context, isBuy: true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  shape: const StadiumBorder(),
-                  elevation: 0,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      '구매',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Flexible(
-                      child: Text(
-                        '${formatter.format(product.lowestAsk)}원',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
+              onPressed: () {
+                if (!AuthUtils.requireAuth(context)) return;
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('구매 기능 준비 중입니다.')),
+                );
+              },
+              child: const Text(
+                '구매하기',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  void _handleTrade(BuildContext context, {required bool isBuy}) {
-    // 인증 체크: 익명/미로그인 시 로그인 창으로 이동
-    if (!AuthUtils.requireAuth(context)) return;
-
-    // 정규 로그인 상태일 때만 입찰 다이얼로그 표시
-    showDialog(
-      context: context,
-      builder: (context) => BidDialog(product: product, isBuy: isBuy),
     );
   }
 }

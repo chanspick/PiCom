@@ -16,8 +16,6 @@ class Product {
   final String modelCode;
   final String imageUrl;
   final double lastTradedPrice;
-  final double lowestAsk;
-  final double highestBid;
   final List<PricePoint> priceHistory;
 
   Product({
@@ -27,8 +25,6 @@ class Product {
     required this.modelCode,
     required this.imageUrl,
     required this.lastTradedPrice,
-    required this.lowestAsk,
-    required this.highestBid,
     required this.priceHistory,
   });
 
@@ -53,8 +49,6 @@ class Product {
       modelCode: data['modelCode'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       lastTradedPrice: (data['lastTradedPrice'] as num?)?.toDouble() ?? 0.0,
-      lowestAsk: (data['lowestAsk'] as num?)?.toDouble() ?? 0.0,
-      highestBid: (data['highestBid'] as num?)?.toDouble() ?? 0.0,
       priceHistory: priceHistory,
     );
   }
