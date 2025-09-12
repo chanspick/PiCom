@@ -149,7 +149,7 @@ class _PartShopScreenState extends State<PartShopScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withAlpha(25),
               spreadRadius: 2,
               blurRadius: 6,
             ),

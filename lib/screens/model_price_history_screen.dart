@@ -134,8 +134,8 @@ class PriceHistoryChart extends StatelessWidget {
   Widget _buildChart(BuildContext context, List<FlSpot> spots, ChartBounds bounds) {
     final chartColor = Colors.deepPurple;
     final gradientColors = [
-      chartColor.withOpacity(0.4),
-      chartColor.withOpacity(0.0),
+      chartColor.withAlpha(102),
+      chartColor.withAlpha(0),
     ];
 
     return Container(
@@ -191,9 +191,8 @@ class PriceHistoryChart extends StatelessWidget {
                 reservedSize: 60,
                 getTitlesWidget: (value, meta) {
                   if (value == meta.max || value == meta.min) return const SizedBox();
-                  return SideTitleWidget(
-                    axisSide: meta.axisSide,
-                    space: 8,
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 8),
                     child: Text(
                       NumberFormat.compact().format(value),
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
