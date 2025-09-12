@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class CircleCategory extends StatelessWidget {
-  final String iconUrl;
+  final IconData iconData;
   final String label;
   final VoidCallback onTap;
 
   const CircleCategory({
-    required this.iconUrl,
+    required this.iconData,
     required this.label,
     required this.onTap,
     super.key,
@@ -25,8 +25,8 @@ class CircleCategory extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: NetworkImage(iconUrl),
               backgroundColor: Colors.grey[200],
+              child: Icon(iconData, size: 30, color: Colors.black87),
             ),
             const SizedBox(height: 8),
             Text(

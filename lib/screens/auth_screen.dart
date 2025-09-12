@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import '../services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
-const AuthScreen({Key? key}) : super(key: key);
+const AuthScreen({super.key});
 
 @override
 State<AuthScreen> createState() => _AuthScreenState();
@@ -66,7 +66,7 @@ color: Colors.white,
 borderRadius: BorderRadius.circular(60),
 boxShadow: [
 BoxShadow(
-color: Colors.black.withOpacity(0.1),
+color: Colors.black.withAlpha(25),
 blurRadius: 20,
 offset: const Offset(0, 10),
 ),
@@ -97,7 +97,7 @@ Text(
 '중고 PC 부품 및 완제품 거래 플랫폼',
 style: TextStyle(
 fontSize: 16,
-color: Colors.white.withOpacity(0.8),
+color: Colors.white.withAlpha(204),
 ),
 ),
 ],
@@ -192,7 +192,7 @@ return Row(
 children: [
 Expanded(
 child: Divider(
-color: Colors.white.withOpacity(0.5),
+color: Colors.white.withAlpha(127),
 thickness: 1,
 ),
 ),
@@ -201,14 +201,14 @@ padding: const EdgeInsets.symmetric(horizontal: 16),
 child: Text(
 '또는',
 style: TextStyle(
-color: Colors.white.withOpacity(0.8),
+color: Colors.white.withAlpha(204),
 fontSize: 14,
 ),
 ),
 ),
 Expanded(
 child: Divider(
-color: Colors.white.withOpacity(0.5),
+color: Colors.white.withAlpha(127),
 thickness: 1,
 ),
 ),
@@ -220,14 +220,14 @@ Widget _buildGuestExplanation() {
 return Container(
 padding: const EdgeInsets.all(16),
 decoration: BoxDecoration(
-color: Colors.white.withOpacity(0.1),
+color: Colors.white.withAlpha(25),
 borderRadius: BorderRadius.circular(12),
 ),
 child: Row(
 children: [
 Icon(
 Icons.info_outline,
-color: Colors.white.withOpacity(0.8),
+color: Colors.white.withAlpha(204),
 size: 20,
 ),
 const SizedBox(width: 8),
@@ -235,7 +235,7 @@ Expanded(
 child: Text(
 '게스트로 로그인하면 둘러보기만 가능합니다.\n거래하려면 Google 계정으로 로그인해주세요.',
 style: TextStyle(
-color: Colors.white.withOpacity(0.8),
+color: Colors.white.withAlpha(204),
 fontSize: 12,
 ),
 ),

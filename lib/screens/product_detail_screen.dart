@@ -181,7 +181,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),

@@ -77,7 +77,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
           children: [
             // 1. 부품 분류
             DropdownButtonFormField<String>(
-              value: _selectedCategory,
+              initialValue: _selectedCategory,
               decoration: const InputDecoration(
                 labelText: '부품 종류',
                 border: OutlineInputBorder(),

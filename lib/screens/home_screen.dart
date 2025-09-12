@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'search_screen.dart';
+
 import 'part_shop_screen.dart';
 import 'product_detail_screen.dart';
 import '../models/product_model.dart';
@@ -210,7 +210,7 @@ class _CircleMenuSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       {
-        'icon': 'https://via.placeholder.com/80?text=Parts',
+        'icon': Icons.settings,
         'label': '부품 샵',
         'onTap': () => Navigator.push(
           context,
@@ -218,7 +218,7 @@ class _CircleMenuSection extends StatelessWidget {
         ),
       },
       {
-        'icon': 'https://via.placeholder.com/80?text=Brands',
+        'icon': Icons.store,
         'label': '브랜드관',
         'onTap': () {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -227,7 +227,7 @@ class _CircleMenuSection extends StatelessWidget {
         }
       },
       {
-        'icon': 'https://via.placeholder.com/80?text=Express',
+        'icon': Icons.local_shipping,
         'label': '빠른 배송',
         'onTap': () {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -236,7 +236,7 @@ class _CircleMenuSection extends StatelessWidget {
         }
       },
       {
-        'icon': 'https://via.placeholder.com/80?text=Popular',
+        'icon': Icons.trending_up,
         'label': '인기 상품',
         'onTap': () {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -255,7 +255,7 @@ class _CircleMenuSection extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = items[index];
           return CircleCategory(
-              iconUrl: item['icon']! as String,
+              iconData: item['icon']! as IconData,
               label: item['label']! as String,
               onTap: item['onTap'] as VoidCallback
           );

@@ -7,7 +7,7 @@ import '../services/auth_service.dart';
 import '../utils/auth_utils.dart';
 
 class HomeAppBarActions extends StatelessWidget {
-  HomeAppBarActions({Key? key}) : super(key: key);
+  HomeAppBarActions({super.key});
 
   final AuthService _authService = AuthService();
 
@@ -120,10 +120,10 @@ class HomeAppBarActions extends StatelessWidget {
           PopupMenuItem<String>(
             value: 'orders',
             child: Row(
-              children: [
-                const Icon(Icons.shopping_bag_outlined, size: 20),
-                const SizedBox(width: 8),
-                const Text('주문 내역'),
+              children: const [
+                Icon(Icons.shopping_bag_outlined, size: 20),
+                SizedBox(width: 8),
+                Text('주문 내역'),
               ],
             ),
           ),
@@ -131,10 +131,10 @@ class HomeAppBarActions extends StatelessWidget {
           PopupMenuItem<String>(
             value: 'settings',
             child: Row(
-              children: [
-                const Icon(Icons.settings_outlined, size: 20),
-                const SizedBox(width: 8),
-                const Text('설정'),
+              children: const [
+                Icon(Icons.settings_outlined, size: 20),
+                SizedBox(width: 8),
+                Text('설정'),
               ],
             ),
           ),
