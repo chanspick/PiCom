@@ -289,12 +289,12 @@ class _CircleMenuSection extends StatelessWidget {
         ),
       },
       {
-        'icon': Icons.trending_up,
-        'label': '인기 상품',
+        'icon': Icons.desktop_windows,
+        'label': 'PC완제품',
         'onTap': () {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('인기 상품 리스트 준비 중입니다.')));
+          ).showSnackBar(const SnackBar(content: Text('PC완제품 페이지 준비 중입니다.')));
         },
       },
     ];
