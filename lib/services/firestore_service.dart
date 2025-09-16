@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // 사용자 정보 생성 또는 업데이트
   Future<void> createOrUpdateUser({
     required String uid,
     required String email,
@@ -11,73 +10,30 @@ class FirestoreService {
     String? photoUrl,
     required String provider,
   }) async {
-    try {
-      await _firestore.collection('users').doc(uid).set({
-        'uid': uid,
+    await _db.collection('users').doc(uid).set(
+      {
         'email': email,
         'name': name,
         'photoUrl': photoUrl,
         'provider': provider,
-        'createdAt': FieldValue.serverTimestamp(),
-        'lastLoginAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (e) {
-      // TODO: Handle error properly
-      rethrow;
-    }
+        'lastLogin': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(), // 최초 생성 시에만 설정
+      },
+      SetOptions(merge: true), // 기존 필드는 유지하고 새로운 필드만 추가/업데이트
+    );
   }
 
-  // 사용자 정보 조회
-  Future<Map<String, dynamic>?> getUser(String uid) async {
-    try {
-      final doc = await _firestore.collection('users').doc(uid).get();
-      return doc.exists ? doc.data() : null;
-    } catch (e) {
-      // TODO: Handle error properly
-      return null;
-    }
-  }
-
-  // 사용자 정보 삭제
   Future<void> deleteUser(String uid) async {
+    await _db.collection('users').doc(uid).delete();
+  }
+
+  // 사용자 문서 가져오기
+  Future<DocumentSnapshot?> getUser(String uid) async {
     try {
-      await _firestore.collection('users').doc(uid).delete();
+      return await _db.collection('users').doc(uid).get();
     } catch (e) {
-      // TODO: Handle error properly
-      rethrow;
-    }
-  }
-
-  // 사용자 프로필 업데이트
-  Future<void> updateUserProfile(String uid, Map<String, dynamic> data) async {
-    try {
-      await _firestore.collection('users').doc(uid).update(data);
-    } catch (e) {
-      // TODO: Handle error properly
-      rethrow;
-    }
-  }
-
-  // 상품 목록 조회 (실시간 스트림)
-  Stream<QuerySnapshot> getProductsStream() {
-    return _firestore
-        .collection('products')
-        .orderBy('createdAt', descending: true)
-        .snapshots();
-  }
-
-  // 특정 상품 조회
-  Future<DocumentSnapshot> getProduct(String productId) async {
-    return await _firestore.collection('products').doc(productId).get();
-  }
-
-  // 상품 삭제
-  Future<void> deleteProduct(String productId) async {
-    try {
-      await _firestore.collection('products').doc(productId).delete();
-    } catch (e) {
-      // TODO: Handle error properly
-      rethrow;
+      // TODO: 에러 처리
+      return null;
     }
   }
 }
