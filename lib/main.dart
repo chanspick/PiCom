@@ -1,22 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'firebase_options.dart'; // FlutterFire CLI가 생성한 설정
-import 'app.dart';
+import 'firebase_options.dart';
+import 'widgets/auth_wrapper.dart';
+import 'screens/home_screen.dart';
+import 'screens/auth_screen.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+void main() async {
+WidgetsFlutterBinding.ensureInitialized();
 
-  // 익명으로 로그인 (한 번만 실행하면, 앱이 살아있는 동안 session 유지됨)
-  try {
-    await FirebaseAuth.instance.signInAnonymously();
-    debugPrint('✅ 익명 로그인 성공');
-  } on FirebaseAuthException catch (e) {
-    debugPrint('❌ 익명 로그인 실패: ${e.code} ${e.message}');
-  }
+// Firebase 초기화
+await Firebase.initializeApp(
+options: DefaultFirebaseOptions.currentPlatform,
+);
 
-  runApp(const MyApp());
+runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+const MyApp({Key? key}) : super(key: key);
+
+@override
+Widget build(BuildContext context) {
+return MaterialApp(
+title: 'KREAM',
+theme: ThemeData(
+primarySwatch: Colors.deepPurple,
+useMaterial3: true,
+),
+debugShowCheckedModeBanner: false,
+home: AuthWrapper(),
+routes: {
+'/home': (context) => const HomeScreen(),
+'/auth': (context) => const AuthScreen(),
+},
+);
+}
 }
