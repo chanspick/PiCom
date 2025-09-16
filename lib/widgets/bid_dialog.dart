@@ -36,7 +36,10 @@ class _BidDialogState extends State<BidDialog> {
         decoration: const InputDecoration(labelText: '희망가 (원)'),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('취소')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('취소'),
+        ),
         ElevatedButton(
           onPressed: _loading
               ? null
@@ -49,7 +52,8 @@ class _BidDialogState extends State<BidDialog> {
                   if (price == null || price <= 0) {
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('유효한 가격을 입력해주세요.')));
+                      const SnackBar(content: Text('유효한 가격을 입력해주세요.')),
+                    );
                     return;
                   }
 
@@ -58,25 +62,29 @@ class _BidDialogState extends State<BidDialog> {
                   final messenger = ScaffoldMessenger.of(context);
                   final navigator = Navigator.of(context);
 
-                  await FirebaseFirestore.instance.collection(collectionName).add({
-                    'productId': widget.product.id,
-                    'userId': user.uid,
-                    'price': price,
-                    'createdAt': FieldValue.serverTimestamp(),
-                    'status': 'active',
-                  });
+                  await FirebaseFirestore.instance
+                      .collection(collectionName)
+                      .add({
+                        'productId': widget.product.id,
+                        'userId': user.uid,
+                        'price': price,
+                        'createdAt': FieldValue.serverTimestamp(),
+                        'status': 'active',
+                      });
 
                   if (!mounted) return;
                   setState(() => _loading = false);
                   navigator.pop();
                   messenger.showSnackBar(
-                      const SnackBar(content: Text('입찰이 등록되었습니다.')));
+                    const SnackBar(content: Text('입찰이 등록되었습니다.')),
+                  );
                 },
           child: _loading
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2))
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
               : const Text('입찰 등록'),
         ),
       ],

@@ -1,4 +1,3 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -20,9 +19,7 @@ class ModelPriceHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('모델 가격 내역'),
-      ),
+      appBar: AppBar(title: const Text('모델 가격 내역')),
       body: Center(
         child: PriceHistoryChart(
           priceHistory: priceHistory,
@@ -32,7 +29,6 @@ class ModelPriceHistoryScreen extends StatelessWidget {
     );
   }
 }
-
 
 /// 전문적인 가격 변동 차트 위젯.
 /// 스플라인 보간법, 현재가 반영, 데이터 정렬 등 고급 시각화 기법을 적용합니다.
@@ -100,10 +96,7 @@ class PriceHistoryChart extends StatelessWidget {
   /// PricePoint 리스트를 FlSpot 리스트로 변환합니다.
   List<FlSpot> _convertToFlSpots(List<PricePoint> data) {
     return data.map((point) {
-      return FlSpot(
-        point.date.millisecondsSinceEpoch.toDouble(),
-        point.price,
-      );
+      return FlSpot(point.date.millisecondsSinceEpoch.toDouble(), point.price);
     }).toList();
   }
 
@@ -131,12 +124,13 @@ class PriceHistoryChart extends StatelessWidget {
   }
 
   /// 메인 차트 위젯을 구성합니다.
-  Widget _buildChart(BuildContext context, List<FlSpot> spots, ChartBounds bounds) {
+  Widget _buildChart(
+    BuildContext context,
+    List<FlSpot> spots,
+    ChartBounds bounds,
+  ) {
     final chartColor = Colors.deepPurple;
-    final gradientColors = [
-      chartColor.withAlpha(102),
-      chartColor.withAlpha(0),
-    ];
+    final gradientColors = [chartColor.withAlpha(102), chartColor.withAlpha(0)];
 
     return Container(
       height: 280,
@@ -182,15 +176,23 @@ class PriceHistoryChart extends StatelessWidget {
           ],
 
           titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             rightTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 60,
                 getTitlesWidget: (value, meta) {
-                  if (value == meta.max || value == meta.min) return const SizedBox();
+                  if (value == meta.max || value == meta.min) {
+                    return const SizedBox();
+                  }
                   return Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: Text(

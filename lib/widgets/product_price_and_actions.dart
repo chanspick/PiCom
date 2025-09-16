@@ -5,10 +5,7 @@ import '../models/product_model.dart';
 class ProductPriceAndActions extends StatelessWidget {
   final Product product;
 
-  const ProductPriceAndActions({
-    required this.product,
-    super.key,
-  });
+  const ProductPriceAndActions({required this.product, super.key});
 
   @override
   Widget build(BuildContext context) {

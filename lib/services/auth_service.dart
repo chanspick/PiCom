@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart'; // Removed unnecessary import
 import '../services/google_auth_service.dart';
 import '../services/firestore_service.dart';
 import '../screens/auth_screen.dart';
@@ -109,6 +110,25 @@ class AuthService {
     }
   }
 
+  // 관리자 여부 확인
+  Future<bool> isAdmin() async {
+    final user = currentUser;
+    if (user == null) {
+      return false;
+    }
+    try {
+      final userDoc = await _firestore.getUser(user.uid);
+      if (userDoc != null && userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>?; // 명시적 캐스팅
+        return data?['isAdmin'] == true;
+      }
+    } catch (e) {
+      // 에러 처리 (예: 로깅)
+      return false;
+    }
+    return false;
+  }
+
   // 인증 필요 작업 실행 (기존 AuthUtils 기능 통합)
   Future<void> tryWriteWithLoginGuard(
     BuildContext context,
@@ -159,10 +179,7 @@ class AuthService {
   // 오류 메시지 표시
   void _showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 }

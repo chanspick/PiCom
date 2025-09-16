@@ -16,7 +16,9 @@ class _PartShopScreenState extends State<PartShopScreen> {
   String _selectedSort = '인기순';
 
   Query<Map<String, dynamic>> _buildQuery() {
-    Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('products');
+    Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection(
+      'products',
+    );
 
     if (_selectedCategory != 'All') {
       query = query.where('brand', isEqualTo: _selectedCategory);
@@ -122,7 +124,9 @@ class _PartShopScreenState extends State<PartShopScreen> {
               isExpanded: true,
               underline: const SizedBox(),
               items: ['인기순', '최신순', '낮은 가격순', '높은 가격순']
-                  .map((sort) => DropdownMenuItem(value: sort, child: Text(sort)))
+                  .map(
+                    (sort) => DropdownMenuItem(value: sort, child: Text(sort)),
+                  )
                   .toList(),
               onChanged: (value) {
                 if (value != null) setState(() => _selectedSort = value);
@@ -139,9 +143,11 @@ class _PartShopScreenState extends State<PartShopScreen> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ProductDetailScreen(productId: product.id),
-        ));
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(productId: product.id),
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -161,12 +167,17 @@ class _PartShopScreenState extends State<PartShopScreen> {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
                 child: Image.network(
                   product.imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.broken_image,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),
@@ -180,14 +191,17 @@ class _PartShopScreenState extends State<PartShopScreen> {
                     Expanded(
                       child: Text(
                         product.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      product.lastTradedPrice > 0 
+                      product.lastTradedPrice > 0
                           ? '${formatter.format(product.lastTradedPrice)} 원'
                           : '거래 내역 없음',
                       style: TextStyle(

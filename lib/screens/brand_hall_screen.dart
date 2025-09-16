@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class BrandHallScreen extends StatelessWidget {
@@ -7,12 +6,8 @@ class BrandHallScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('브랜드관'),
-      ),
-      body: const Center(
-        child: Text('브랜드관 페이지입니다.'),
-      ),
+      appBar: AppBar(title: const Text('브랜드관')),
+      body: const Center(child: Text('브랜드관 페이지입니다.')),
     );
   }
 }

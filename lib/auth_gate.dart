@@ -24,11 +24,7 @@ class AuthGate extends StatelessWidget {
         // 데이터가 없으면 로그인되지 않은 상태입니다.
         // 여기서는 간단히 로딩 화면을 계속 보여주지만,
         // 나중에 필요하면 별도의 로그인 화면으로 대체할 수 있습니다.
-        return const Scaffold(
-          body: Center(
-            child: Text('로그인이 필요합니다.'),
-          ),
-        );
+        return const Scaffold(body: Center(child: Text('로그인이 필요합니다.')));
       },
     );
   }

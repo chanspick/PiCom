@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../screens/auth_screen.dart';
+
 import '../screens/sell_request_screen.dart'; // 추가
 import '../services/auth_service.dart';
 import '../utils/auth_utils.dart';
@@ -57,10 +58,10 @@ class HomeAppBarActions extends StatelessWidget {
           .where('isRead', isEqualTo: false)
           .get()
           .then((snapshot) async {
-        for (var doc in snapshot.docs) {
-          await doc.reference.update({'isRead': true});
-        }
-      });
+            for (var doc in snapshot.docs) {
+              await doc.reference.update({'isRead': true});
+            }
+          });
       // TODO: 알림 화면 이동
     });
   }
@@ -79,8 +80,14 @@ class HomeAppBarActions extends StatelessWidget {
     return PopupMenuButton<String>(
       tooltip: '사용자 메뉴',
       icon: user.photoURL != null
-          ? CircleAvatar(radius: 16, backgroundImage: NetworkImage(user.photoURL!))
-          : Icon(isAnon ? Icons.person_outline : Icons.account_circle, size: 28),
+          ? CircleAvatar(
+              radius: 16,
+              backgroundImage: NetworkImage(user.photoURL!),
+            )
+          : Icon(
+              isAnon ? Icons.person_outline : Icons.account_circle,
+              size: 28,
+            ),
       onSelected: (value) async {
         switch (value) {
           case 'profile':
@@ -94,13 +101,17 @@ class HomeAppBarActions extends StatelessWidget {
             _handleOrdersPress(context);
             break;
           case 'settings':
-          // TODO: 설정 화면 이동
+            // TODO: 설정 화면 이동
             break;
+
           case 'login':
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const AuthScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AuthScreen()),
+            );
             break;
           case 'logout':
-          // 로그아웃 전용 다이얼로그 분기
+            // 로그아웃 전용 다이얼로그 분기
             AuthUtils.showLogoutDialog(context);
             break;
         }
@@ -110,7 +121,11 @@ class HomeAppBarActions extends StatelessWidget {
           value: 'profile',
           child: Row(
             children: [
-              Icon(Icons.person_outline, size: 20, color: isAnon ? Colors.grey : null),
+              Icon(
+                Icons.person_outline,
+                size: 20,
+                color: isAnon ? Colors.grey : null,
+              ),
               const SizedBox(width: 8),
               Text(isAnon ? '게스트' : (user.displayName ?? '내 프로필')),
             ],
@@ -138,6 +153,7 @@ class HomeAppBarActions extends StatelessWidget {
               ],
             ),
           ),
+
         if (isAnon)
           PopupMenuItem<String>(
             value: 'login',
@@ -166,7 +182,10 @@ class HomeAppBarActions extends StatelessWidget {
   Widget _buildLoginButton(BuildContext context) {
     return TextButton(
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const AuthScreen()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AuthScreen()),
+        );
       },
       child: const Text('로그인', style: TextStyle(color: Colors.black)),
     );
