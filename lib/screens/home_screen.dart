@@ -37,8 +37,7 @@ class _HomeContent extends StatelessWidget {
         children: [
           _BannerSection(),
           SizedBox(height: 16),
-          _CommunityBanner(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _CircleMenuSection(),
           SizedBox(height: 24),
           _ProductListSection(),
@@ -282,13 +281,12 @@ class _CircleMenuSection extends StatelessWidget {
         },
       },
       {
-        'icon': Icons.local_shipping,
-        'label': '빠른 배송',
-        'onTap': () {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('빠른 배송 서비스 준비 중입니다.')));
-        },
+        'icon': Icons.forum,
+        'label': '커뮤니티',
+        'onTap': () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GeminiCommunityScreen()),
+        ),
       },
       {
         'icon': Icons.trending_up,
