@@ -1,204 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../screens/auth_screen.dart';
-
-import '../screens/sell_request_screen.dart'; // 추가
-import '../services/auth_service.dart';
-import '../utils/auth_utils.dart';
+import 'package:picom/services/auth_service.dart';
+import 'package:picom/screens/profile_screen.dart'; // Added import
 
 class HomeAppBarActions extends StatelessWidget {
-  HomeAppBarActions({super.key});
-
-  final AuthService _authService = AuthService();
+  const HomeAppBarActions({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        // 알림 버튼
+        // 알림(벨) 아이콘 추가
         IconButton(
-          tooltip: '알림',
-          icon: const Icon(Icons.notifications_none),
-          onPressed: () => _handleNotificationPress(context),
-        ),
-        // 장바구니 버튼 (판매 요청 페이지로 변경)
-        IconButton(
-          tooltip: '판매 요청', // 툴팁 변경
-          icon: const Icon(Icons.add_shopping_cart), // 아이콘 변경
-          onPressed: () => _handleSellRequestPress(context), // 함수 변경
-        ),
-        // 인증 상태 모니터
-        StreamBuilder<User?>(
-          stream: _authService.authStateChanges,
-          builder: (context, snapshot) {
-            final user = snapshot.data;
-            final isAnon = (user == null) || user.isAnonymous;
-            // 유저 메뉴/로그인 버튼 전환
-            if (user != null) {
-              return _buildUserMenu(context, user, isAnon);
-            } else {
-              return _buildLoginButton(context);
-            }
+          icon: const Icon(Icons.notifications_none), // 또는 Icons.notifications
+          onPressed: () {
+            // TODO: 알림 화면으로 이동
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('알림 기능은 아직 구현되지 않았습니다.')),
+            );
           },
         ),
-      ],
-    );
-  }
-
-  void _handleNotificationPress(BuildContext context) {
-    if (!AuthUtils.requireAuth(context)) return;
-    AuthUtils.tryWriteWithLoginGuard(context, () async {
-      final user = FirebaseAuth.instance.currentUser!;
-      // 예시: 알림 읽음 처리
-      await FirebaseFirestore.instance
-          .collection('notifications')
-          .where('userId', isEqualTo: user.uid)
-          .where('isRead', isEqualTo: false)
-          .get()
-          .then((snapshot) async {
-            for (var doc in snapshot.docs) {
-              await doc.reference.update({'isRead': true});
-            }
-          });
-      // TODO: 알림 화면 이동
-    });
-  }
-
-  // 판매 요청 버튼 핸들러 (기존 _handleCartPress 수정)
-  void _handleSellRequestPress(BuildContext context) {
-    if (_authService.requireAuth(context)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const SellRequestScreen()),
-      );
-    }
-  }
-
-  Widget _buildUserMenu(BuildContext context, User user, bool isAnon) {
-    return PopupMenuButton<String>(
-      tooltip: '사용자 메뉴',
-      icon: user.photoURL != null
-          ? CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage(user.photoURL!),
-            )
-          : Icon(
-              isAnon ? Icons.person_outline : Icons.account_circle,
-              size: 28,
-            ),
-      onSelected: (value) async {
-        switch (value) {
-          case 'profile':
-            if (isAnon) {
-              AuthUtils.showLoginPrompt(context, '프로필');
+        GestureDetector(
+          onTap: () {
+            if (user != null) { // Only navigate if user is logged in
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileScreen(userId: user.uid),
+                ),
+              );
             } else {
-              // TODO: 프로필 화면 이동
+              // Optionally, show a message or navigate to login if user is guest
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('로그인 후 프로필을 볼 수 있습니다.')),
+              );
             }
-            break;
-          case 'orders':
-            _handleOrdersPress(context);
-            break;
-          case 'settings':
-            // TODO: 설정 화면 이동
-            break;
-
-          case 'login':
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AuthScreen()),
-            );
-            break;
-          case 'logout':
-            // 로그아웃 전용 다이얼로그 분기
-            AuthUtils.showLogoutDialog(context);
-            break;
-        }
-      },
-      itemBuilder: (context) => [
-        PopupMenuItem<String>(
-          value: 'profile',
-          child: Row(
-            children: [
-              Icon(
-                Icons.person_outline,
-                size: 20,
-                color: isAnon ? Colors.grey : null,
-              ),
-              const SizedBox(width: 8),
-              Text(isAnon ? '게스트' : (user.displayName ?? '내 프로필')),
-            ],
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 12,
+                  backgroundImage: user?.photoURL != null
+                      ? NetworkImage(user!.photoURL!)
+                      : null,
+                  child: user?.photoURL == null
+                      ? const Icon(Icons.person, size: 18)
+                      : null,
+                ),
+                // 기존 SizedBox(height: 4)와 Text 위젯 삭제
+              ],
+            ),
           ),
         ),
-        if (!isAnon)
-          PopupMenuItem<String>(
-            value: 'orders',
-            child: Row(
-              children: const [
-                Icon(Icons.shopping_bag_outlined, size: 20),
-                SizedBox(width: 8),
-                Text('주문 내역'),
-              ],
-            ),
-          ),
-        if (!isAnon)
-          PopupMenuItem<String>(
-            value: 'settings',
-            child: Row(
-              children: const [
-                Icon(Icons.settings_outlined, size: 20),
-                SizedBox(width: 8),
-                Text('설정'),
-              ],
-            ),
-          ),
-
-        if (isAnon)
-          PopupMenuItem<String>(
-            value: 'login',
-            child: Row(
-              children: const [
-                Icon(Icons.login, size: 20),
-                SizedBox(width: 8),
-                Text('로그인'),
-              ],
-            ),
-          ),
-        PopupMenuItem<String>(
-          value: 'logout',
-          child: Row(
-            children: [
-              Icon(Icons.logout, size: 20, color: Colors.red[300]),
-              const SizedBox(width: 8),
-              const Text('로그아웃'),
-            ],
-          ),
-        ),
+        // 삼단 바(햄버거) 메뉴 아이콘 삭제
       ],
     );
-  }
-
-  Widget _buildLoginButton(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AuthScreen()),
-        );
-      },
-      child: const Text('로그인', style: TextStyle(color: Colors.black)),
-    );
-  }
-
-  void _handleOrdersPress(BuildContext context) {
-    AuthUtils.tryWriteWithLoginGuard(context, () async {
-      final user = FirebaseAuth.instance.currentUser!;
-      await FirebaseFirestore.instance
-          .collection('orders')
-          .where('userId', isEqualTo: user.uid)
-          .get();
-      // TODO: 주문 내역 화면 이동
-    });
   }
 }

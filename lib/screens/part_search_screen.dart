@@ -2,23 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
-import 'package:picom/models/product_model.dart';
-import 'package:picom/screens/product_detail_screen.dart';
+import 'package:picom/models/part_model.dart'; // Import the Part model
+import 'package:picom/screens/part_detail_screen.dart'; // Import the PartDetailScreen
 
-class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+class PartSearchScreen extends StatefulWidget {
+  const PartSearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  State<PartSearchScreen> createState() => _PartSearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _PartSearchScreenState extends State<PartSearchScreen> {
   final TextEditingController _controller = TextEditingController();
   List<AlgoliaObjectSnapshot> _results = [];
   bool _isLoading = false;
   Timer? _debounce;
 
-  // TODO: For production, securely store and access these keys.
+  // Algolia keys are maintained from the original SearchScreen
   final Algolia _algolia = const Algolia.init(
     applicationId: 'IRHJG9MGL7',
     apiKey: 'a35df64bdcebb5654524e45b231e0998',
@@ -39,7 +39,8 @@ class _SearchScreenState extends State<SearchScreen> {
           _isLoading = true;
         });
 
-        AlgoliaQuery query = _algolia.instance.index('products').query(keyword);
+        // Query the 'parts' index
+        AlgoliaQuery query = _algolia.instance.index('parts').query(keyword);
         final snap = await query.getObjects();
 
         setState(() {
@@ -73,7 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
               controller: _controller,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: '제품 모델명 검색',
+                hintText: '부품 모델명 검색',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _controller.text.isNotEmpty
                     ? IconButton(
@@ -101,29 +102,29 @@ class _SearchScreenState extends State<SearchScreen> {
                           itemCount: _results.length,
                           itemBuilder: (ctx, i) {
                             final hit = _results[i].data;
-                            // Algolia doesn't support PricePoint directly in this setup
-                            // So we create a dummy product object for navigation
-                            final product = Product(
+                            // Create a Part object from Algolia hit data
+                            final part = Part(
                               id: _results[i].objectID,
                               name: hit['name'] ?? '',
                               brand: hit['brand'] ?? '',
-                              modelCode: hit['modelCode'] ?? '',
+                              category: hit['category'] ?? '',
+                              modelCode: hit['modelCode'] ?? '', // Add this line
                               imageUrl: hit['imageUrl'] ?? '',
-                              lastTradedPrice: (hit['lastTradedPrice'] as num?)?.toDouble() ?? 0.0,
-                              priceHistory: [], // Price history is not indexed in Algolia
+                              specs: hit['specs'] ?? {},
+                              createdAt: DateTime.parse(hit['createdAt'] ?? DateTime.now().toIso8601String()),
                             );
 
                             return ListTile(
-                              leading: product.imageUrl.isNotEmpty
-                                  ? Image.network(product.imageUrl, width: 50, height: 50, fit: BoxFit.cover)
+                              leading: part.imageUrl.isNotEmpty
+                                  ? Image.network(part.imageUrl, width: 50, height: 50, fit: BoxFit.cover)
                                   : const Icon(Icons.memory, size: 50),
-                              title: Text(product.name),
-                              subtitle: Text(product.brand),
+                              title: Text(part.name),
+                              subtitle: Text('${part.brand} - ${part.category}'),
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ProductDetailScreen(productId: product.id),
+                                    builder: (context) => PartDetailScreen(partId: part.id),
                                   ),
                                 );
                               },

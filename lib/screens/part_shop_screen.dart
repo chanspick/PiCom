@@ -79,7 +79,7 @@ class _PartShopScreenState extends State<PartShopScreen> {
       return;
     }
     setState(() {
-      _products = snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
+      _products = snapshot.docs.map((doc) => Product.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>)).toList();
       _lastDocument = snapshot.docs.last;
       _hasMore = snapshot.docs.length == _pageSize;
     });
@@ -122,7 +122,7 @@ class _PartShopScreenState extends State<PartShopScreen> {
         return;
       }
       setState(() {
-        _products.addAll(snapshot.docs.map((doc) => Product.fromFirestore(doc)));
+        _products.addAll(snapshot.docs.map((doc) => Product.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>)));
         _lastDocument = snapshot.docs.last;
         _hasMore = snapshot.docs.length == _pageSize;
       });
