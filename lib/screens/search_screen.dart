@@ -5,7 +5,7 @@ import 'package:algolia/algolia.dart';
 import 'package:picom/models/product_model.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+  const SearchScreen({super.key});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -63,9 +63,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('부품 검색'),
-      ),
+      appBar: AppBar(title: const Text('부품 검색')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -4,11 +4,7 @@ class BannerItem extends StatelessWidget {
   final String imageUrl;
   final VoidCallback? onTap;
 
-  const BannerItem({
-    required this.imageUrl,
-    this.onTap,
-    super.key,
-  });
+  const BannerItem({required this.imageUrl, this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {

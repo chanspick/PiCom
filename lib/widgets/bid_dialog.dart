@@ -36,34 +36,56 @@ class _BidDialogState extends State<BidDialog> {
         decoration: const InputDecoration(labelText: '희망가 (원)'),
       ),
       actions: [
-        TextButton(child: const Text('취소'), onPressed: () => Navigator.of(context).pop()),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('취소'),
+        ),
         ElevatedButton(
-          child: _loading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('입찰 등록'),
-          onPressed: _loading ? null : () async {
-            final price = double.tryParse(_priceController.text);
-            final user = FirebaseAuth.instance.currentUser;
+          onPressed: _loading
+              ? null
+              : () async {
+                  final price = double.tryParse(_priceController.text);
+                  final user = FirebaseAuth.instance.currentUser;
 
-            if (user == null) return; // 이 체크는 ProductDetailScreen에서 이미 처리
+                  if (user == null) return;
 
-            if (price == null || price <= 0) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('유효한 가격을 입력해주세요.')));
-              return;
-            }
+                  if (price == null || price <= 0) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('유효한 가격을 입력해주세요.')),
+                    );
+                    return;
+                  }
 
-            setState(() => _loading = true);
+                  setState(() => _loading = true);
 
-            await FirebaseFirestore.instance.collection(collectionName).add({
-              'productId': widget.product.id,
-              'userId': user.uid,
-              'price': price,
-              'createdAt': FieldValue.serverTimestamp(),
-              'status': 'active',
-            });
+                  final messenger = ScaffoldMessenger.of(context);
+                  final navigator = Navigator.of(context);
 
-            setState(() => _loading = false);
-            Navigator.of(context).pop();
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('입찰이 등록되었습니다.')));
-          },
+                  await FirebaseFirestore.instance
+                      .collection(collectionName)
+                      .add({
+                        'productId': widget.product.id,
+                        'userId': user.uid,
+                        'price': price,
+                        'createdAt': FieldValue.serverTimestamp(),
+                        'status': 'active',
+                      });
+
+                  if (!mounted) return;
+                  setState(() => _loading = false);
+                  navigator.pop();
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('입찰이 등록되었습니다.')),
+                  );
+                },
+          child: _loading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('입찰 등록'),
         ),
       ],
     );

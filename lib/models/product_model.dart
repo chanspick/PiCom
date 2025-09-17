@@ -29,7 +29,9 @@ class Product {
   });
 
   // Firestore 데이터를 Product 객체로 변환하는 factory 생성자
-  factory Product.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot) {
+  factory Product.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+  ) {
     final data = snapshot.data() ?? {};
 
     // Firestore의 priceHistory (Map의 배열)를 List<PricePoint>으로 변환

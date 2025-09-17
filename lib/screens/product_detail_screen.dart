@@ -27,11 +27,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-              body: Center(child: CircularProgressIndicator()));
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data?.data() == null) {
+        if (snapshot.hasError ||
+            !snapshot.hasData ||
+            snapshot.data?.data() == null) {
           return const Scaffold(
-              body: Center(child: Text('상품 정보를 불러올 수 없습니다.')));
+            body: Center(child: Text('상품 정보를 불러올 수 없습니다.')),
+          );
         }
 
         final product = Product.fromFirestore(snapshot.data!);
@@ -43,11 +47,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             leading: const BackButton(color: Colors.black),
             actions: [
               IconButton(
-                  icon: const Icon(Icons.share_outlined, color: Colors.black),
-                  onPressed: () {}),
+                icon: const Icon(Icons.share_outlined, color: Colors.black),
+                onPressed: () {},
+              ),
               IconButton(
-                  icon: const Icon(Icons.favorite_border, color: Colors.black),
-                  onPressed: () {}),
+                icon: const Icon(Icons.favorite_border, color: Colors.black),
+                onPressed: () {},
+              ),
             ],
           ),
           body: SingleChildScrollView(
@@ -62,8 +68,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     height: MediaQuery.of(context).size.width,
                     color: Colors.grey[200],
                     child: const Center(
-                        child: Icon(Icons.broken_image,
-                            size: 50, color: Colors.grey)),
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 50,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ),
                 ),
                 Padding(
@@ -79,14 +89,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        product.name,
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                      Text(product.name, style: const TextStyle(fontSize: 16)),
                       const SizedBox(height: 4),
                       Text(
                         product.modelCode,
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -100,7 +110,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       const Text(
                         '최근 거래가',
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         product.lastTradedPrice > 0
@@ -124,27 +136,36 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('시세', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          const Text(
+                            '시세',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           TextButton(
                             onPressed: () {
                               if (product.priceHistory.isNotEmpty) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ModelPriceHistoryScreen(
-                                      priceHistory: product.priceHistory,
-                                      currentPrice: product.lastTradedPrice,
-                                    ),
+                                    builder: (context) =>
+                                        ModelPriceHistoryScreen(
+                                          priceHistory: product.priceHistory,
+                                          currentPrice: product.lastTradedPrice,
+                                        ),
                                   ),
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('거래 내역이 없어 시세 정보를 볼 수 없습니다.')),
+                                  const SnackBar(
+                                    content: Text('거래 내역이 없어 시세 정보를 볼 수 없습니다.'),
+                                  ),
                                 );
                               }
                             },
                             child: const Text('전체 보기 >'),
-                          )
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -181,7 +202,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(25),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -201,10 +222,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
               onPressed: () {
                 if (!AuthUtils.requireAuth(context)) return;
-                
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('구매 기능 준비 중입니다.')),
-                );
+
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('구매 기능 준비 중입니다.')));
               },
               child: const Text(
                 '구매하기',
