@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'search_screen.dart';
+
 import 'part_shop_screen.dart';
 import 'product_detail_screen.dart';
 import '../models/product_model.dart';
@@ -9,6 +9,7 @@ import '../widgets/home_search_bar.dart';
 import '../widgets/product_price_and_actions.dart';
 import '../widgets/banner_item.dart';
 import '../widgets/circle_category.dart';
+import '../screens/gemini_community_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -35,11 +36,64 @@ class _HomeContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _BannerSection(),
-          SizedBox(height: 24),
+          SizedBox(height: 16),
+          const SizedBox(height: 24),
           _CircleMenuSection(),
           SizedBox(height: 24),
           _ProductListSection(),
         ],
+      ),
+    );
+  }
+}
+
+class _CommunityBanner extends StatelessWidget {
+  const _CommunityBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GeminiCommunityScreen()),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.deepPurple[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.deepPurple[200]!),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.forum_rounded, color: Colors.deepPurple, size: 40),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'AI 커뮤니티에 참여하세요',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Gemini와 함께하는 새로운 소통 공간',
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.deepPurple),
+          ],
+        ),
       ),
     );
   }
@@ -71,9 +125,7 @@ class _ProductListSection extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
-                return const Center(
-                  child: Text('데이터를 불러오는 중 오류가 발생했습니다.'),
-                );
+                return const Center(child: Text('데이터를 불러오는 중 오류가 발생했습니다.'));
               }
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                 return const Center(child: Text('상품이 없습니다.'));
@@ -112,16 +164,15 @@ class _ProductCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductDetailScreen(productId: product.id),
+                builder: (context) =>
+                    ProductDetailScreen(productId: product.id),
               ),
             );
           },
@@ -145,8 +196,11 @@ class _ProductCard extends StatelessWidget {
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.broken_image,
+                        size: 40,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
@@ -194,9 +248,9 @@ class _BannerSection extends StatelessWidget {
       height: 200,
       child: PageView(
         children: const [
-          BannerItem(imageUrl: 'https://via.placeholder.com/400x200?text=Event+Banner+1'),
-          BannerItem(imageUrl: 'https://via.placeholder.com/400x200?text=New+Arrivals'),
-          BannerItem(imageUrl: 'https://via.placeholder.com/400x200?text=Special+Offer'),
+          BannerItem(imageUrl: 'https://via.placeholder.com/800x400.png/007BFF/FFFFFF?text=PiCom+%EC%95%B1+%ED%99%8d%EB%B3%B4'),
+          BannerItem(imageUrl: 'https://via.placeholder.com/800x400.png/28A745/FFFFFF?text=%EA%B3%A0%EA%B0%9D+%EB%AC%B8%EC%9D%98'),
+          BannerItem(imageUrl: 'https://via.placeholder.com/800x400.png/FFC107/000000?text=%EC%9D%B8%EA%B8%B0+%EC%83%81%ED%92%88'),
         ],
       ),
     );
@@ -210,7 +264,7 @@ class _CircleMenuSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = [
       {
-        'icon': 'https://via.placeholder.com/80?text=Parts',
+        'icon': Icons.settings,
         'label': '부품 샵',
         'onTap': () => Navigator.push(
           context,
@@ -218,31 +272,30 @@ class _CircleMenuSection extends StatelessWidget {
         ),
       },
       {
-        'icon': 'https://via.placeholder.com/80?text=Brands',
+        'icon': Icons.store,
         'label': '브랜드관',
         'onTap': () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('브랜드관 준비 중입니다.')),
-          );
-        }
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('브랜드관 준비 중입니다.')));
+        },
       },
       {
-        'icon': 'https://via.placeholder.com/80?text=Express',
-        'label': '빠른 배송',
-        'onTap': () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('빠른 배송 서비스 준비 중입니다.')),
-          );
-        }
+        'icon': Icons.forum,
+        'label': '커뮤니티',
+        'onTap': () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GeminiCommunityScreen()),
+        ),
       },
       {
-        'icon': 'https://via.placeholder.com/80?text=Popular',
-        'label': '인기 상품',
+        'icon': Icons.desktop_windows,
+        'label': 'PC완제품',
         'onTap': () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('인기 상품 리스트 준비 중입니다.')),
-          );
-        }
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('PC완제품 페이지 준비 중입니다.')));
+        },
       },
     ];
 
@@ -255,9 +308,9 @@ class _CircleMenuSection extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = items[index];
           return CircleCategory(
-              iconUrl: item['icon']! as String,
-              label: item['label']! as String,
-              onTap: item['onTap'] as VoidCallback
+            iconData: item['icon']! as IconData,
+            label: item['label']! as String,
+            onTap: item['onTap'] as VoidCallback,
           );
         },
       ),

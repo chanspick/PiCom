@@ -12,7 +12,28 @@
           "package_name": "com.picom.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "222126078513-28ot5stt3p34fc30hhhu0s0a6fvms4en.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.picom.app",
+            "certificate_hash": "394fd3bc6a6c3e590c0d6df44395a86ce7c9dec6"
+          }
+        },
+        {
+          "client_id": "222126078513-3ri6s1hb8fcg295b9qgdqjm7qok663u4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.picom.app",
+            "certificate_hash": "3fd6f9543db1bc3350d0db69c9a599255be985f7"
+          }
+        },
+        {
+          "client_id": "222126078513-gud2gesn3gkei4pebeohe51b0psrdbsb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBnvOHZTgVLouHAPugC3hNCQKgOro4R4uU"
@@ -20,7 +41,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "222126078513-gud2gesn3gkei4pebeohe51b0psrdbsb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "222126078513-08qnngsasptc85m1hg3d4687dd31scot.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.kream"
+              }
+            }
+          ]
         }
       }
     }
