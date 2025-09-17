@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'part_shop_screen.dart';
 import 'product_detail_screen.dart';
+import 'parts_category_screen.dart'; // Add this import
 import '../models/product_model.dart';
 import '../widgets/home_app_bar_actions.dart';
 import '../widgets/home_search_bar.dart';
@@ -132,7 +133,7 @@ class _ProductListSection extends StatelessWidget {
               }
 
               final products = snapshot.data!.docs
-                  .map((doc) => Product.fromFirestore(doc))
+                  .map((doc) => Product.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>))
                   .toList();
 
               return ListView.builder(
@@ -274,11 +275,10 @@ class _CircleMenuSection extends StatelessWidget {
       {
         'icon': Icons.store,
         'label': '브랜드관',
-        'onTap': () {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('브랜드관 준비 중입니다.')));
-        },
+        'onTap': () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PartsCategoryScreen()),
+        ),
       },
       {
         'icon': Icons.forum,
