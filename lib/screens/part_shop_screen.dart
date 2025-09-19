@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../models/product_model.dart';
 import '../screens/product_detail_screen.dart';
+import 'package:picom/widgets/product_card.dart';
 
 class PartShopScreen extends StatefulWidget {
   const PartShopScreen({super.key});
@@ -16,6 +17,14 @@ class PartShopScreen extends StatefulWidget {
 class _PartShopScreenState extends State<PartShopScreen> {
   String _selectedCategory = 'All';
   String _selectedSort = '인기순';
+
+  final List<DropdownMenuItem<String>> _categoryItems = ['All', 'CPU', 'GPU', 'RAM', 'SSD', 'Cooler']
+      .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+      .toList();
+
+  final List<DropdownMenuItem<String>> _sortItems = ['인기순', '최신순', '낮은 가격순', '높은 가격순']
+      .map((sort) => DropdownMenuItem(value: sort, child: Text(sort)))
+      .toList();
 
   final int _pageSize = 10;
   DocumentSnapshot? _lastDocument;
@@ -152,12 +161,7 @@ class _PartShopScreenState extends State<PartShopScreen> {
                     value: _selectedCategory,
                     isExpanded: true,
                     underline: const SizedBox(),
-                    items: ['All', 'CPU', 'GPU', 'RAM', 'SSD', 'Cooler']
-                        .map((cat) => DropdownMenuItem(
-                      value: cat,
-                      child: Text(cat),
-                    ))
-                        .toList(),
+                    items: _categoryItems,
                     onChanged: (value) {
                       if (value == null) return;
                       setState(() => _selectedCategory = value);
@@ -171,12 +175,7 @@ class _PartShopScreenState extends State<PartShopScreen> {
                     value: _selectedSort,
                     isExpanded: true,
                     underline: const SizedBox(),
-                    items: ['인기순', '최신순', '낮은 가격순', '높은 가격순']
-                        .map((sort) => DropdownMenuItem(
-                      value: sort,
-                      child: Text(sort),
-                    ))
-                        .toList(),
+                    items: _sortItems,
                     onChanged: (value) {
                       if (value == null) return;
                       setState(() => _selectedSort = value);
@@ -191,228 +190,57 @@ class _PartShopScreenState extends State<PartShopScreen> {
             child: _products.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : NotificationListener<ScrollNotification>(
-              onNotification: (scrollInfo) {
-                if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                  _loadMore();
-                }
-                return false;
-              },
-              child: GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.7,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemCount: _products.length + (_hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _products.length) {
-                    // 무한스크롤 로딩
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  final product = _products[index];
-                  return GestureDetector(
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ProductDetailScreen(productId: product.id),
-                    )),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            spreadRadius: 2,
-                            blurRadius: 6,
-                          ),
-                        ],
+                    onNotification: (scrollInfo) {
+                      if (scrollInfo.metrics.pixels ==
+                          scrollInfo.metrics.maxScrollExtent) {
+                        _loadMore();
+                      }
+                      return false;
+                    },
+                    child: GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.7,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                              child: Image.network(
-                                product.imageUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                const Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                              ),
-                            ),
+                      itemCount: _products.length + (_hasMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _products.length) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        final product = _products[index];
+                        return ProductCard(
+                          imageUrl: product.imageUrl,
+                          name: product.name,
+                          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => ProductDetailScreen(productId: product.id),
+                          )),
+                          priceWidget: StreamBuilder<DocumentSnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('products')
+                                .doc(product.id)
+                                .snapshots(),
+                            builder: (context, snap) {
+                              final price = snap.data?.get('lastTradedPrice') ??
+                                  product.lastTradedPrice;
+                              return Text(
+                                '${formatter.format(price)} 원~',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
                           ),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      product.name,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  StreamBuilder<DocumentSnapshot>(
-                                    stream: FirebaseFirestore.instance
-                                        .collection('products')
-                                        .doc(product.id)
-                                        .snapshots(),
-                                    builder: (context, snap) {
-                                      final price = snap.data?.get('lastTradedPrice') ?? product.lastTradedPrice;
-                                      return Text(
-                                        '${formatter.format(price)} 원~',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Theme.of(context).primaryColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterRow() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: DropdownButton<String>(
-              value: _selectedCategory,
-              isExpanded: true,
-              underline: const SizedBox(),
-              items: ['All', 'CPU', 'GPU', 'RAM', 'SSD', 'Cooler']
-                  .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) setState(() => _selectedCategory = value);
-              },
-            ),
-          ),
-          const VerticalDivider(width: 20),
-          Expanded(
-            child: DropdownButton<String>(
-              value: _selectedSort,
-              isExpanded: true,
-              underline: const SizedBox(),
-              items: ['인기순', '최신순', '낮은 가격순', '높은 가격순']
-                  .map(
-                    (sort) => DropdownMenuItem(value: sort, child: Text(sort)),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) setState(() => _selectedSort = value);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductItem(Product product) {
-    final formatter = NumberFormat('#,###');
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ProductDetailScreen(productId: product.id),
-          ),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withAlpha(25),
-              spreadRadius: 2,
-              blurRadius: 6,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 3,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-                child: Image.network(
-                  product.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.broken_image,
-                    size: 40,
-                    color: Colors.grey,
                   ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        product.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      product.lastTradedPrice > 0
-                          ? '${formatter.format(product.lastTradedPrice)} 원'
-                          : '거래 내역 없음',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
