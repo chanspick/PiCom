@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'part_shop_screen.dart';
+import 'pc_product_screen.dart';
 import 'product_detail_screen.dart';
 import 'parts_category_screen.dart'; // Add this import
 import '../models/product_model.dart';
@@ -10,7 +12,7 @@ import '../widgets/home_search_bar.dart';
 import '../widgets/product_price_and_actions.dart';
 import '../widgets/banner_item.dart';
 import '../widgets/circle_category.dart';
-import '../screens/gemini_community_screen.dart';
+import '../screens/community/community_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -37,10 +39,10 @@ class _HomeContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _BannerSection(),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           const SizedBox(height: 24),
           _CircleMenuSection(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _ProductListSection(),
         ],
       ),
@@ -48,57 +50,7 @@ class _HomeContent extends StatelessWidget {
   }
 }
 
-class _CommunityBanner extends StatelessWidget {
-  const _CommunityBanner();
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const GeminiCommunityScreen()),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16.0),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.deepPurple[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.deepPurple[200]!),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.forum_rounded, color: Colors.deepPurple, size: 40),
-            const SizedBox(width: 16),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'AI 커뮤니티에 참여하세요',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.deepPurple,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Gemini와 함께하는 새로운 소통 공간',
-                    style: TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.deepPurple),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _ProductListSection extends StatelessWidget {
   const _ProductListSection();
@@ -112,7 +64,7 @@ class _ProductListSection extends StatelessWidget {
         children: [
           const Text(
             'Just Dropped',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -183,21 +135,18 @@ class _ProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // 상품 이미지 (고정 크기)
-                Container(
+                SizedBox(
                   width: 80,
                   height: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey,
-                  ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      product.imageUrl,
+                    child: CachedNetworkImage(
+                      imageUrl: product.imageUrl,
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
+                      placeholder: (context, url) => Container(color: Colors.grey[200]),
+                      errorWidget: (context, url, error) => const Icon(
                         Icons.broken_image,
                         size: 40,
                         color: Colors.grey,
@@ -285,17 +234,16 @@ class _CircleMenuSection extends StatelessWidget {
         'label': '커뮤니티',
         'onTap': () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const GeminiCommunityScreen()),
+          MaterialPageRoute(builder: (context) => const CommunityScreen()),
         ),
       },
       {
         'icon': Icons.desktop_windows,
         'label': 'PC완제품',
-        'onTap': () {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('PC완제품 페이지 준비 중입니다.')));
-        },
+        'onTap': () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const PCProductScreen()),
+        ),
       },
     ];
 

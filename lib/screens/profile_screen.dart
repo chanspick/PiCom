@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:picom/models/user_model.dart';
 import 'package:picom/models/post_model.dart';
+import 'package:picom/screens/part_shop_screen.dart';
 import 'package:picom/screens/sell_request_screen.dart'; // Added import
 
 class ProfileScreen extends StatefulWidget {
@@ -76,7 +77,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   _buildCountDisplay('종료', completed),
                 ],
               ),
-              // Add the Sales Request button here if it's the 'sales' collection
               if (collectionName == 'sales') ...[
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -96,6 +96,29 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ),
                   child: const Text(
                     '판매요청',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+              if (collectionName == 'purchases') ...[
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PartShopScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: Colors.blue, // A different color to distinguish
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    '구매하러 가기',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
