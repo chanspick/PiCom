@@ -40,9 +40,18 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
   }
 
   Future<void> _navigateToSearchScreen() async {
+    if (_selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('부품 종류를 먼저 선택해주세요.')),
+      );
+      return;
+    }
+
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SearchScreen()),
+      MaterialPageRoute(
+        builder: (context) => SearchScreen(category: _selectedCategory!),
+      ),
     );
 
     if (result != null && result is String) {

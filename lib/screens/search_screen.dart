@@ -1,12 +1,14 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
-import 'package:picom/models/product_model.dart';
-import 'package:picom/screens/product_detail_screen.dart';
+import 'package:picom/services/part_service.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final String? category;
+
+  const SearchScreen({super.key, this.category});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -14,21 +16,41 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
-  List<AlgoliaObjectSnapshot> _results = [];
+  List<String> _mergedResults = [];
+  List<String> _partsTxtModels = [];
   bool _isLoading = false;
   Timer? _debounce;
 
-  // TODO: For production, securely store and access these keys.
   final Algolia _algolia = const Algolia.init(
     applicationId: 'IRHJG9MGL7',
     apiKey: 'a35df64bdcebb5654524e45b231e0998',
   );
 
   @override
+  void initState() {
+    super.initState();
+    _loadInitialData();
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     _debounce?.cancel();
     super.dispose();
+  }
+
+  Future<void> _loadInitialData() async {
+    if (widget.category != null) {
+      setState(() {
+        _isLoading = true;
+      });
+      final allParts = await PartService().loadParts();
+      setState(() {
+        _partsTxtModels = allParts[widget.category!] ?? [];
+        _mergedResults = List.from(_partsTxtModels);
+        _isLoading = false;
+      });
+    }
   }
 
   void _onSearchChanged(String keyword) {
@@ -39,16 +61,32 @@ class _SearchScreenState extends State<SearchScreen> {
           _isLoading = true;
         });
 
+        // 1. Algolia Search
         AlgoliaQuery query = _algolia.instance.index('products').query(keyword);
+        if (widget.category != null) {
+          query = query.facetFilter('category:${widget.category}');
+        }
+
         final snap = await query.getObjects();
+        final algoliaNames = snap.hits.map((h) => h.data['name'] as String).toList();
+
+        // 2. Filter parts.txt models
+        final txtNames = _partsTxtModels
+            .where((name) => name.toLowerCase().contains(keyword.toLowerCase()))
+            .toList();
+
+        // 3. Merge and Deduplicate
+        final merged = <String>{...algoliaNames, ...txtNames}.toList();
+        merged.sort();
 
         setState(() {
-          _results = snap.hits;
+          _mergedResults = merged;
           _isLoading = false;
         });
       } else {
+        // If search is empty, show the initial list from parts.txt (if category is present)
         setState(() {
-          _results = [];
+          _mergedResults = List.from(_partsTxtModels);
         });
       }
     });
@@ -57,14 +95,18 @@ class _SearchScreenState extends State<SearchScreen> {
   void _clearSearch() {
     _controller.clear();
     setState(() {
-      _results = [];
+      _mergedResults = List.from(_partsTxtModels);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('부품 검색')),
+      appBar: AppBar(
+        title: Text(widget.category != null
+            ? '${widget.category} 모델 검색'
+            : '통합 부품 검색'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -92,40 +134,23 @@ class _SearchScreenState extends State<SearchScreen> {
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : _results.isEmpty
+                  : _mergedResults.isEmpty
                       ? Center(
                           child: Text(_controller.text.isEmpty
                               ? '검색어를 입력해 주세요'
                               : '검색 결과가 없습니다'))
                       : ListView.builder(
-                          itemCount: _results.length,
+                          itemCount: _mergedResults.length,
                           itemBuilder: (ctx, i) {
-                            final hit = _results[i].data;
-                            // Algolia doesn't support PricePoint directly in this setup
-                            // So we create a dummy product object for navigation
-                            final product = Product(
-                              id: _results[i].objectID,
-                              name: hit['name'] ?? '',
-                              brand: hit['brand'] ?? '',
-                              modelCode: hit['modelCode'] ?? '',
-                              imageUrl: hit['imageUrl'] ?? '',
-                              lastTradedPrice: (hit['lastTradedPrice'] as num?)?.toDouble() ?? 0.0,
-                              priceHistory: [], // Price history is not indexed in Algolia
-                            );
-
+                            final modelName = _mergedResults[i];
                             return ListTile(
-                              leading: product.imageUrl.isNotEmpty
-                                  ? Image.network(product.imageUrl, width: 50, height: 50, fit: BoxFit.cover)
-                                  : const Icon(Icons.memory, size: 50),
-                              title: Text(product.name),
-                              subtitle: Text(product.brand),
+                              title: Text(modelName),
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProductDetailScreen(productId: product.id),
-                                  ),
-                                );
+                                // Only pop with result if a category was provided
+                                // This search is for selection, not navigation
+                                if (widget.category != null) {
+                                  Navigator.pop(context, modelName);
+                                }
                               },
                             );
                           },

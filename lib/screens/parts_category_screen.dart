@@ -1,9 +1,9 @@
+
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/part_model.dart';
+import 'package:picom/models/part_model.dart';
+import '../services/part_service.dart';
 import 'part_detail_screen.dart';
-import 'search_screen.dart'; // Import the existing SearchScreen
-import 'part_search_screen.dart'; // Add this import
+import 'part_search_screen.dart';
 
 class PartsCategoryScreen extends StatefulWidget {
   const PartsCategoryScreen({super.key});
@@ -15,11 +15,13 @@ class PartsCategoryScreen extends StatefulWidget {
 class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final List<String> _categories = ['CPU', '그래픽카드', '메인보드'];
+  late Future<Map<String, List<String>>> _partsFuture;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: _categories.length, vsync: this);
+    _partsFuture = PartService().loadParts();
   }
 
   @override
@@ -70,11 +72,29 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
             ),
           ),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: _categories.map((category) {
-                return _buildPartGrid(category);
-              }).toList(),
+            child: FutureBuilder<Map<String, List<String>>>(
+              future: _partsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('오류: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('부품 데이터를 불러올 수 없습니다.'));
+                }
+
+                final partsByCategory = snapshot.data!;
+
+                return TabBarView(
+                  controller: _tabController,
+                  children: _categories.map((category) {
+                    final partNames = partsByCategory[category] ?? [];
+                    return _buildPartGrid(category, partNames);
+                  }).toList(),
+                );
+              },
             ),
           ),
         ],
@@ -82,47 +102,33 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
     );
   }
 
-  Widget _buildPartGrid(String category) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('parts')
-          .where('category', isEqualTo: category)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('오류: ${snapshot.error}'));
-        }
+  Widget _buildPartGrid(String category, List<String> partNames) {
+    final parts = partNames.map((name) {
+      final brand = name.split(' ').first;
+      return Part(
+        id: '', // Not available from txt
+        name: name,
+        brand: brand,
+        category: category,
+        modelCode: '', // Not available from txt
+        imageUrl: '', // Not available from txt
+        specs: {}, // Not available from txt
+        createdAt: DateTime.now(), // Dummy data
+      );
+    }).toList();
 
-        final parts = snapshot.hasData
-            ? snapshot.data!.docs.map((doc) => Part.fromFirestore(doc)).toList()
-            : [];
-
-        // Always display a minimum number of cards, even if data is empty
-        final int minCards = 6; // Example: display at least 6 cards
-        final int itemCount = parts.length > 0 ? parts.length : minCards;
-
-        return GridView.builder(
-          padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.7, // Adjust as needed
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: itemCount,
-          itemBuilder: (context, index) {
-            if (index < parts.length) {
-              final part = parts[index];
-              return _PartCard(part: part);
-            } else {
-              // Placeholder card for empty slots
-              return const _PlaceholderPartCard();
-            }
-          },
-        );
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: parts.length,
+      itemBuilder: (context, index) {
+        final part = parts[index];
+        return _PartCard(part: part);
       },
     );
   }
@@ -136,9 +142,8 @@ class _PartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => PartDetailScreen(partId: part.id),
-        ));
+        // Since we don't have a partId, we can't navigate to details
+        // Or we could implement search based on part name
       },
       child: Container(
         decoration: BoxDecoration(
@@ -188,21 +193,19 @@ class _PartCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Expanded(
-                      child: Text(
-                        part.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                      child: Center(
+                        child: Text(
+                          part.name,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ),
-                    // Placeholder for specs if needed
-                    // Text(
-                    //   part.specs.isNotEmpty ? part.specs.values.join(', ') : '',
-                    //   style: TextStyle(fontSize: 12, color: Colors.black54),
-                    // ),
                   ],
                 ),
               ),
@@ -213,56 +216,3 @@ class _PartCard extends StatelessWidget {
     );
   }
 }
-
-class _PlaceholderPartCard extends StatelessWidget {
-  const _PlaceholderPartCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey[100],
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 6,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            flex: 3,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Container(
-                color: Colors.grey[200],
-                child: const Icon(Icons.image, size: 40, color: Colors.grey),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(width: 60, height: 12, color: Colors.grey[300]),
-                  const SizedBox(height: 4),
-                  Container(width: double.infinity, height: 16, color: Colors.grey[300]),
-                  const SizedBox(height: 4),
-                  Container(width: 100, height: 16, color: Colors.grey[300]),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
