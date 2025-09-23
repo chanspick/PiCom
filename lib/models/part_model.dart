@@ -7,7 +7,6 @@ class Part {
   final String name;
   final String modelCode; // Added for linking with Product
   final String imageUrl; // Placeholder for image URL
-  final Map<String, dynamic> specs; // Placeholder for specifications
   final DateTime createdAt;
 
   Part({
@@ -17,7 +16,6 @@ class Part {
     required this.name,
     required this.modelCode, // Added
     this.imageUrl = '', // Default empty string
-    this.specs = const {}, // Default empty map
     required this.createdAt,
   });
 
@@ -31,7 +29,6 @@ class Part {
       name: data['name'] ?? '',
       modelCode: data['modelCode'] ?? '', // Added
       imageUrl: data['imageUrl'] ?? '',
-      specs: data['specs'] ?? {},
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
   }
@@ -44,7 +41,6 @@ class Part {
       'name': name,
       'modelCode': modelCode, // Added
       'imageUrl': imageUrl,
-      'specs': specs,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

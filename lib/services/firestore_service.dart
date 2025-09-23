@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/part_model.dart'; // Import the Part model
-import '../models/pc_product_model.dart';
+
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -81,35 +81,5 @@ class FirestoreService {
     }
   }
 
-  Stream<List<PCProduct>> getPCProducts({String category = 'All', String sortBy = '인기순'}) {
-    Query<Map<String, dynamic>> query = _db.collection('pc_products');
 
-    if (category != 'All') {
-      query = query.where('category', isEqualTo: category);
-    }
-
-    switch (sortBy) {
-      case '최신순':
-        query = query.orderBy('createdAt', descending: true);
-        break;
-      case '낮은 가격순':
-        query = query.orderBy('price', descending: false);
-        break;
-      case '높은 가격순':
-        query = query.orderBy('price', descending: true);
-        break;
-      case '성능순':
-        query = query.orderBy('performanceScore', descending: true);
-        break;
-      case '인기순':
-      default:
-        // Assuming 'likes' or a similar field for popularity. If not available, defaults to latest.
-        query = query.orderBy('createdAt', descending: true);
-        break;
-    }
-
-    return query.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => PCProduct.fromFirestore(doc)).toList();
-    });
-  }
 }
