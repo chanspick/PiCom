@@ -16,7 +16,7 @@ class PartService {
 
       if (['CPU', '그래픽카드', '메인보드'].contains(line)) {
         currentCategory = line;
-        categories[currentCategory!] = [];
+        categories[currentCategory] = [];
         currentBrand = null; 
       } else if (currentCategory != null) {
         // Assuming lines that are not categories are either brands or models

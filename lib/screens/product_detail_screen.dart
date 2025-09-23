@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:picom/screens/payment_screen.dart';
 import '../models/product_model.dart';
 import '../utils/auth_utils.dart';
 import './model_price_history_screen.dart';
@@ -223,9 +224,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               onPressed: () {
                 if (!AuthUtils.requireAuth(context)) return;
 
-                ScaffoldMessenger.of(
+                Navigator.push(
                   context,
-                ).showSnackBar(const SnackBar(content: Text('구매 기능 준비 중입니다.')));
+                  MaterialPageRoute(builder: (context) => PaymentScreen(product: product)),
+                );
               },
               child: const Text(
                 '구매하기',

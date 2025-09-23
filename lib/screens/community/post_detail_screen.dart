@@ -29,8 +29,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _communityService.addComment(
       postId: widget.postId,
       content: _commentController.text,
-      authorId: _currentUser!.uid,
-      authorName: _currentUser!.displayName ?? 'Anonymous',
+      authorId: _currentUser.uid,
+      authorName: _currentUser.displayName ?? 'Anonymous',
     );
     _commentController.clear();
   }
@@ -77,13 +77,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Widget _buildLikeButton(CommunityPost post) {
-    final isLiked = _currentUser != null && post.likedBy.contains(_currentUser!.uid);
+    final isLiked = _currentUser != null && post.likedBy.contains(_currentUser.uid);
     return ElevatedButton.icon(
       icon: Icon(isLiked ? Icons.thumb_up : Icons.thumb_up_outlined),
       label: Text('추천 ${post.likeCount}'),
       onPressed: () {
         if (_currentUser != null) {
-          _communityService.togglePostLike(post.id, _currentUser!.uid);
+          _communityService.togglePostLike(post.id, _currentUser.uid);
         }
       },
     );

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:picom/models/part_model.dart';
 import '../services/part_service.dart';
-import 'part_detail_screen.dart';
+
 import 'part_search_screen.dart';
 
 class PartsCategoryScreen extends StatefulWidget {
