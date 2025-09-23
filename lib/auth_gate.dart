@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart'; // 홈 화면 import
+import 'screens/etc/home_screen.dart'; // 홈 화면 import
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

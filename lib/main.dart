@@ -3,8 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'firebase_options.dart';
 import 'widgets/auth_wrapper.dart';
-import 'screens/home_screen.dart';
-import 'screens/auth_screen.dart';
+import 'screens/etc/home_screen.dart';
+import 'screens/auth/auth_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

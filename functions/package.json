@@ -9,7 +9,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "predeploy": "npm run lint && npm run build"
+    "predeploy": "npm run lint && npm run build",
+    "setup:parts": "ts-node src/setup_parts_data.ts"
   },
   "engines": {
     "node": "22"
@@ -29,6 +30,7 @@
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.25.4",
     "firebase-functions-test": "^3.1.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "private": true

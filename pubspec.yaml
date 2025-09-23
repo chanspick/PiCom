@@ -51,7 +51,7 @@ dependencies:
   # Image & Media
   image_picker: ^1.0.4
   cached_network_image: ^3.3.0
-  fl_chart: ^1.1.0
+  fl_chart: ^1.1.1
 
   # HTTP & Network
   dio: ^5.4.0
