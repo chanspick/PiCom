@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:picom/services/auth_service.dart';
+
 import 'package:picom/screens/profile_screen.dart'; // Added import
 
 class HomeAppBarActions extends StatelessWidget {
