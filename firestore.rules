@@ -2,11 +2,43 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Products can be read by anyone, but writes are disallowed from the client.
-    // Product creation/modification should be handled by a trusted backend (e.g., Cloud Functions).
-    match /products/{productId} {
+    // Parts can be read by anyone, but writes are disallowed from the client.
+    // Part creation/modification should be handled by a trusted backend (e.g., Cloud Functions).
+    match /parts/{partId} {
       allow read: if true;
       allow write: if false;
+    }
+
+    // Listings can be read by anyone.
+    // Authenticated users can create their own listings.
+    // Listing owners (sellerId) can update and delete their own listings.
+    match /listings/{listingId} {
+      function partExists(partId) {
+        return get(/databases/$(database)/documents/parts/$(partId)).data != null;
+      }
+
+      allow read: if true;
+      allow create: if request.auth != null &&
+                       request.resource.data.sellerId == request.auth.uid &&
+                       request.resource.data.conditionScore >= 1 &&
+                       request.resource.data.conditionScore <= 100 &&
+                       request.resource.data.status in ['available', 'sold'] &&
+                       // When creating, buyerId and soldAt should not be set unless status is 'sold'
+                       (request.resource.data.status == 'sold' ? (request.resource.data.buyerId != null && request.resource.data.soldAt != null) : (request.resource.data.buyerId == null && request.resource.data.soldAt == null)) &&
+                       partExists(request.resource.data.partId);
+
+      allow update: if request.auth != null &&
+                       resource.data.sellerId == request.auth.uid &&
+                       request.resource.data.conditionScore >= 1 &&
+                       request.resource.data.conditionScore <= 100 &&
+                       request.resource.data.status in ['available', 'sold'] &&
+                       // If status changes to 'sold', buyerId and soldAt must be set
+                       // If status changes from 'sold' to 'available', buyerId and soldAt must be null
+                       // Otherwise, buyerId and soldAt should not change unless status is 'sold'
+                       (request.resource.data.status == 'sold' ? (request.resource.data.buyerId != null && request.resource.data.soldAt != null) : (request.resource.data.buyerId == null && request.resource.data.soldAt == null)) &&
+                       partExists(request.resource.data.partId);
+
+      allow delete: if request.auth != null && resource.data.sellerId == request.auth.uid;
     }
 
     // User-specific data (e.g., profiles, settings).

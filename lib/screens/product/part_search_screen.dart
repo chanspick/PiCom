@@ -103,28 +103,22 @@ class _PartSearchScreenState extends State<PartSearchScreen> {
                           itemBuilder: (ctx, i) {
                             final hit = _results[i].data;
                             // Create a Part object from Algolia hit data
-                            final part = Part(
-                              id: _results[i].objectID,
-                              name: hit['name'] ?? '',
-                              brand: hit['brand'] ?? '',
-                              category: hit['category'] ?? '',
-                              modelCode: hit['modelCode'] ?? '', // Add this line
-                              imageUrl: hit['imageUrl'] ?? '',
-                              specs: hit['specs'] ?? {},
-                              createdAt: DateTime.parse(hit['createdAt'] ?? DateTime.now().toIso8601String()),
-                            );
+                            final Map<String, dynamic> partData = Map.from(hit);
+                            partData['partId'] = _results[i].objectID;
+                            if (partData.containsKey('name')) {
+                              partData['modelName'] = partData['name'];
+                            }
+                            final part = Part.fromMap(partData);
 
                             return ListTile(
-                              leading: part.imageUrl.isNotEmpty
-                                  ? Image.network(part.imageUrl, width: 50, height: 50, fit: BoxFit.cover)
-                                  : const Icon(Icons.memory, size: 50),
-                              title: Text(part.name),
-                              subtitle: Text('${part.brand} - ${part.category}'),
+                              leading: const Icon(Icons.memory, size: 50),
+                              title: Text(part.modelName),
+                              subtitle: Text('${part.brand} - ${part.category.name}'),
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => PartDetailScreen(partId: part.id),
+                                    builder: (context) => PartDetailScreen(partId: part.partId),
                                   ),
                                 );
                               },

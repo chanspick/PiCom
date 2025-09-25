@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../models/user_model.dart';
 import '../../models/post_model.dart';
 import '../../models/listing_model.dart';
+import '../../models/part_model.dart';
 import '../../services/listing_service.dart';
 import '../product/listing_detail_screen.dart';
 import '../product/part_shop_screen.dart';
@@ -206,13 +207,25 @@ class _HistoryListView extends StatelessWidget {
                 backgroundImage: listing.imageUrls.isNotEmpty ? NetworkImage(listing.imageUrls.first) : null,
                 child: listing.imageUrls.isEmpty ? const Icon(Icons.image) : null,
               ),
-              title: Text(listing.partName),
+              title: FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('parts').doc(listing.partId).get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Text('...');
+                  }
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return const Text('부품 정보 없음');
+                  }
+                  final part = Part.fromFirestore(snapshot.data!);
+                  return Text(part.modelName);
+                },
+              ),
               subtitle: Text('${formatter.format(listing.price)}원'),
               trailing: Text(date != null ? DateFormat('yy/MM/dd').format(date) : 'N/A'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ListingDetailScreen(listingId: listing.id)),
+                  MaterialPageRoute(builder: (context) => ListingDetailScreen(listingId: listing.listingId)), // Changed from listing.id to listing.listingId
                 );
               },
             );

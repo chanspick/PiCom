@@ -1,35 +1,33 @@
 
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/part_model.dart';
 
 class PartService {
-  Future<Map<String, List<String>>> loadParts() async {
-    final String fileContent = await rootBundle.loadString('lib/models/parts.txt');
-    final List<String> lines = fileContent.split('\n');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    Map<String, List<String>> categories = {};
-    String? currentCategory;
-    String? currentBrand;
+  // Get a stream of all parts
+  Stream<List<Part>> getAllParts() {
+    return _firestore.collection('parts')
+        .orderBy('brand')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => Part.fromFirestore(doc)).toList());
+  }
 
-    for (String line in lines) {
-      line = line.trim();
-      if (line.isEmpty) continue;
+  // Get a stream of parts filtered by category
+  Stream<List<Part>> getPartsByCategory(PartCategory category) {
+    return _firestore.collection('parts')
+        .where('category', isEqualTo: category.name)
+        .orderBy('brand')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => Part.fromFirestore(doc)).toList());
+  }
 
-      if (['CPU', '그래픽카드', '메인보드'].contains(line)) {
-        currentCategory = line;
-        categories[currentCategory!] = [];
-        currentBrand = null; 
-      } else if (currentCategory != null) {
-        // Assuming lines that are not categories are either brands or models
-        // A simple heuristic: if it's one of the known brands, treat it as such
-        if (['AMD', '인텔', 'nVidea'].contains(line)) {
-            currentBrand = line;
-        } else {
-            // Add brand prefix to model name if brand is known
-            String modelName = currentBrand != null ? '$currentBrand $line' : line;
-            categories[currentCategory]?.add(modelName);
-        }
-      }
+  // Get a single part by ID
+  Future<Part?> getPartById(String partId) async {
+    final doc = await _firestore.collection('parts').doc(partId).get();
+    if (doc.exists) {
+      return Part.fromFirestore(doc);
     }
-    return categories;
+    return null;
   }
 }

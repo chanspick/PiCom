@@ -18,7 +18,7 @@ const db = admin.firestore();
 // V2 방식으로 환경 변수 정의
 const algoliaAppId = defineString("ALGOLIA_APP_ID");
 const algoliaApiKey = defineString("ALGOLIA_API_KEY");
-const indexName = defineString("ALGOLIA_INDEX_NAME", {default: "products"});
+const indexName = defineString("ALGOLIA_INDEX_NAME", {default: "parts"});
 
 // Algolia 클라이언트 지연 초기화
 let _algoliaClient: SearchClient | null = null;
@@ -116,11 +116,11 @@ export const validateBid = onDocumentCreated(
 );
 
 /**
- * [V2] Firestore에 새 상품이 생성되면 Algolia에 인덱싱합니다.
+ * [V2] Firestore에 새 부품이 생성되면 Algolia에 인덱싱합니다.
  */
-export const onProductCreated = onDocumentCreated(
+export const onPartCreated = onDocumentCreated(
   {
-    document: "products/{productId}",
+    document: "parts/{partId}",
     region: "asia-northeast3",
   },
   async (event: FirestoreEvent<QueryDocumentSnapshot | undefined>) => {
@@ -145,7 +145,7 @@ export const onProductCreated = onDocumentCreated(
 
       await index.saveObjects([data]);
 
-      logger.info(`Product ${snapshot.id} indexed in Algolia successfully`);
+      logger.info(`Part ${snapshot.id} indexed in Algolia successfully`);
 
       await snapshot.ref.update({
         algoliaIndexed: true,
@@ -157,7 +157,7 @@ export const onProductCreated = onDocumentCreated(
         String(error);
 
       logger.error(
-        `Error indexing product ${snapshot.id} to Algolia`,
+        `Error indexing part ${snapshot.id} to Algolia`,
         error,
       );
 
@@ -174,11 +174,11 @@ export const onProductCreated = onDocumentCreated(
 );
 
 /**
- * [V2] Firestore 상품이 업데이트되면 Algolia 인덱스를 업데이트합니다.
+ * [V2] Firestore 부품이 업데이트되면 Algolia 인덱스를 업데이트합니다.
  */
-export const onProductUpdated = onDocumentUpdated(
+export const onPartUpdated = onDocumentUpdated(
   {
-    document: "products/{productId}",
+    document: "parts/{partId}",
     region: "asia-northeast3",
   },
   async (
@@ -192,11 +192,11 @@ export const onProductUpdated = onDocumentUpdated(
 
     const beforeData = change.before.data();
     const afterData = change.after.data();
-    const productId = change.after.id;
+    const partId = change.after.id; // Changed from productId to partId
 
+    // Update searchableFields to reflect Part model fields
     const searchableFields = [
-      "name", "price", "description", "category",
-      "brand", "status", "images",
+      "category", "brand", "modelName",
     ];
 
     const hasSearchableChanges = searchableFields.some(
@@ -206,7 +206,7 @@ export const onProductUpdated = onDocumentUpdated(
 
     if (!hasSearchableChanges) {
       logger.info(
-        `Product ${productId} updated but no indexing needed`,
+        `Part ${partId} updated but no indexing needed`,
       );
       return;
     }
@@ -219,21 +219,24 @@ export const onProductUpdated = onDocumentUpdated(
       }
       const index = client.initIndex(indexName.value());
 
-      if (afterData.status === "deleted" ||
-          afterData.status === "inactive") {
-        await index.deleteObject(productId);
-        logger.info(`Product ${productId} removed from Algolia index`);
-        return;
-      }
+      // Assuming 'status' for Part model is not directly used for deletion/inactivation in Algolia
+      // If Part model has a status field that dictates Algolia removal, it should be added here.
+      // For now, I'll remove the 'status' check as Part model doesn't have it.
+      // if (afterData.status === "deleted" ||
+      //     afterData.status === "inactive") {
+      //   await index.deleteObject(partId);
+      //   logger.info(`Part ${partId} removed from Algolia index`);
+      //   return;
+      // }
 
       const data = {
         ...afterData,
-        objectID: productId,
+        objectID: partId, // Changed from productId to partId
       };
 
       await index.saveObjects([data]);
 
-      logger.info(`Product ${productId} updated in Algolia successfully`);
+      logger.info(`Part ${partId} updated in Algolia successfully`); // Changed from Product to Part
 
       await change.after.ref.update({
         algoliaIndexed: true,
@@ -245,7 +248,7 @@ export const onProductUpdated = onDocumentUpdated(
         String(error);
 
       logger.error(
-        `Error updating product ${productId} in Algolia`,
+        `Error updating part ${partId} in Algolia`,
         error,
       );
 
@@ -262,19 +265,19 @@ export const onProductUpdated = onDocumentUpdated(
 );
 
 /**
- * [V2] Firestore 상품이 삭제되면 Algolia 인덱스에서 삭제합니다.
+ * [V2] Firestore 부품이 삭제되면 Algolia 인덱스에서 삭제합니다.
  */
-export const onProductDeleted = onDocumentDeleted(
+export const onPartDeleted = onDocumentDeleted(
   {
-    document: "products/{productId}",
+    document: "parts/{partId}",
     region: "asia-northeast3",
   },
   async (
     event: FirestoreEvent<QueryDocumentSnapshot | undefined>,
   ) => {
-    const productId = event.params.productId;
-    if (!productId) {
-      logger.error("No productId in event params");
+    const partId = event.params.partId; // Changed from productId to partId
+    if (!partId) {
+      logger.error("No partId in event params"); // Changed from productId to partId
       return;
     }
 
@@ -286,35 +289,16 @@ export const onProductDeleted = onDocumentDeleted(
       }
       const index = client.initIndex(indexName.value());
       
-      await index.deleteObject(productId);
+      await index.deleteObject(partId); // Changed from productId to partId
 
-      logger.info(`Product ${productId} deleted from Algolia successfully`);
+      logger.info(`Part ${partId} deleted from Algolia successfully`); // Changed from Product to Part
 
-      const bidsQuery = db
-        .collection("bids")
-        .where("productId", "==", productId)
-        .where("status", "==", "active");
+      // Removed bids related logic as parts do not directly have bids.
+      // If listings are tied to parts, a separate function for listings deletion/cancellation would be needed.
 
-      const activeBids = await bidsQuery.get();
-
-      if (!activeBids.empty) {
-        const batch = db.batch();
-        activeBids.docs.forEach((bidDoc) => {
-          batch.update(bidDoc.ref, {
-            status: "cancelled",
-            reason: "Product deleted",
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
-        });
-
-        await batch.commit();
-        logger.info(
-          `Cancelled ${activeBids.size} active bids for deleted product`,
-        );
-      }
     } catch (error) {
       logger.error(
-        `Error deleting product ${productId} from Algolia`,
+        `Error deleting part ${partId} from Algolia`,
         error,
       );
       throw error;
@@ -438,3 +422,15 @@ export const cleanupExpiredBids = onDocumentCreated(
     }
   },
 );
+
+import { createPart } from "./parts";
+export { createPart };
+
+import { buyListing } from "./listings";
+export { buyListing };
+
+import { onPartUpdatedDenormalizeListings } from "./parts_denormalization";
+export { onPartUpdatedDenormalizeListings };
+
+import { onListingCreatedFraudCheck } from "./fraud_detection";
+export { onListingCreatedFraudCheck };

@@ -1,80 +1,75 @@
-
+// listing_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum ListingStatus { available, sold }
+
 class Listing {
-  final String id;
-  final String partId; // Link to the 'parts' collection
-  final String sellerId; // The original seller who sent the item to us
-
-  // Denormalized fields for efficient display and filtering
-  final String partName;
-  final String brand;
-  final String partCategory;
-
-  final double price;
-  final String condition; // e.g., 'Like New', 'Good', 'Fair'
-  final String description; // Notes from our inspection
-  final List<String> imageUrls; // Photos taken by us
-
-  final String status; // e.g., 'available', 'sold'
-  final DateTime createdAt; // When we listed the item
-
-  // These fields are filled when the item is sold
+  final String listingId;
+  final String partId;
+  final int conditionScore; // 1~100 컨디션 점수
+  final int price;
+  final ListingStatus status;
+  final String sellerId;
   final String? buyerId;
+  final String brand; // Added for denormalization
+  final String modelName; // Added for denormalization
+  final DateTime createdAt;
   final DateTime? soldAt;
+  final List<String> imageUrls;
 
   Listing({
-    required this.id,
+    required this.listingId,
     required this.partId,
-    required this.sellerId,
-    required this.partName,
-    required this.brand,
-    required this.partCategory,
+    required this.conditionScore,
     required this.price,
-    required this.condition,
-    required this.description,
-    required this.imageUrls,
     required this.status,
-    required this.createdAt,
+    required this.sellerId,
     this.buyerId,
+    required this.brand, // Added
+    required this.modelName, // Added
+    required this.createdAt,
     this.soldAt,
+    required this.imageUrls,
   });
 
-  factory Listing.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() {
+    return {
+      'listingId': listingId,
+      'partId': partId,
+      'conditionScore': conditionScore,
+      'price': price,
+      'status': status.name,
+      'sellerId': sellerId,
+      'buyerId': buyerId,
+      'brand': brand, // Added
+      'modelName': modelName, // Added
+      'createdAt': Timestamp.fromDate(createdAt),
+      'soldAt': soldAt != null ? Timestamp.fromDate(soldAt!) : null,
+      'imageUrls': imageUrls,
+    };
+  }
+
+  factory Listing.fromMap(Map<String, dynamic> map) {
     return Listing(
-      id: doc.id,
-      partId: data['partId'] ?? '',
-      sellerId: data['sellerId'] ?? '',
-      partName: data['partName'] ?? 'No Name',
-      brand: data['brand'] ?? 'No Brand',
-      partCategory: data['partCategory'] ?? 'Etc', // Added
-      price: (data['price'] as num?)?.toDouble() ?? 0.0,
-      condition: data['condition'] ?? '',
-      description: data['description'] ?? '',
-      imageUrls: List<String>.from(data['imageUrls'] ?? []),
-      status: data['status'] ?? 'available',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      buyerId: data['buyerId'] as String?,
-      soldAt: (data['soldAt'] as Timestamp?)?.toDate(),
+      listingId: map['listingId'],
+      partId: map['partId'],
+      conditionScore: map['conditionScore'],
+      price: map['price'],
+      status: ListingStatus.values.firstWhere(
+              (e) => e.name == map['status'],
+          orElse: () => ListingStatus.available), // 기본 available
+      sellerId: map['sellerId'],
+      buyerId: map['buyerId'],
+      brand: map['brand'], // Added
+      modelName: map['modelName'], // Added
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      soldAt: map['soldAt'] != null ? (map['soldAt'] as Timestamp).toDate() : null,
+      imageUrls: List<String>.from(map['imageUrls']),
     );
   }
 
-  Map<String, dynamic> toFirestore() {
-    return {
-      'partId': partId,
-      'sellerId': sellerId,
-      'partName': partName,
-      'brand': brand,
-      'partCategory': partCategory, // Added
-      'price': price,
-      'condition': condition,
-      'description': description,
-      'imageUrls': imageUrls,
-      'status': status,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'buyerId': buyerId,
-      'soldAt': soldAt != null ? Timestamp.fromDate(soldAt!) : null,
-    };
+  factory Listing.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Listing.fromMap(data);
   }
 }

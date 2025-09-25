@@ -36,28 +36,10 @@ class PartDetailScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (part.imageUrl.isNotEmpty)
-                  Center(
-                    child: Image.network(
-                      part.imageUrl,
-                      height: 200,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) =>
-                          const Icon(Icons.broken_image, size: 100, color: Colors.grey),
-                    ),
-                  )
-                else
-                  Center(
-                    child: Container(
-                      height: 200,
-                      width: double.infinity,
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image_not_supported, size: 100, color: Colors.grey),
-                    ),
-                  ),
+                // Removed image display section as Part model does not have imageUrl
                 const SizedBox(height: 20),
                 Text(
-                  part.name,
+                  part.modelName, // Changed from part.name to part.modelName
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -67,31 +49,12 @@ class PartDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '카테고리: ${part.category}',
+                  '카테고리: ${part.category.name}', // Display enum name
                   style: const TextStyle(fontSize: 18, color: Colors.grey),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  '주요 사양',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                if (part.specs.isNotEmpty)
-                  ...part.specs.entries.map((entry) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0),
-                        child: Text(
-                          '${entry.key}: ${entry.value}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ))
-                else
-                  const Text(
-                    '등록된 사양 정보가 없습니다.',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                const SizedBox(height: 20),
-
-
+                // Removed "주요 사양" section as Part model does not have specs
+                // If detailed specs are needed for a Part, they should be added to the Part model.
               ],
             ),
           );

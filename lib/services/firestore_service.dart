@@ -39,47 +39,7 @@ class FirestoreService {
     }
   }
 
-  // Method to upload parts data from a raw string
-  Future<void> uploadPartsData(String partsContent) async {
-    final batch = _db.batch();
-    final lines = partsContent.split('\n').map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
 
-    String currentCategory = '';
-    String currentBrand = '';
-    final now = DateTime.now();
-
-    for (final line in lines) {
-      if (line == 'CPU' || line == '그래픽카드' || line == '메인보드') {
-        currentCategory = line;
-        currentBrand = ''; // Reset brand when category changes
-      } else if (currentCategory.isNotEmpty && (line == 'AMD' || line == '인텔' || line == 'nVidea' || line == 'intel')) {
-        currentBrand = line;
-      } else if (currentCategory.isNotEmpty && currentBrand.isNotEmpty) {
-        // This is a part name
-        final String partName = line;
-        final String modelCode = partName.toLowerCase().replaceAll(' ', '-').replaceAll(RegExp(r'[^a-z0-9-]'), ''); // Simple derivation
-
-        final part = Part(
-          id: _db.collection('parts').doc().id, // Generate a new ID
-          category: currentCategory,
-          brand: currentBrand,
-          name: partName,
-          modelCode: modelCode, // Added modelCode
-          createdAt: now,
-        );
-        final partRef = _db.collection('parts').doc(part.id);
-        batch.set(partRef, part.toFirestore());
-      }
-    }
-
-    try {
-      await batch.commit();
-      print('Parts data uploaded successfully!');
-    } catch (e) {
-      print('Error uploading parts data: $e');
-      rethrow;
-    }
-  }
 
 
 }
