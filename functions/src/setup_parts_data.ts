@@ -17,7 +17,9 @@ async function migratePartsData() {
   const fileContent = fs.readFileSync(filePath, "utf-8");
   const lines = fileContent.split("\n");
 
-  const partsToUpload: any[] = [];
+  const batch = db.batch();
+  const partsCollection = db.collection("parts");
+  let partsCounter = 0;
   let currentCategory = "";
 
   for (const line of lines) {
@@ -36,35 +38,26 @@ async function migratePartsData() {
 
       for (const productName of productNames) {
         if (productName) {
+          const docRef = partsCollection.doc(); // Firestore가 자동으로 ID 생성
           const partData = {
+            partId: docRef.id,
             category: currentCategory,
             brand: brand,
-            name: productName,
-            modelCode: productName.replace(/\s+/g, "-").toUpperCase(), // 모델 코드는 이름 기반으로 생성
-            imageUrl: "", // 기본값
-            createdAt: new Date(),
+            modelName: productName,
           };
-          partsToUpload.push(partData);
+          batch.set(docRef, partData);
+          partsCounter++;
         }
       }
     }
   }
 
-  if (partsToUpload.length === 0) {
+  if (partsCounter === 0) {
     console.log("No parts found to upload.");
     return;
   }
 
-  console.log(`Found ${partsToUpload.length} parts to upload.`);
-
-  // Firestore에 일괄 쓰기(Batch Write)
-  const batch = db.batch();
-  const partsCollection = db.collection("parts");
-
-  partsToUpload.forEach((part) => {
-    const docRef = partsCollection.doc(); // Firestore가 자동으로 ID 생성
-    batch.set(docRef, part);
-  });
+  console.log(`Found ${partsCounter} parts to upload.`);
 
   try {
     await batch.commit();

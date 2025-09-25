@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../models/part_model.dart';
 import '../../models/listing_model.dart';
 import '../../services/listing_service.dart';
 import 'listing_detail_screen.dart';
+
 
 class PartShopScreen extends StatefulWidget {
   const PartShopScreen({super.key});
@@ -133,9 +136,8 @@ class _ListingCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          // TODO: Rename ProductDetailScreen to ListingDetailScreen
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => ListingDetailScreen(listingId: listing.id),
+            builder: (_) => ListingDetailScreen(listingId: listing.listingId), // Changed from listing.id to listing.listingId
           ));
         },
         child: Column(
@@ -167,11 +169,23 @@ class _ListingCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Expanded(
-                      child: Text(
-                        listing.partName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      child: FutureBuilder<DocumentSnapshot>(
+                        future: FirebaseFirestore.instance.collection('parts').doc(listing.partId).get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Text('...', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14));
+                          }
+                          if (!snapshot.hasData || !snapshot.data!.exists) {
+                            return const Text('부품 정보 없음', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14));
+                          }
+                          final part = Part.fromFirestore(snapshot.data!);
+                          return Text(
+                            part.modelName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 4),

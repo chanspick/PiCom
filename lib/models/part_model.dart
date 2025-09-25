@@ -1,47 +1,43 @@
+// part_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum PartCategory { gpu, cpu, ssd, mainboard }
+
 class Part {
-  final String id;
-  final String category;
+  final String partId;
+  final PartCategory category;
   final String brand;
-  final String name;
-  final String modelCode; // Added for linking with Product
-  final String imageUrl; // Placeholder for image URL
-  final DateTime createdAt;
+  final String modelName;
 
   Part({
-    required this.id,
+    required this.partId,
     required this.category,
     required this.brand,
-    required this.name,
-    required this.modelCode, // Added
-    this.imageUrl = '', // Default empty string
-    required this.createdAt,
+    required this.modelName,
   });
 
-  // Factory constructor for creating a Part from a Firestore document
-  factory Part.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  Map<String, dynamic> toMap() {
+    return {
+      'partId': partId,
+      'category': category.name,
+      'brand': brand,
+      'modelName': modelName,
+    };
+  }
+
+  factory Part.fromMap(Map<String, dynamic> map) {
     return Part(
-      id: doc.id,
-      category: data['category'] ?? '',
-      brand: data['brand'] ?? '',
-      name: data['name'] ?? '',
-      modelCode: data['modelCode'] ?? '', // Added
-      imageUrl: data['imageUrl'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      partId: map['partId'],
+      category: PartCategory.values.firstWhere(
+              (e) => e.name == map['category'],
+          orElse: () => PartCategory.cpu), // 기본 cpu
+      brand: map['brand'],
+      modelName: map['modelName'],
     );
   }
 
-  // Method to convert a Part object to a Firestore-compatible map
-  Map<String, dynamic> toFirestore() {
-    return {
-      'category': category,
-      'brand': brand,
-      'name': name,
-      'modelCode': modelCode, // Added
-      'imageUrl': imageUrl,
-      'createdAt': Timestamp.fromDate(createdAt),
-    };
+  factory Part.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Part.fromMap(data);
   }
 }

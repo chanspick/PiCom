@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
-import 'package:picom/services/part_service.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? category;
@@ -16,8 +15,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
-  List<String> _mergedResults = [];
-  List<String> _partsTxtModels = [];
+  List<String> _mergedResults = []; // Will only hold Algolia results now
   bool _isLoading = false;
   Timer? _debounce;
 
@@ -29,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    // No initial data loading from local file needed anymore
   }
 
   @override
@@ -39,19 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Future<void> _loadInitialData() async {
-    if (widget.category != null) {
-      setState(() {
-        _isLoading = true;
-      });
-      final allParts = await PartService().loadParts();
-      setState(() {
-        _partsTxtModels = allParts[widget.category!] ?? [];
-        _mergedResults = List.from(_partsTxtModels);
-        _isLoading = false;
-      });
-    }
-  }
+  // _loadInitialData() method removed
 
   void _onSearchChanged(String keyword) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -61,22 +47,18 @@ class _SearchScreenState extends State<SearchScreen> {
           _isLoading = true;
         });
 
-        // 1. Algolia Search
-        AlgoliaQuery query = _algolia.instance.index('products').query(keyword);
+        // Algolia Search
+        AlgoliaQuery query = _algolia.instance.index('parts').query(keyword); // Changed index to 'parts'
         if (widget.category != null) {
           query = query.facetFilter('category:${widget.category}');
         }
 
         final snap = await query.getObjects();
-        final algoliaNames = snap.hits.map((h) => h.data['name'] as String).toList();
+        // Assuming Algolia returns 'modelName' directly from Part model
+        final algoliaModelNames = snap.hits.map((h) => h.data['modelName'] as String).toList(); // Changed from 'name' to 'modelName'
 
-        // 2. Filter parts.txt models
-        final txtNames = _partsTxtModels
-            .where((name) => name.toLowerCase().contains(keyword.toLowerCase()))
-            .toList();
-
-        // 3. Merge and Deduplicate
-        final merged = <String>{...algoliaNames, ...txtNames}.toList();
+        // No local parts.txt models to filter or merge
+        final merged = algoliaModelNames; // Only Algolia results now
         merged.sort();
 
         setState(() {
@@ -84,9 +66,9 @@ class _SearchScreenState extends State<SearchScreen> {
           _isLoading = false;
         });
       } else {
-        // If search is empty, show the initial list from parts.txt (if category is present)
+        // If search is empty, clear results
         setState(() {
-          _mergedResults = List.from(_partsTxtModels);
+          _mergedResults = [];
         });
       }
     });
@@ -95,7 +77,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void _clearSearch() {
     _controller.clear();
     setState(() {
-      _mergedResults = List.from(_partsTxtModels);
+      _mergedResults = []; // Clear results on clear search
     });
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../models/listing_model.dart';
+import '../../models/part_model.dart';
 import '../../services/listing_service.dart';
 import '../product/part_shop_screen.dart';
 import '../product/listing_detail_screen.dart';
@@ -112,12 +113,11 @@ class _ListingCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
-            // TODO: Rename ProductDetailScreen to ListingDetailScreen and pass listing object or ID
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    ListingDetailScreen(listingId: listing.id), // Corrected screen name and parameter
+                    ListingDetailScreen(listingId: listing.listingId), // Changed from listing.id to listing.listingId
               ),
             );
           },
@@ -153,14 +153,26 @@ class _ListingCard extends StatelessWidget {
                     children: [
                       SizedBox(
                         height: 48, // Increased height for two lines
-                        child: Text(
-                          listing.partName, // Use the denormalized part name
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        child: FutureBuilder<DocumentSnapshot>(
+                          future: FirebaseFirestore.instance.collection('parts').doc(listing.partId).get(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Text('...', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16));
+                            }
+                            if (!snapshot.hasData || !snapshot.data!.exists) {
+                              return const Text('부품 정보 없음', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16));
+                            }
+                            final part = Part.fromFirestore(snapshot.data!);
+                            return Text(
+                              part.modelName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(height: 8),

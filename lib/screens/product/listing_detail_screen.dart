@@ -104,9 +104,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     _buildHeader(listing, part),
                     _buildPriceInfo(listing),
                     _buildSectionDivider(),
-                    _buildDescription('판매자 코멘트', listing.description),
-                    _buildSectionDivider(),
-                    _buildSpecs(part),
+                    // _buildDescription('판매자 코멘트', listing.description), // Removed as Listing model has no description
+                    // _buildSectionDivider(), // Removed corresponding divider
                   ],
                 ),
               );
@@ -146,10 +145,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text(part.name, style: const TextStyle(fontSize: 16)),
+          Text(part.modelName, style: const TextStyle(fontSize: 16)), // Changed from part.name to part.modelName
           const SizedBox(height: 4),
           Text(
-            '컨디션: ${listing.condition}',
+            '컨디션: ${listing.conditionScore}', // Changed from listing.condition to listing.conditionScore
             style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
         ],
@@ -195,30 +194,29 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     );
   }
 
-  Widget _buildSpecs(Part part) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('주요 사양', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          if (part.specs.isNotEmpty)
-            ...part.specs.entries.map((entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 100, child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.bold))),
-                      Expanded(child: Text(entry.value.toString())),
-                    ],
-                  ),
-                ))
-          else
-            const Text('등록된 사양 정보가 없습니다.'),
-        ],
-      ),
-    );
-  }
+  // Widget _buildSpecs(Part part) { // Removed as Part model has no specs
+  //   return Padding(
+  //     padding: const EdgeInsets.all(16.0),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text('주요 사양', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+  //         const SizedBox(height: 8),
+  //         if (part.specs.isNotEmpty)
+  //           ...part.specs.entries.map((entry) => Padding(
+  //                 padding: const EdgeInsets.only(bottom: 4.0),
+  //                 child: Row(
+  //                   children: [
+  //                     SizedBox(width: 100, child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.bold))),
+  //                     Expanded(child: Text(entry.value.toString())),
+  //                   ],
+  //                 )),
+  //           else
+  //             const Text('등록된 사양 정보가 없습니다.'),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildSectionDivider() => Divider(thickness: 8, color: Colors.grey[100]);
 

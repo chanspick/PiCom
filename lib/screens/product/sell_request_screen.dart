@@ -1,6 +1,8 @@
+import 'dart:io'; // Moved to top
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart'; // Moved to top
 import 'search_screen.dart';
 import '../../services/sell_request_service.dart';
 import '../../services/auth_service.dart';
@@ -28,6 +30,9 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
   int? _usageHoursPerDay;
   String? _selectedPurpose;
   final _otherPurposeController = TextEditingController();
+  final _requestedPriceController = TextEditingController(); // Added
+  List<File> _images = []; // Added
+  final ImagePicker _picker = ImagePicker(); // Added
   bool _isLoading = false;
 
   final List<String> _categories = ['CPU', 'GPU', 'RAM', '메인보드', '저장장치', '기타'];
@@ -39,7 +44,71 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     _purchaseDateController.dispose();
     _warrantyMonthsController.dispose();
     _otherPurposeController.dispose();
+    _requestedPriceController.dispose(); // Added
     super.dispose();
+  }
+
+  // New method for picking images
+  Future<void> _pickImages() async {
+    final List<XFile>? pickedFiles = await _picker.pickMultiImage(
+      imageQuality: 70, // Compress image quality
+      maxWidth: 1000, // Max width for picked images
+    );
+    if (pickedFiles != null && pickedFiles.isNotEmpty) {
+      setState(() {
+        _images = pickedFiles.map((file) => File(file.path)).toList();
+      });
+    }
+  }
+
+  // New UI for image picker
+  Widget _buildImagePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('제품 사진 (최대 5장)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: _pickImages,
+          child: Container(
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey),
+            ),
+            child: _images.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.camera_alt, color: Colors.grey[600]),
+                        Text('사진 추가', style: TextStyle(color: Colors.grey[600])),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _images.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Image.file(_images[index], width: 90, height: 90, fit: BoxFit.cover),
+                      );
+                    },
+                  ),
+          ),
+        ),
+        if (_images.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              '사진을 1장 이상 추가해주세요.',
+              style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
+            ),
+          ),
+      ],
+    );
   }
 
   Future<void> _navigateToSearchScreen() async {
@@ -84,6 +153,13 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
       return;
     }
 
+    if (_images.isEmpty) { // Image validation
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('사진을 1장 이상 추가해주세요.'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
     if (!_authService.requireAuth(context)) {
       return; // requireAuth will handle showing the login screen
     }
@@ -98,12 +174,14 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
 
       await _sellRequestService.createSellRequest(
         partCategory: _selectedCategory!,
-        partName: _productNameController.text,
+        partModelName: _productNameController.text, // Changed from partName to partModelName
         purchaseDate: _selectedDate!,
         hasWarranty: _hasWarranty,
         warrantyMonthsLeft: _hasWarranty ? int.tryParse(_warrantyMonthsController.text) : null,
         usageFrequency: '주 ${_usageDaysPerWeek}일, 하루 ${_usageHoursPerDay}시간',
         purpose: purpose,
+        requestedPrice: int.parse(_requestedPriceController.text), // New
+        images: _images, // New
       );
 
       if (mounted) {
@@ -115,7 +193,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('오류가 발생했습니다: $e')),
+          SnackBar(content: Text('오류가 발생했습니다: $e'), backgroundColor: Colors.red), // Added red background
         );
       }
     } finally {
@@ -296,6 +374,31 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                   },
                 ),
               ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _requestedPriceController, // New controller
+              decoration: const InputDecoration(
+                labelText: '희망 판매 가격',
+                hintText: '숫자만 입력 (예: 500000)',
+                border: OutlineInputBorder(),
+                suffixText: '원',
+              ),
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return '희망 판매 가격을 입력해주세요.';
+                }
+                if (int.tryParse(value) == null || int.parse(value) <= 0) {
+                  return '유효한 가격을 입력해주세요.';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24),
+            _buildImagePicker(), // New image picker UI
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _isLoading ? null : _submitRequest,

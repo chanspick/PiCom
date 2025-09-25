@@ -14,14 +14,14 @@ class PartsCategoryScreen extends StatefulWidget {
 
 class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _categories = ['CPU', '그래픽카드', '메인보드'];
-  late Future<Map<String, List<String>>> _partsFuture;
+  final List<PartCategory> _categories = PartCategory.values; // Changed to use PartCategory enum
+  final PartService _partService = PartService(); // Added PartService instance
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: _categories.length, vsync: this);
-    _partsFuture = PartService().loadParts();
+    // _partsFuture removed
   }
 
   @override
@@ -38,7 +38,7 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          tabs: _categories.map((category) => Tab(text: category)).toList(),
+          tabs: _categories.map((category) => Tab(text: category.name)).toList(), // Display enum name
         ),
       ),
       body: Column(
@@ -72,29 +72,27 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
             ),
           ),
           Expanded(
-            child: FutureBuilder<Map<String, List<String>>>(
-              future: _partsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('오류: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('부품 데이터를 불러올 수 없습니다.'));
-                }
+            child: TabBarView(
+              controller: _tabController,
+              children: _categories.map((category) {
+                return StreamBuilder<List<Part>>( // Changed to StreamBuilder
+                  stream: _partService.getPartsByCategory(category), // Fetch parts by category
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('오류: ${snapshot.error}'));
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('부품 데이터를 불러올 수 없습니다.'));
+                    }
 
-                final partsByCategory = snapshot.data!;
-
-                return TabBarView(
-                  controller: _tabController,
-                  children: _categories.map((category) {
-                    final partNames = partsByCategory[category] ?? [];
-                    return _buildPartGrid(category, partNames);
-                  }).toList(),
+                    final parts = snapshot.data!;
+                    return _buildPartGrid(parts); // Pass List<Part> directly
+                  },
                 );
-              },
+              }).toList(),
             ),
           ),
         ],
@@ -102,21 +100,7 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
     );
   }
 
-  Widget _buildPartGrid(String category, List<String> partNames) {
-    final parts = partNames.map((name) {
-      final brand = name.split(' ').first;
-      return Part(
-        id: '', // Not available from txt
-        name: name,
-        brand: brand,
-        category: category,
-        modelCode: '', // Not available from txt
-        imageUrl: '', // Not available from txt
-        specs: {}, // Not available from txt
-        createdAt: DateTime.now(), // Dummy data
-      );
-    }).toList();
-
+  Widget _buildPartGrid(List<Part> parts) { // Accepts List<Part> directly
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -142,8 +126,9 @@ class _PartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Since we don't have a partId, we can't navigate to details
-        // Or we could implement search based on part name
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => PartDetailScreen(partId: part.partId), // Navigate to PartDetailScreen
+        ));
       },
       child: Container(
         decoration: BoxDecoration(
@@ -164,17 +149,10 @@ class _PartCard extends StatelessWidget {
               flex: 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: part.imageUrl.isNotEmpty
-                    ? Image.network(
-                        part.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                      )
-                    : Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
-                      ),
+                child: Container(
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.image_not_supported, size: 40, color: Colors.grey), // No image in Part model
+                ),
               ),
             ),
             Expanded(
@@ -195,7 +173,7 @@ class _PartCard extends StatelessWidget {
                     Expanded(
                       child: Center(
                         child: Text(
-                          part.name,
+                          part.modelName, // Changed from part.name to part.modelName
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,

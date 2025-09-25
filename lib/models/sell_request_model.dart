@@ -1,62 +1,86 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum SellRequestStatus { pending, approved, rejected }
+
 class SellRequest {
-  final String id;
+  final String requestId;
   final String sellerId;
-  final String partCategory;
-  final String partName;
+  final String partCategory; // e.g., CPU, GPU
+  final String partModelName; // e.g., Core i9-13900K
   final DateTime purchaseDate;
   final bool hasWarranty;
   final int? warrantyMonthsLeft;
-  final String usageFrequency; // e.g., "3 days/week, 4 hours/day"
-  final String purpose;
-  final String status; // e.g., 'requested', 'shipped', 'inspected', 'listed', 'rejected'
+  final String usageFrequency; // e.g., '주 5일, 하루 8시간'
+  final String purpose; // e.g., '게임용', '기타 (개발용)'
+  final int requestedPrice; // New: Seller's requested price
+  final List<String> imageUrls; // New: URLs of uploaded images
+  final SellRequestStatus status; // New: Status of the request
   final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String? adminNotes; // New: For admin to add notes
 
   SellRequest({
-    required this.id,
+    required this.requestId,
     required this.sellerId,
     required this.partCategory,
-    required this.partName,
+    required this.partModelName,
     required this.purchaseDate,
     required this.hasWarranty,
     this.warrantyMonthsLeft,
     required this.usageFrequency,
     required this.purpose,
-    required this.status,
+    required this.requestedPrice,
+    required this.imageUrls,
+    this.status = SellRequestStatus.pending, // Default to pending
     required this.createdAt,
+    this.updatedAt,
+    this.adminNotes,
   });
 
-  factory SellRequest.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return SellRequest(
-      id: doc.id,
-      sellerId: data['sellerId'] ?? '',
-      partCategory: data['partCategory'] ?? '',
-      partName: data['partName'] ?? '',
-      purchaseDate: (data['purchaseDate'] as Timestamp).toDate(),
-      hasWarranty: data['hasWarranty'] ?? false,
-      warrantyMonthsLeft: data['warrantyMonthsLeft'] as int?,
-      usageFrequency: data['usageFrequency'] ?? '',
-      purpose: data['purpose'] ?? '',
-      status: data['status'] ?? 'requested',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-    );
-  }
-
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toMap() {
     return {
+      'requestId': requestId,
       'sellerId': sellerId,
       'partCategory': partCategory,
-      'partName': partName,
+      'partModelName': partModelName,
       'purchaseDate': Timestamp.fromDate(purchaseDate),
       'hasWarranty': hasWarranty,
       'warrantyMonthsLeft': warrantyMonthsLeft,
       'usageFrequency': usageFrequency,
       'purpose': purpose,
-      'status': status,
+      'requestedPrice': requestedPrice,
+      'imageUrls': imageUrls,
+      'status': status.name,
       'createdAt': Timestamp.fromDate(createdAt),
+      'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+      'adminNotes': adminNotes,
     };
+  }
+
+  factory SellRequest.fromMap(Map<String, dynamic> map) {
+    return SellRequest(
+      requestId: map['requestId'],
+      sellerId: map['sellerId'],
+      partCategory: map['partCategory'],
+      partModelName: map['partModelName'],
+      purchaseDate: (map['purchaseDate'] as Timestamp).toDate(),
+      hasWarranty: map['hasWarranty'],
+      warrantyMonthsLeft: map['warrantyMonthsLeft'],
+      usageFrequency: map['usageFrequency'],
+      purpose: map['purpose'],
+      requestedPrice: map['requestedPrice'],
+      imageUrls: List<String>.from(map['imageUrls']),
+      status: SellRequestStatus.values.firstWhere(
+              (e) => e.name == map['status'],
+          orElse: () => SellRequestStatus.pending),
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      updatedAt: map['updatedAt'] != null ? (map['updatedAt'] as Timestamp).toDate() : null,
+      adminNotes: map['adminNotes'],
+    );
+  }
+
+  factory SellRequest.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return SellRequest.fromMap(data);
   }
 }
