@@ -2,17 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'part_shop_screen.dart';
-import 'pc_product_screen.dart';
-import 'product_detail_screen.dart';
-import 'parts_category_screen.dart'; // Add this import
-import '../models/product_model.dart';
+import '../models/listing_model.dart';
+import '../models/part_model.dart';
+import '../services/listing_service.dart';
+import 'product/part_shop_screen.dart';
+import 'product/listing_detail_screen.dart';
+import 'product/parts_category_screen.dart'; // Add this import
+import 'product/sell_request_screen.dart'; // Add this import
 import '../widgets/home_app_bar_actions.dart';
 import '../widgets/home_search_bar.dart';
-import '../widgets/product_price_and_actions.dart';
 import '../widgets/banner_item.dart';
 import '../widgets/circle_category.dart';
-import '../screens/community/community_screen.dart';
+import 'community/community_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -238,11 +239,11 @@ class _CircleMenuSection extends StatelessWidget {
         ),
       },
       {
-        'icon': Icons.desktop_windows,
-        'label': 'PC완제품',
+        'icon': Icons.add_shopping_cart,
+        'label': '판매 요청',
         'onTap': () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const PCProductScreen()),
+          MaterialPageRoute(builder: (context) => const SellRequestScreen()),
         ),
       },
     ];
