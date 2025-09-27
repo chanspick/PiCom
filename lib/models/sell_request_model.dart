@@ -5,8 +5,10 @@ enum SellRequestStatus { pending, approved, rejected }
 class SellRequest {
   final String requestId;
   final String sellerId;
-  final String partCategory; // e.g., CPU, GPU
-  final String partModelName; // e.g., Core i9-13900K
+  final String partId; // ID of the part from the 'parts' collection
+  final String category; // Denormalized from Part
+  final String brand; // Denormalized from Part
+  final String modelName; // Denormalized from Part
   final DateTime purchaseDate;
   final bool hasWarranty;
   final int? warrantyMonthsLeft;
@@ -22,8 +24,10 @@ class SellRequest {
   SellRequest({
     required this.requestId,
     required this.sellerId,
-    required this.partCategory,
-    required this.partModelName,
+    required this.partId,
+    required this.category,
+    required this.brand,
+    required this.modelName,
     required this.purchaseDate,
     required this.hasWarranty,
     this.warrantyMonthsLeft,
@@ -41,8 +45,10 @@ class SellRequest {
     return {
       'requestId': requestId,
       'sellerId': sellerId,
-      'partCategory': partCategory,
-      'partModelName': partModelName,
+      'partId': partId,
+      'category': category,
+      'brand': brand,
+      'modelName': modelName,
       'purchaseDate': Timestamp.fromDate(purchaseDate),
       'hasWarranty': hasWarranty,
       'warrantyMonthsLeft': warrantyMonthsLeft,
@@ -61,8 +67,10 @@ class SellRequest {
     return SellRequest(
       requestId: map['requestId'],
       sellerId: map['sellerId'],
-      partCategory: map['partCategory'],
-      partModelName: map['partModelName'],
+      partId: map['partId'] ?? '',
+      category: map['category'] ?? '',
+      brand: map['brand'] ?? '',
+      modelName: map['modelName'] ?? '',
       purchaseDate: (map['purchaseDate'] as Timestamp).toDate(),
       hasWarranty: map['hasWarranty'],
       warrantyMonthsLeft: map['warrantyMonthsLeft'],
