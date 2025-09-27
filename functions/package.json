@@ -19,7 +19,7 @@
   "dependencies": {
     "@google-cloud/storage": "^7.17.1",
     "@types/node": "^22.0.0",
-    "algoliasearch": "^4.24.0",
+    "algoliasearch": "^4.25.2",
     "firebase-admin": "^12.1.0",
     "firebase-functions": "^6.0.0"
   },

@@ -1,6 +1,6 @@
-import * as functions from "firebase-functions";
+import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
-import { logger } from "firebase-functions";
+import * as logger from "firebase-functions/logger";
 
 const db = admin.firestore();
 
@@ -8,31 +8,31 @@ const db = admin.firestore();
 enum PartCategory { gpu = "gpu", cpu = "cpu", ssd = "ssd", mainboard = "mainboard" }
 
 /**
- * [HTTPS Callable] Creates a new part document in Firestore.
+ * [V2 HTTPS Callable] Creates a new part document in Firestore.
  * This function is called from the client to add new part metadata.
  * It performs validation and ensures data integrity.
  */
-export const createPart = functions.https.onCall(async (data, context) => {
+export const createPart = onCall({region: "asia-northeast3"}, async (request) => {
   // 1. 인증 확인
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "The function must be called while authenticated."
     );
   }
 
   // 2. 데이터 유효성 검사
-  const { category, brand, modelName } = data;
+  const {category, brand, modelName} = request.data;
 
   if (!category || !brand || !modelName) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Missing required fields: category, brand, modelName."
     );
   }
 
   if (typeof category !== "string" || typeof brand !== "string" || typeof modelName !== "string") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "Fields must be strings."
     );
@@ -40,9 +40,9 @@ export const createPart = functions.https.onCall(async (data, context) => {
 
   // Enum 값 유효성 검사
   if (!(Object.values(PartCategory).includes(category as PartCategory))) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
-      `Invalid category: ${category}. Must be one of ${Object.values(PartCategory).join(', ')}.`
+      `Invalid category: ${category}. Must be one of ${Object.values(PartCategory).join(", ")}.`
     );
   }
 
@@ -61,11 +61,11 @@ export const createPart = functions.https.onCall(async (data, context) => {
 
   try {
     await partRef.set(newPartData);
-    logger.info(`Part ${partId} created successfully by user ${context.auth.uid}.`);
-    return { partId: partId, message: "Part created successfully." };
+    logger.info(`Part ${partId} created successfully by user ${request.auth.uid}.`);
+    return {partId: partId, message: "Part created successfully."};
   } catch (error) {
-    logger.error(`Error creating part: ${error}`);
-    throw new functions.https.HttpsError(
+    logger.error(`Error creating part:`, error);
+    throw new HttpsError(
       "internal",
       "Failed to create part.",
       error

@@ -1,28 +1,28 @@
-import * as functions from "firebase-functions";
+import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
-import { logger } from "firebase-functions";
+import * as logger from "firebase-functions/logger";
 
 const db = admin.firestore();
 
 /**
- * [HTTPS Callable] Handles the purchase of a listing.
+ * [V2 HTTPS Callable] Handles the purchase of a listing.
  * This function ensures atomicity and enforces business logic for a sale.
  */
-export const buyListing = functions.https.onCall(async (data, context) => {
+export const buyListing = onCall({region: "asia-northeast3"}, async (request) => {
   // 1. 인증 확인
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "The function must be called while authenticated."
     );
   }
 
-  const { listingId } = data;
-  const buyerId = context.auth.uid;
+  const {listingId} = request.data;
+  const buyerId = request.auth.uid;
 
   // 2. 데이터 유효성 검사
   if (!listingId || typeof listingId !== "string") {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "The function must be called with a valid 'listingId'."
     );
@@ -35,17 +35,17 @@ export const buyListing = functions.https.onCall(async (data, context) => {
       const listingDoc = await transaction.get(listingRef);
 
       if (!listingDoc.exists) {
-        throw new functions.https.HttpsError("not-found", "Listing not found.");
+        throw new HttpsError("not-found", "Listing not found.");
       }
 
       const listingData = listingDoc.data();
 
       if (listingData?.status !== "available") {
-        throw new functions.https.HttpsError("failed-precondition", "Listing is not available for purchase.");
+        throw new HttpsError("failed-precondition", "Listing is not available for purchase.");
       }
 
       if (listingData?.sellerId === buyerId) {
-        throw new functions.https.HttpsError("failed-precondition", "Cannot buy your own listing.");
+        throw new HttpsError("failed-precondition", "Cannot buy your own listing.");
       }
 
       // 3. Listing 상태 업데이트
@@ -60,13 +60,13 @@ export const buyListing = functions.https.onCall(async (data, context) => {
       logger.info(`Listing ${listingId} sold to ${buyerId}.`);
     });
 
-    return { success: true, message: `Listing ${listingId} purchased successfully.` };
+    return {success: true, message: `Listing ${listingId} purchased successfully.`};
   } catch (error: any) {
-    if (error.code) {
+    if (error instanceof HttpsError) {
       throw error; // Re-throw HttpsError
     } else {
-      logger.error(`Error buying listing ${listingId}: ${error}`);
-      throw new functions.https.HttpsError(
+      logger.error(`Error buying listing ${listingId}:`, error);
+      throw new HttpsError(
         "internal",
         "Failed to complete purchase.",
         error

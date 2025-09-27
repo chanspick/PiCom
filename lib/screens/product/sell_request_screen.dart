@@ -1,8 +1,9 @@
-import 'dart:io'; // Moved to top
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart'; // Moved to top
+import 'package:image_picker/image_picker.dart';
+import '../../models/part_model.dart'; // Import Part model
 import 'search_screen.dart';
 import '../../services/sell_request_service.dart';
 import '../../services/auth_service.dart';
@@ -20,8 +21,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
   final _authService = AuthService();
 
   // State variables
-  String? _selectedCategory;
-  final _productNameController = TextEditingController();
+  Part? _selectedPart; // Replaced category and productName controller
   final _purchaseDateController = TextEditingController();
   DateTime? _selectedDate;
   bool _hasWarranty = false;
@@ -30,29 +30,26 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
   int? _usageHoursPerDay;
   String? _selectedPurpose;
   final _otherPurposeController = TextEditingController();
-  final _requestedPriceController = TextEditingController(); // Added
-  List<File> _images = []; // Added
-  final ImagePicker _picker = ImagePicker(); // Added
+  final _requestedPriceController = TextEditingController();
+  List<File> _images = [];
+  final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
 
-  final List<String> _categories = ['CPU', 'GPU', 'RAM', '메인보드', '저장장치', '기타'];
   final List<String> _purposes = ['일상용', '게임용', '개발용', '사무용', '기타'];
 
   @override
   void dispose() {
-    _productNameController.dispose();
     _purchaseDateController.dispose();
     _warrantyMonthsController.dispose();
     _otherPurposeController.dispose();
-    _requestedPriceController.dispose(); // Added
+    _requestedPriceController.dispose();
     super.dispose();
   }
 
-  // New method for picking images
   Future<void> _pickImages() async {
     final List<XFile>? pickedFiles = await _picker.pickMultiImage(
-      imageQuality: 70, // Compress image quality
-      maxWidth: 1000, // Max width for picked images
+      imageQuality: 70,
+      maxWidth: 1000,
     );
     if (pickedFiles != null && pickedFiles.isNotEmpty) {
       setState(() {
@@ -61,7 +58,6 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     }
   }
 
-  // New UI for image picker
   Widget _buildImagePicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,23 +108,17 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
   }
 
   Future<void> _navigateToSearchScreen() async {
-    if (_selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('부품 종류를 먼저 선택해주세요.')),
-      );
-      return;
-    }
-
+    // The SearchScreen needs to be adapted to return a Part object
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SearchScreen(category: _selectedCategory!),
+        builder: (context) => SearchScreen(),
       ),
     );
 
-    if (result != null && result is String) {
+    if (result != null && result is Part) {
       setState(() {
-        _productNameController.text = result;
+        _selectedPart = result;
       });
     }
   }
@@ -153,7 +143,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
       return;
     }
 
-    if (_images.isEmpty) { // Image validation
+    if (_images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('사진을 1장 이상 추가해주세요.'), backgroundColor: Colors.red),
       );
@@ -161,7 +151,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     }
 
     if (!_authService.requireAuth(context)) {
-      return; // requireAuth will handle showing the login screen
+      return;
     }
 
     setState(() => _isLoading = true);
@@ -173,15 +163,14 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
       }
 
       await _sellRequestService.createSellRequest(
-        partCategory: _selectedCategory!,
-        partModelName: _productNameController.text, // Changed from partName to partModelName
+        part: _selectedPart!, // Pass the selected part
         purchaseDate: _selectedDate!,
         hasWarranty: _hasWarranty,
         warrantyMonthsLeft: _hasWarranty ? int.tryParse(_warrantyMonthsController.text) : null,
         usageFrequency: '주 ${_usageDaysPerWeek}일, 하루 ${_usageHoursPerDay}시간',
         purpose: purpose,
-        requestedPrice: int.parse(_requestedPriceController.text), // New
-        images: _images, // New
+        requestedPrice: int.parse(_requestedPriceController.text),
+        images: _images,
       );
 
       if (mounted) {
@@ -193,7 +182,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('오류가 발생했습니다: $e'), backgroundColor: Colors.red), // Added red background
+          SnackBar(content: Text('오류가 발생했습니다: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -212,37 +201,29 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            DropdownButtonFormField<String>(
-              value: _selectedCategory,
-              decoration: const InputDecoration(
-                labelText: '부품 종류',
-                border: OutlineInputBorder(),
-              ),
-              items: _categories.map((String category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
+            // Replaced Dropdown and TextFormField with a single tappable field
+            FormField<Part>(
+              builder: (FormFieldState<Part> state) {
+                return InkWell(
+                  onTap: _navigateToSearchScreen,
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: '제품 모델',
+                      border: const OutlineInputBorder(),
+                      errorText: state.errorText,
+                    ),
+                    child: _selectedPart == null
+                        ? Text('탭하여 부품 검색', style: TextStyle(color: Theme.of(context).hintColor))
+                        : Text('${_selectedPart!.brand} ${_selectedPart!.modelName}'),
+                  ),
                 );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedCategory = newValue;
-                });
               },
-              validator: (value) => value == null ? '부품 종류를 선택해주세요.' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _productNameController,
-              readOnly: true,
-              decoration: const InputDecoration(
-                labelText: '제품 모델',
-                hintText: '탭하여 부품 검색',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.search),
-              ),
-              onTap: _navigateToSearchScreen,
-              validator: (value) => (value == null || value.isEmpty) ? '제품 모델을 선택해주세요.' : null,
+              validator: (value) {
+                if (_selectedPart == null) {
+                  return '제품 모델을 선택해주세요.';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -307,12 +288,9 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                     decoration: const InputDecoration(labelText: '주', border: OutlineInputBorder()),
                     value: _usageDaysPerWeek,
                     items: List.generate(7, (index) => index + 1)
-                        .map((day) => DropdownMenuItem(value: day, child: Text('$day일')))
-                        .toList(),
+                        .map((day) => DropdownMenuItem(value: day, child: Text('$day일'))).toList(),
                     onChanged: (value) {
-                      setState(() {
-                        _usageDaysPerWeek = value;
-                      });
+                      setState(() { _usageDaysPerWeek = value; });
                     },
                     validator: (value) => value == null ? '선택' : null,
                   ),
@@ -323,12 +301,9 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                     decoration: const InputDecoration(labelText: '일', border: OutlineInputBorder()),
                     value: _usageHoursPerDay,
                     items: List.generate(24, (index) => index + 1)
-                        .map((hour) => DropdownMenuItem(value: hour, child: Text('$hour시간')))
-                        .toList(),
+                        .map((hour) => DropdownMenuItem(value: hour, child: Text('$hour시간'))).toList(),
                     onChanged: (value) {
-                      setState(() {
-                        _usageHoursPerDay = value;
-                      });
+                      setState(() { _usageHoursPerDay = value; });
                     },
                     validator: (value) => value == null ? '선택' : null,
                   ),
@@ -348,7 +323,8 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                     setState(() {
                       if (selected) {
                         _selectedPurpose = purpose;
-                      } else {
+                      }
+                      else {
                         _selectedPurpose = null;
                       }
                     });
@@ -376,7 +352,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
               ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: _requestedPriceController, // New controller
+              controller: _requestedPriceController,
               decoration: const InputDecoration(
                 labelText: '희망 판매 가격',
                 hintText: '숫자만 입력 (예: 500000)',
@@ -398,7 +374,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
               },
             ),
             const SizedBox(height: 24),
-            _buildImagePicker(), // New image picker UI
+            _buildImagePicker(),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _isLoading ? null : _submitRequest,

@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 판매요청 이미지 경로
+    match /sell_requests/{userId}/{requestId}/{fileName} {
+      // 업로드/수정: 본인 경로 + 비익명 + 이미지 + 5MB 이하
+      allow create, update: if request.auth != null
+                            && request.auth.uid == userId
+                            && request.auth.token.firebase.sign_in_provider != 'anonymous'
+                            && request.resource.contentType.matches('image/.*')
+                            && request.resource.size < 5 * 1024 * 1024;
+
+      // 읽기: 인증된 사용자
+      allow read: if request.auth != null;
+
+      // 삭제: 소유자만
+      allow delete: if request.auth != null
+                    && request.auth.uid == userId;
+    }
+  }
+}

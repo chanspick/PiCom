@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../models/part_model.dart'; // Import Part model
 import '../models/sell_request_model.dart';
 
 class SellRequestService {
@@ -23,8 +24,7 @@ class SellRequestService {
   }
 
   Future<void> createSellRequest({
-    required String partCategory,
-    required String partModelName,
+    required Part part, // Pass the selected Part object
     required DateTime purchaseDate,
     required bool hasWarranty,
     int? warrantyMonthsLeft,
@@ -47,8 +47,10 @@ class SellRequestService {
     SellRequest newRequest = SellRequest(
       requestId: requestId,
       sellerId: sellerId,
-      partCategory: partCategory,
-      partModelName: partModelName,
+      partId: part.partId,
+      category: part.category.name, // Get string from enum
+      brand: part.brand,
+      modelName: part.modelName,
       purchaseDate: purchaseDate,
       hasWarranty: hasWarranty,
       warrantyMonthsLeft: warrantyMonthsLeft,

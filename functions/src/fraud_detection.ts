@@ -1,12 +1,9 @@
-import * as admin from "firebase-admin";
 import {
   onDocumentCreated,
   FirestoreEvent,
   QueryDocumentSnapshot,
 } from "firebase-functions/v2/firestore";
 import { logger } from "firebase-functions/v2";
-
-const db = admin.firestore();
 
 /**
  * [V2] onListingCreatedFraudCheck
@@ -26,7 +23,6 @@ export const onListingCreatedFraudCheck = onDocumentCreated(
     }
 
     const listingId = snapshot.id;
-    const listingData = snapshot.data();
 
     logger.info(`Initiating fraud check for new listing ${listingId}.`);
 

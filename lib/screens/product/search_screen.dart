@@ -1,8 +1,7 @@
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
+import '../../models/part_model.dart'; // Import the Part model
 
 class SearchScreen extends StatefulWidget {
   final String? category;
@@ -15,7 +14,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
-  List<String> _mergedResults = []; // Will only hold Algolia results now
+  List<AlgoliaObjectSnapshot> _results = []; // Changed to hold full objects
   bool _isLoading = false;
   Timer? _debounce;
 
@@ -25,19 +24,11 @@ class _SearchScreenState extends State<SearchScreen> {
   );
 
   @override
-  void initState() {
-    super.initState();
-    // No initial data loading from local file needed anymore
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     _debounce?.cancel();
     super.dispose();
   }
-
-  // _loadInitialData() method removed
 
   void _onSearchChanged(String keyword) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -47,28 +38,19 @@ class _SearchScreenState extends State<SearchScreen> {
           _isLoading = true;
         });
 
-        // Algolia Search
-        AlgoliaQuery query = _algolia.instance.index('parts').query(keyword); // Changed index to 'parts'
+        AlgoliaQuery query = _algolia.instance.index('parts').query(keyword);
         if (widget.category != null) {
           query = query.facetFilter('category:${widget.category}');
         }
 
         final snap = await query.getObjects();
-        // Assuming Algolia returns 'modelName' directly from Part model
-        final algoliaModelNames = snap.hits.map((h) => h.data['modelName'] as String).toList(); // Changed from 'name' to 'modelName'
-
-        // No local parts.txt models to filter or merge
-        final merged = algoliaModelNames; // Only Algolia results now
-        merged.sort();
-
         setState(() {
-          _mergedResults = merged;
+          _results = snap.hits; // Store the full hits
           _isLoading = false;
         });
       } else {
-        // If search is empty, clear results
         setState(() {
-          _mergedResults = [];
+          _results = [];
         });
       }
     });
@@ -77,8 +59,16 @@ class _SearchScreenState extends State<SearchScreen> {
   void _clearSearch() {
     _controller.clear();
     setState(() {
-      _mergedResults = []; // Clear results on clear search
+      _results = [];
     });
+  }
+
+  // Helper to convert string to PartCategory enum
+  PartCategory _getPartCategoryFromString(String categoryString) {
+    return PartCategory.values.firstWhere(
+      (e) => e.name.toLowerCase() == categoryString.toLowerCase(),
+      orElse: () => PartCategory.cpu, // Default fallback
+    );
   }
 
   @override
@@ -116,23 +106,32 @@ class _SearchScreenState extends State<SearchScreen> {
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : _mergedResults.isEmpty
+                  : _results.isEmpty
                       ? Center(
                           child: Text(_controller.text.isEmpty
                               ? '검색어를 입력해 주세요'
                               : '검색 결과가 없습니다'))
                       : ListView.builder(
-                          itemCount: _mergedResults.length,
+                          itemCount: _results.length,
                           itemBuilder: (ctx, i) {
-                            final modelName = _mergedResults[i];
+                            final hit = _results[i];
+                            final data = hit.data;
+                            final modelName = data['modelName'] as String? ?? 'N/A';
+                            final brand = data['brand'] as String? ?? 'N/A';
+
                             return ListTile(
                               title: Text(modelName),
+                              subtitle: Text(brand),
                               onTap: () {
-                                // Only pop with result if a category was provided
-                                // This search is for selection, not navigation
-                                if (widget.category != null) {
-                                  Navigator.pop(context, modelName);
-                                }
+                                // Create a Part object from the Algolia hit data
+                                final part = Part(
+                                  partId: hit.objectID,
+                                  category: _getPartCategoryFromString(data['category'] as String? ?? ''),
+                                  brand: brand,
+                                  modelName: modelName,
+                                );
+                                // Pop with the Part object
+                                Navigator.pop(context, part);
                               },
                             );
                           },
