@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:picom/services/auth_service.dart';
 import 'package:picom/screens/profile/profile_screen.dart'; // Added import
+import 'package:picom/screens/cart/cart_screen.dart';
 
 class HomeAppBarActions extends StatelessWidget {
   const HomeAppBarActions({super.key});
@@ -19,6 +20,16 @@ class HomeAppBarActions extends StatelessWidget {
             // TODO: 알림 화면으로 이동
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('알림 기능은 아직 구현되지 않았습니다.')),
+            );
+          },
+        ),
+        // 장바구니 아이콘 추가
+        IconButton(
+          icon: const Icon(Icons.shopping_bag_outlined),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CartScreen()),
             );
           },
         ),

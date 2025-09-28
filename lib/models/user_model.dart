@@ -6,6 +6,7 @@ class UserModel {
   final String photoURL;
   final List<String> followers;
   final List<String> following;
+  final bool isAdmin;
 
   UserModel({
     required this.id,
@@ -13,6 +14,7 @@ class UserModel {
     required this.photoURL,
     required this.followers,
     required this.following,
+    this.isAdmin = false,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -23,6 +25,7 @@ class UserModel {
       photoURL: data['photoURL'] ?? '',
       followers: List<String>.from(data['followers'] ?? []),
       following: List<String>.from(data['following'] ?? []),
+      isAdmin: data['isAdmin'] ?? false,
     );
   }
 }

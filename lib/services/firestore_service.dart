@@ -12,6 +12,9 @@ class FirestoreService {
     String? photoUrl,
     required String provider,
   }) async {
+    final List<String> adminEmails = ['wlsrb00g@gmail.com', 'jochanhyeong28@gmail.com'];
+    final bool isAdmin = adminEmails.contains(email);
+
     await _db.collection('users').doc(uid).set(
       {
         'email': email,
@@ -20,6 +23,7 @@ class FirestoreService {
         'provider': provider,
         'lastLogin': FieldValue.serverTimestamp(),
         'createdAt': FieldValue.serverTimestamp(), // 최초 생성 시에만 설정
+        'isAdmin': isAdmin,
       },
       SetOptions(merge: true), // 기존 필드는 유지하고 새로운 필드만 추가/업데이트
     );

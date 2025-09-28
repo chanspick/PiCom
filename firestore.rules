@@ -1,36 +1,50 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // === 기존 users 규칙 (무변경) ===
+
+    // Helper function to check if a user is an admin
+    function isUserAdmin(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.isAdmin == true;
+    }
+
+    // Rules for the 'users' collection
     match /users/{userId} {
       allow create: if request.auth != null && request.auth.uid == userId;
       allow update, delete: if request.auth != null && request.auth.uid == userId && request.auth.token.firebase.sign_in_provider != 'anonymous';
       allow read: if request.auth != null;
     }
-    // === 새로운 sell_requests 규칙 ===
+
+    // Rules for the 'sell_requests' collection
     match /sell_requests/{requestId} {
-      // 판매요청 생성: 인증된 비익명 사용자만 가능
       allow create: if request.auth != null 
                    && request.auth.token.firebase.sign_in_provider != 'anonymous'
                    && request.auth.uid == request.resource.data.sellerId
                    && isValidSellRequest();
-      
-      // 판매요청 수정/삭제: 작성자만 가능
       allow update, delete: if request.auth != null 
                            && request.auth.uid == resource.data.sellerId
                            && request.auth.token.firebase.sign_in_provider != 'anonymous';
-      
-      // 판매요청 읽기: 인증된 모든 사용자 (중고거래 특성상)
       allow read: if request.auth != null;
     }
 
-    // === 헬퍼 함수 ===
+    // Rules for community 'posts'
+    match /posts/{postId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+
+      // Rules for 'comments' subcollection within a post
+      match /comments/{commentId} {
+        allow read: if request.auth != null;
+        // Only admins can create, update, or delete comments
+        allow create, update, delete: if request.auth != null && isUserAdmin(request.auth.uid);
+      }
+    }
+
+    // Helper function for validating a 'sell_request'
     function isValidSellRequest() {
       let data = request.resource.data;
-      // 앱의 SellRequest 모델에 기반한 필수 필드 목록
       let requiredFields = ['partId', 'sellerId', 'brand', 'modelName', 
                             'purchaseDate', 'requestedPrice', 'imageUrls', 'status'];
-
       return requiredFields.all(field in data.keys()) &&
              data.partId is string && data.partId.size() > 0 &&
              data.sellerId == request.auth.uid &&
@@ -38,10 +52,11 @@ service cloud.firestore {
              data.imageUrls is list && data.imageUrls.size() > 0;
     }
 
-    // === 기존 기본 규칙 (무변경) ===
+    // Default catch-all rule (less permissive)
+    // Consider making this more restrictive if needed
     match /{document=**} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+      allow write: if false; // Default deny writes unless explicitly allowed
     }
   }
 }

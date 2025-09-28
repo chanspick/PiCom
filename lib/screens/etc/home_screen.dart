@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,7 +12,7 @@ import '../product/parts_category_screen.dart'; // Add this import
 import '../product/sell_request_screen.dart';
 import '../../widgets/home_app_bar_actions.dart';
 import '../../widgets/home_search_bar.dart';
-import '../../widgets/banner_item.dart';
+import '../../widgets/home_banner.dart';
 import '../../widgets/circle_category.dart';
 import '../community/community_screen.dart';
 
@@ -39,11 +40,11 @@ class _HomeContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _BannerSection(),
-          const SizedBox(height: 16),
-          const SizedBox(height: 24),
+          HomeBanner(),
+          SizedBox(height: 16),
+          SizedBox(height: 24),
           _CircleMenuSection(),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _ProductListSection(),
         ],
       ),
@@ -197,24 +198,6 @@ class _ListingCard extends StatelessWidget {
   }
 }
 
-class _BannerSection extends StatelessWidget {
-  const _BannerSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: PageView(
-        children: const [
-          BannerItem(imageUrl: 'https://via.placeholder.com/800x400.png/007BFF/FFFFFF?text=PiCom+%EC%95%B1+%ED%99%8d%EB%B3%B4'),
-          BannerItem(imageUrl: 'https://via.placeholder.com/800x400.png/28A745/FFFFFF?text=%EA%B3%A0%EA%B0%9D+%EB%AC%B8%EC%9D%98'),
-          BannerItem(imageUrl: 'https://via.placeholder.com/800x400.png/FFC107/000000?text=%EC%9D%B8%EA%B8%B0+%EC%83%81%ED%92%88'),
-        ],
-      ),
-    );
-  }
-}
-
 class _CircleMenuSection extends StatelessWidget {
   const _CircleMenuSection();
 
@@ -239,7 +222,7 @@ class _CircleMenuSection extends StatelessWidget {
       },
       {
         'icon': Icons.forum,
-        'label': '커뮤니티',
+        'label': 'QnA',
         'onTap': () => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CommunityScreen()),

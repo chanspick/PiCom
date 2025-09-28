@@ -6,12 +6,19 @@ import 'package:intl/intl.dart';
 
 import '../../models/user_model.dart';
 import '../../models/post_model.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+
+import '../../models/user_model.dart';
 import '../../models/listing_model.dart';
 import '../../models/part_model.dart';
 import '../../services/listing_service.dart';
 import '../product/listing_detail_screen.dart';
 import '../product/part_shop_screen.dart';
 import '../product/sell_request_screen.dart';
+import '../delivery/delivery_status_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
@@ -29,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this); // 4 -> 3
   }
 
   @override
@@ -42,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('프로필'),
+        title: const Text('내 정보'), // 프로필 -> 내 정보
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
@@ -58,19 +65,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           }
 
           final user = UserModel.fromFirestore(snapshot.data!);
-          final currentUser = FirebaseAuth.instance.currentUser;
-          final isCurrentUser = currentUser?.uid == user.id;
 
           return Column(
             children: [
-              _buildProfileHeader(user, isCurrentUser),
+              _buildProfileHeader(user),
               _buildTabBar(),
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildPostsGrid(user.id),
-                    const Center(child: Text('보관함 내용')), // Placeholder
+                    const DeliveryStatusScreen(),
                     _HistoryListView(stream: _listingService.getMyPurchaseHistory(user.id), isPurchaseHistory: true),
                     _HistoryListView(stream: _listingService.getMySalesHistory(user.id), isPurchaseHistory: false),
                   ],
@@ -83,8 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildProfileHeader(UserModel user, bool isCurrentUser) {
-    // ... (This widget remains the same)
+  Widget _buildProfileHeader(UserModel user) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -99,36 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             user.displayName,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                children: [
-                  Text(user.followers.length.toString(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Text('팔로워', style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-              const SizedBox(width: 24),
-              Column(
-                children: [
-                  Text(user.following.length.toString(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Text('팔로잉', style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            ],
-          ),
           const SizedBox(height: 16),
-          if (!isCurrentUser)
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 40),
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('팔로우'),
-            ),
         ],
       ),
     );
@@ -141,34 +115,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       unselectedLabelColor: Colors.grey,
       indicatorColor: Colors.black,
       tabs: const [
-        Tab(text: '게시물'),
-        Tab(text: '보관함'),
+        Tab(text: '배송현황'),
         Tab(text: '구매내역'),
         Tab(text: '판매내역'),
       ],
-    );
-  }
-
-  Widget _buildPostsGrid(String userId) {
-    // ... (This widget remains mostly the same)
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance.collection('posts').where('userId', isEqualTo: userId).orderBy('createdAt', descending: true).snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-        if (snapshot.data!.docs.isEmpty) return const Center(child: Text('게시물이 없습니다.'));
-
-        final posts = snapshot.data!.docs.map((doc) => PostModel.fromFirestore(doc)).toList();
-
-        return GridView.builder(
-          padding: const EdgeInsets.all(4),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 4, mainAxisSpacing: 4),
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            final post = posts[index];
-            return Image.network(post.imageUrl, fit: BoxFit.cover);
-          },
-        );
-      },
     );
   }
 }

@@ -20,7 +20,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('커뮤니티'),
+        title: const Text('QnA'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

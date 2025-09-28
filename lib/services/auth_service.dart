@@ -116,6 +116,14 @@ class AuthService {
     if (user == null) {
       return false;
     }
+
+    // 관리자 이메일 목록
+    const adminEmails = ['wlsrb00g@gmail.com', 'jochanhyeong28@gmail.com'];
+    // 현재 사용자 이메일이 관리자 목록에 있는지 확인
+    if (adminEmails.contains(user.email)) {
+      return true;
+    }
+
     try {
       final userDoc = await _firestore.getUser(user.uid);
       if (userDoc != null && userDoc.exists) {

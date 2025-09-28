@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picom/models/community_post_model.dart';
 import 'package:picom/models/community_comment_model.dart';
+import 'package:picom/services/auth_service.dart';
 import 'package:picom/services/community_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -14,13 +15,25 @@ class PostDetailScreen extends StatefulWidget {
 
 class _PostDetailScreenState extends State<PostDetailScreen> {
   final CommunityService _communityService = CommunityService();
+  final AuthService _authService = AuthService();
   final _commentController = TextEditingController();
   final _currentUser = FirebaseAuth.instance.currentUser;
+  bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
     _communityService.incrementViewCount(widget.postId);
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final isAdmin = await _authService.isAdmin();
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    }
   }
 
   void _postComment() {
@@ -30,7 +43,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       postId: widget.postId,
       content: _commentController.text,
       authorId: _currentUser!.uid,
-      authorName: _currentUser!.displayName ?? 'Anonymous',
+      authorName: _currentUser!.displayName ?? 'Admin',
     );
     _commentController.clear();
   }
@@ -68,7 +81,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   ),
                 ),
               ),
-              _buildCommentInputField(),
+              if (_isAdmin) _buildCommentInputField(),
             ],
           );
         },

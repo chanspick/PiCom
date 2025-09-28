@@ -71,6 +71,7 @@ dependencies:
   # AI
   flutter_gemini: ^2.0.1
   dash_chat_2: ^0.0.21
+  carousel_slider: ^5.1.1
 
 dev_dependencies:
   flutter_test:
