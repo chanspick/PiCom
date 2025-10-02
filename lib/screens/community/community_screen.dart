@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:picom/models/community_post_model.dart';
-import 'package:picom/services/community_service.dart';
-import 'package:picom/screens/community/post_detail_screen.dart';
-import 'package:picom/screens/community/create_edit_post_screen.dart';
+import 'package:picom/models/qna_post_model.dart';
+import 'package:picom/services/auth_service.dart';
+import 'package:picom/services/qna_service.dart';
+import 'package:picom/screens/community/qna_write_screen.dart';
+import 'package:picom/screens/community/qna_detail_screen.dart';
+import 'package:intl/intl.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -12,33 +14,43 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
-  final CommunityService _communityService = CommunityService();
+  final QnaService _qnaService = QnaService();
+  final AuthService _authService = AuthService();
+  QnaCategory? _selectedCategory;
   String _sortBy = 'createdAt';
-  String? _searchQuery;
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final isAdmin = await _authService.isAdmin();
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    }
+  }
+
+  void _refresh() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('QnA'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () async {
-              final query = await showSearch<String>(context: context, delegate: PostSearchDelegate());
-              setState(() {
-                _searchQuery = query;
-              });
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
-          _buildSortOptions(),
+          _buildFilterAndSort(),
           Expanded(
-            child: StreamBuilder<List<CommunityPost>>(
-              stream: _communityService.getPosts(sortBy: _sortBy, searchQuery: _searchQuery),
+            child: StreamBuilder<List<QnaPost>>(
+              stream: _qnaService.getPosts(category: _selectedCategory, sortBy: _sortBy),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -47,32 +59,23 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   return Center(child: Text('오류: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('게시물이 없습니다.'));
+                  return const Center(child: Text('게시물이 없습니다. 첫 번째 게시물을 작성해보세요!'));
                 }
 
                 final posts = snapshot.data!;
+                final filteredPosts = _isAdmin ? posts : posts.where((post) => !post.isPrivate).toList();
+
+                if (filteredPosts.isEmpty) {
+                  return const Center(child: Text('표시할 게시물이 없습니다.'));
+                }
+
                 return ListView.builder(
-                  itemCount: posts.length,
+                  itemCount: filteredPosts.length,
                   itemBuilder: (context, index) {
-                    final post = posts[index];
-                    return ListTile(
-                      title: Text(post.title),
-                      subtitle: Text(post.authorName),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('조회 ${post.viewCount}'),
-                          Text('추천 ${post.likeCount}'),
-                        ],
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PostDetailScreen(postId: post.id),
-                          ),
-                        );
-                      },
+                    return _QnaPostCard(
+                      post: filteredPosts[index],
+                      isAdmin: _isAdmin,
+                      qnaService: _qnaService,
                     );
                   },
                 );
@@ -82,24 +85,46 @@ class _CommunityScreenState extends State<CommunityScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.create),
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateEditPostScreen()));
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => QnaWriteScreen(qnaService: _qnaService)),
+          );
+          _refresh(); // Refresh the list after returning from the write screen
         },
+        child: const Icon(Icons.create),
       ),
     );
   }
 
-  Widget _buildSortOptions() {
+  Widget _buildFilterAndSort() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          DropdownButton<QnaCategory?>(
+            value: _selectedCategory,
+            hint: const Text('전체'),
+            items: [
+              const DropdownMenuItem(value: null, child: Text('전체')),
+              ...QnaCategory.values.map((category) {
+                return DropdownMenuItem(
+                  value: category,
+                  child: Text(category.koreanName),
+                );
+              }),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _selectedCategory = value;
+              });
+            },
+          ),
+          const Spacer(),
           DropdownButton<String>(
             value: _sortBy,
             items: const [
-              DropdownMenuItem(value: 'createdAt', child: Text('최신순')),
+              DropdownMenuItem(value: 'createdAt', child: Text('등록순')),
               DropdownMenuItem(value: 'likeCount', child: Text('추천순')),
               DropdownMenuItem(value: 'viewCount', child: Text('조회순')),
             ],
@@ -117,26 +142,85 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 }
 
-class PostSearchDelegate extends SearchDelegate<String> {
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [IconButton(icon: const Icon(Icons.clear), onPressed: () => query = '')];
-  }
+class _QnaPostCard extends StatelessWidget {
+  final QnaPost post;
+  final bool isAdmin;
+  final QnaService qnaService;
+
+  const _QnaPostCard({required this.post, required this.isAdmin, required this.qnaService});
 
   @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => close(context, ''));
-  }
+  Widget build(BuildContext context) {
+    final isPrivate = post.isPrivate;
 
-  @override
-  Widget buildResults(BuildContext context) {
-    close(context, query);
-    return Container();
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    // You could build suggestions here based on recent searches, etc.
-    return Container();
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => QnaDetailScreen(postId: post.id),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '[${post.category.koreanName}]',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  if (isAdmin && post.status == QnaStatus.pending)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        minimumSize: Size.zero,
+                      ),
+                      onPressed: () {
+                        qnaService.updatePostStatus(post.id, QnaStatus.answered);
+                      },
+                      child: const Text('답변 완료', style: TextStyle(fontSize: 12)),
+                    )
+                  else
+                    Text(
+                      post.status == QnaStatus.answered ? '답변 완료' : '답변 대기',
+                      style: TextStyle(
+                        color: post.status == QnaStatus.answered ? Colors.blue : Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                isPrivate ? '비공개 게시글입니다.' : post.title,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Text(isPrivate ? '비공개' : post.authorNickname, style: const TextStyle(fontSize: 12)),
+                  const SizedBox(width: 8),
+                  Text(
+                    DateFormat('yyyy-MM-dd').format(post.createdAt.toDate()),
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                  const Spacer(),
+                  const Icon(Icons.thumb_up_alt_outlined, size: 14, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text(isPrivate ? '-' : post.likes.toString(), style: const TextStyle(fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

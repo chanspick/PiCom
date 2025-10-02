@@ -10,6 +10,7 @@ import '../product/part_shop_screen.dart';
 import '../product/listing_detail_screen.dart';
 import '../product/parts_category_screen.dart'; // Add this import
 import '../product/sell_request_screen.dart';
+import '../product/my_computer_screen.dart';
 import '../../widgets/home_app_bar_actions.dart';
 import '../../widgets/home_search_bar.dart';
 import '../../widgets/home_banner.dart';
@@ -213,19 +214,19 @@ class _CircleMenuSection extends StatelessWidget {
         ),
       },
       {
-        'icon': Icons.store,
-        'label': '브랜드관',
+        'icon': Icons.trending_up,
+        'label': '시세조회',
         'onTap': () => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => PartsCategoryScreen()),
         ),
       },
       {
-        'icon': Icons.forum,
-        'label': 'QnA',
+        'icon': Icons.desktop_mac,
+        'label': '나만의 컴퓨터',
         'onTap': () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const CommunityScreen()),
+          MaterialPageRoute(builder: (context) => const MyComputerScreen()),
         ),
       },
       {
