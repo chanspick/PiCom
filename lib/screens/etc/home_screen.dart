@@ -10,12 +10,12 @@ import '../product/part_shop_screen.dart';
 import '../product/listing_detail_screen.dart';
 import '../product/parts_category_screen.dart'; // Add this import
 import '../product/sell_request_screen.dart';
-import '../product/my_computer_screen.dart';
 import '../../widgets/home_app_bar_actions.dart';
 import '../../widgets/home_search_bar.dart';
 import '../../widgets/home_banner.dart';
 import '../../widgets/circle_category.dart';
 import '../community/community_screen.dart';
+import '../pc_assembly_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -214,8 +214,8 @@ class _CircleMenuSection extends StatelessWidget {
         ),
       },
       {
-        'icon': Icons.trending_up,
-        'label': '시세조회',
+        'icon': Icons.store,
+        'label': '브랜드관',
         'onTap': () => Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => PartsCategoryScreen()),
@@ -226,7 +226,7 @@ class _CircleMenuSection extends StatelessWidget {
         'label': '나만의 컴퓨터',
         'onTap': () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const MyComputerScreen()),
+          MaterialPageRoute(builder: (context) => const PcAssemblyScreen()),
         ),
       },
       {

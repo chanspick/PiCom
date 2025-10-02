@@ -5,6 +5,7 @@ import 'firebase_options.dart';
 import 'widgets/auth_wrapper.dart';
 import 'screens/etc/home_screen.dart';
 import 'screens/auth/auth_screen.dart';
+import 'screens/pc_assembly_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const HomeScreen(),
         '/auth': (context) => const AuthScreen(),
+        '/pc_assembly': (context) => const PcAssemblyScreen(),
       },
     );
   }
