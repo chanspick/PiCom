@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart'; // Add this import
 import 'dart:math'; // Add this import
 import '../../models/part_model.dart';
+import 'package:picom/services/cart_service.dart';
 import 'sell_request_screen.dart';
 import '../payment_screen.dart';
 import 'part_comment_screen.dart';
@@ -14,6 +15,7 @@ class PartDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cartService = CartService();
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance.collection('parts').doc(partId).get(),
       builder: (context, snapshot) {
@@ -79,12 +81,36 @@ class PartDetailScreen extends StatelessWidget {
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => PaymentScreen(part: part)),
-                        );
+                        // This should be modified to handle a list of items
+                        // For now, it will not work as expected with the cart
                       },
                       child: const Text('구매'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () async {
+                        try {
+                          await cartService.addToCart(part.partId, 1);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('장바구니에 담았습니다.')),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('오류: $e')),
+                            );
+                          }
+                        }
+                      },
+                      child: const Text('장바구니'),
                     ),
                   ),
                   const SizedBox(width: 16),

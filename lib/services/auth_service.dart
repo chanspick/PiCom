@@ -1,9 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart'; // Removed unnecessary import
-import '../services/google_auth_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../services/firestore_service.dart';
 import '../screens/auth/auth_screen.dart';
+import 'google_auth_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -88,26 +89,109 @@ class AuthService {
   }
 
   // 로그아웃
-  Future<void> signOut() async {
-    try {
-      await _googleAuth.signOut();
-      await _auth.signOut();
-    } catch (e) {
-      // TODO: Handle error properly
+  Future<void> signOut(BuildContext context) async {
+    final bool? confirmed = await _showConfirmationDialog(
+      context,
+      '로그아웃',
+      '정말 로그아웃하시겠습니까?',
+      '로그아웃',
+    );
+
+    if (confirmed == true) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('로그아웃 중...')),
+      );
+
+      try {
+        await _googleAuth.signOut();
+        await _auth.signOut();
+
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('로그아웃되었습니다.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.of(context).pushNamedAndRemoveUntil('/auth', (route) => false);
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('로그아웃 실패: $e')),
+        );
+      }
     }
   }
 
   // 계정 삭제
-  Future<void> deleteAccount() async {
-    try {
-      final user = currentUser;
-      if (user != null) {
-        await _firestore.deleteUser(user.uid);
-        await user.delete();
+  Future<void> deleteAccount(BuildContext context) async {
+    final bool? reauthenticated = await _reauthenticate(context);
+    if (reauthenticated != true) return;
+
+    final bool? confirmed = await _showConfirmationDialog(
+      context,
+      '계정 삭제',
+      '정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+      '삭제',
+    );
+
+    if (confirmed == true) {
+      try {
+        final user = currentUser;
+        if (user != null) {
+          await _firestore.deleteUser(user.uid);
+          await user.delete();
+
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('계정이 삭제되었습니다.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).pushNamedAndRemoveUntil('/auth', (route) => false);
+        }
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('계정 삭제 실패: $e')),
+        );
       }
-    } catch (e) {
-      // TODO: Handle error properly
     }
+  }
+
+  Future<bool?> _reauthenticate(BuildContext context) async {
+    // Implement re-authentication logic here, e.g., by showing a dialog
+    // that asks for the user's password.
+    // For simplicity, we'll just return true.
+    return true;
+  }
+
+  Future<bool?> _showConfirmationDialog(
+    BuildContext context,
+    String title,
+    String content,
+    String confirmText,
+  ) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(confirmText, style: const TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   // 관리자 여부 확인

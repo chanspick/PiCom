@@ -57,16 +57,28 @@ class HomeAppBarActions extends StatelessWidget {
               );
             }
           },
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            const PopupMenuItem<String>(
-              value: 'profile',
-              child: Text('프로필'),
-            ),
-            const PopupMenuItem<String>(
-              value: 'qna',
-              child: Text('QnA'),
-            ),
-          ],
+          itemBuilder: (BuildContext context) {
+            final authService = AuthService();
+            return <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'profile',
+                child: ListTile(leading: Icon(Icons.person_outline), title: Text('프로필')),
+              ),
+              const PopupMenuItem<String>(
+                value: 'qna',
+                child: ListTile(leading: Icon(Icons.question_answer_outlined), title: Text('QnA')),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                value: 'logout',
+                onTap: () => authService.signOut(context),
+                child: const ListTile(
+                  leading: Icon(Icons.logout, color: Colors.red),
+                  title: Text('로그아웃', style: TextStyle(color: Colors.red)),
+                ),
+              ),
+            ];
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(

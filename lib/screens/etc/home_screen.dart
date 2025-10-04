@@ -53,8 +53,6 @@ class _HomeContent extends StatelessWidget {
   }
 }
 
-
-
 class _ProductListSection extends StatelessWidget {
   const _ProductListSection();
 

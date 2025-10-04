@@ -2,61 +2,74 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user is an admin
-    function isUserAdmin(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data.isAdmin == true;
+    // ===== Helper Functions =====
+    function isUserAdmin() {
+      return request.auth.token.admin == true;
+    }
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isNotAnonymous() {
+      return request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
-    // Rules for the 'users' collection
+    // ===== Users Collection =====
     match /users/{userId} {
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update, delete: if request.auth != null && request.auth.uid == userId && request.auth.token.firebase.sign_in_provider != 'anonymous';
-      allow read: if request.auth != null;
+      allow create: if isAuthenticated() && request.auth.uid == userId && !("isAdmin" in request.resource.data.keys());
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isUserAdmin());
+      allow update: if isAuthenticated() && request.auth.uid == userId && !("isAdmin" in request.resource.data.diff(resource.data).affectedKeys());
+      allow delete: if isAuthenticated() && (request.auth.uid == userId || isUserAdmin());
     }
 
-    // Rules for the 'sell_requests' collection
-    match /sell_requests/{requestId} {
-      allow create: if request.auth != null 
-                   && request.auth.token.firebase.sign_in_provider != 'anonymous'
-                   && request.auth.uid == request.resource.data.sellerId
-                   && isValidSellRequest();
-      allow update, delete: if request.auth != null 
-                           && request.auth.uid == resource.data.sellerId
-                           && request.auth.token.firebase.sign_in_provider != 'anonymous';
-      allow read: if request.auth != null;
-    }
-
-    // Rules for community 'posts'
-    match /posts/{postId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
-
-      // Rules for 'comments' subcollection within a post
-      match /comments/{commentId} {
-        allow read: if request.auth != null;
-        // Only admins can create, update, or delete comments
-        allow create, update, delete: if request.auth != null && isUserAdmin(request.auth.uid);
+    // ===== Carts Collection =====
+    match /carts/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      match /items/{itemId} {
+        allow read, write: if isAuthenticated() && request.auth.uid == userId;
       }
     }
 
-    // Helper function for validating a 'sell_request'
+    // ===== Sell Requests Collection =====
+    match /sell_requests/{requestId} {
+      allow create: if isAuthenticated() && isNotAnonymous() && request.auth.uid == request.resource.data.sellerId && isValidSellRequest();
+      allow update, delete: if isAuthenticated() && isNotAnonymous() && request.auth.uid == resource.data.sellerId;
+      allow read: if isAuthenticated();
+    }
     function isValidSellRequest() {
       let data = request.resource.data;
-      let requiredFields = ['partId', 'sellerId', 'brand', 'modelName', 
-                            'purchaseDate', 'requestedPrice', 'imageUrls', 'status'];
-      return requiredFields.all(field in data.keys()) &&
-             data.partId is string && data.partId.size() > 0 &&
-             data.sellerId == request.auth.uid &&
-             data.requestedPrice is number && data.requestedPrice > 0 &&
-             data.imageUrls is list && data.imageUrls.size() > 0;
+      let requiredFields = ['partId', 'sellerId', 'brand', 'modelName', 'purchaseDate', 'requestedPrice', 'imageUrls', 'status'];
+      return requiredFields.all(field in data.keys()) && data.partId is string && data.partId.size() > 0 && data.sellerId == request.auth.uid && data.requestedPrice is number && data.requestedPrice > 0 && data.imageUrls is list && data.imageUrls.size() > 0 && data.imageUrls.size() <= 10;
     }
 
-    // Default catch-all rule (less permissive)
-    // Consider making this more restrictive if needed
+    // ===== Parts Collection (상품 마스터 DB) - [수정됨] =====
+    match /parts/{partId} {
+      // 읽기: 누구나 가능
+      allow read;
+      // 쓰기: Admin만 가능
+      allow write: if isUserAdmin();
+    }
+
+    // ===== Listings Collection (개별 판매 상품) - [수정됨] =====
+    match /listings/{listingId} {
+      // 읽기: 누구나 가능
+      allow read;
+      // 생성: 인증된 비익명 사용자, sellerId는 본인 uid와 일치해야 함
+      allow create: if isAuthenticated() && isNotAnonymous() && request.auth.uid == request.resource.data.sellerId;
+      // 수정/삭제: 상품을 등록한 본인만 가능
+      allow update, delete: if isAuthenticated() && request.auth.uid == resource.data.sellerId;
+    }
+
+    // ===== Orders Collection (예시) =====
+    match /orders/{orderId} {
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isUserAdmin());
+      allow update: if isUserAdmin();
+      allow delete: if false;
+    }
+
+    // ===== 기본 규칙: 모든 접근 거부 (White-list 방식) =====
     match /{document=**} {
-      allow read: if request.auth != null;
-      allow write: if false; // Default deny writes unless explicitly allowed
+      allow read, write: if false;
     }
   }
 }

@@ -23,7 +23,7 @@ class AuthWrapper extends StatelessWidget {
 
         // 사용자가 로그인되어 있는 경우
         if (snapshot.hasData) {
-          return const HomeScreen();
+          return HomeScreen();
         }
 
         // 사용자가 로그인되어 있지 않은 경우

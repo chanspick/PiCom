@@ -434,3 +434,6 @@ export { onPartUpdatedDenormalizeListings };
 
 import { onListingCreatedFraudCheck } from "./fraud_detection";
 export { onListingCreatedFraudCheck };
+
+import { addToCart, updateCartItemQuantity, removeFromCart } from "./cart";
+export { addToCart, updateCartItemQuantity, removeFromCart };

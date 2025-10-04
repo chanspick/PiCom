@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: AuthWrapper(),
       routes: {
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => HomeScreen(),
         '/auth': (context) => const AuthScreen(),
         '/pc_assembly': (context) => const PcAssemblyScreen(),
       },

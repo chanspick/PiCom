@@ -1,16 +1,18 @@
+
 import 'package:flutter/material.dart';
-import 'package:picom/models/part_model.dart';
+import 'package:picom/models/cart_item_model.dart';
 
 class PaymentScreen extends StatelessWidget {
-  final Part part;
+  final List<CartItem> cartItems;
 
-  const PaymentScreen({super.key, required this.part});
+  const PaymentScreen({super.key, required this.cartItems});
+
+  double get _totalPrice {
+    return cartItems.fold(0, (total, current) => total + (current.price * current.quantity));
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Using a dummy price for UI/UX purposes
-    const dummyPrice = 1200000;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('결제 요청'),
@@ -25,15 +27,24 @@ class PaymentScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Card(
-              elevation: 2,
-              child: ListTile(
-                title: Text(part.modelName),
-                subtitle: Text(part.brand),
-                trailing: Text(
-                  '${dummyPrice.toStringAsFixed(0)}원',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: cartItems.length,
+                itemBuilder: (context, index) {
+                  final item = cartItems[index];
+                  return Card(
+                    elevation: 2,
+                    child: ListTile(
+                      leading: Image.network(item.imageUrl, width: 50, height: 50, fit: BoxFit.cover),
+                      title: Text(item.productName),
+                      subtitle: Text('수량: ${item.quantity}'),
+                      trailing: Text(
+                        '${(item.price * item.quantity).toStringAsFixed(0)}원',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 32),
@@ -51,11 +62,18 @@ class PaymentScreen extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            const Center(
-              child: Text(
-                '실제 결제가 진행되지 않는 테스트 화면입니다.',
-                style: TextStyle(color: Colors.grey),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '총 결제 금액',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${_totalPrice.toStringAsFixed(0)}원',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             SizedBox(

@@ -1,22 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-// 임시 장바구니 상품 모델
-class CartItem {
-  final String id;
-  final String productName;
-  final String imageUrl;
-  int quantity;
-  final double price;
-
-  CartItem({
-    required this.id,
-    required this.productName,
-    required this.imageUrl,
-    required this.quantity,
-    required this.price,
-  });
-}
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../models/cart_item_model.dart';
+import '../../services/cart_service.dart';
+import '../payment_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -26,35 +14,11 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // 임시 장바구니 데이터
-  final List<CartItem> _cartItems = [
-    CartItem(id: 'p001', productName: '정품 실리콘 케이스', imageUrl: 'https://via.placeholder.com/150', quantity: 1, price: 45000),
-    CartItem(id: 'p002', productName: '가죽 스트랩', imageUrl: 'https://via.placeholder.com/150', quantity: 2, price: 65000),
-    CartItem(id: 'p003', productName: '20W 고속 충전기', imageUrl: 'https://via.placeholder.com/150', quantity: 1, price: 28000),
-  ];
+  final CartService _cartService = CartService();
 
-  void _incrementQuantity(CartItem item) {
-    setState(() {
-      item.quantity++;
-    });
-  }
-
-  void _decrementQuantity(CartItem item) {
-    setState(() {
-      if (item.quantity > 1) {
-        item.quantity--;
-      }
-    });
-  }
-
-  void _removeItem(CartItem item) {
-    setState(() {
-      _cartItems.remove(item);
-    });
-  }
-
-  double _calculateTotal() {
-    return _cartItems.fold(0, (total, current) => total + (current.price * current.quantity));
+  double _calculateTotal(List<CartItem> cartItems) {
+    return cartItems.fold(
+        0, (total, current) => total + (current.price * current.quantity));
   }
 
   @override
@@ -68,25 +32,40 @@ class _CartScreenState extends State<CartScreen> {
         elevation: 1,
         leading: const BackButton(color: Colors.black),
       ),
-      body: _cartItems.isEmpty
-          ? const Center(
-              child: Text('장바구니가 비어있습니다.', style: TextStyle(fontSize: 16, color: Colors.grey)),
-            )
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(8.0),
-                    itemCount: _cartItems.length,
-                    itemBuilder: (context, index) {
-                      final item = _cartItems[index];
-                      return _buildCartItemCard(item, formatter);
-                    },
-                  ),
+      body: StreamBuilder<List<CartItem>>(
+        stream: _cartService.getCartItems(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('오류가 발생했습니다: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('장바구니가 비어있습니다.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey)),
+            );
+          }
+
+          final cartItems = snapshot.data!;
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(8.0),
+                  itemCount: cartItems.length,
+                  itemBuilder: (context, index) {
+                    final item = cartItems[index];
+                    return _buildCartItemCard(item, formatter);
+                  },
                 ),
-                _buildTotalSection(formatter),
-              ],
-            ),
+              ),
+              _buildTotalSection(formatter, cartItems),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -102,10 +81,13 @@ class _CartScreenState extends State<CartScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: Container(
-                  width: 80,
-                  height: 80,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.photo_size_select_actual_outlined, color: Colors.grey, size: 40),
+                width: 80,
+                height: 80,
+                color: Colors.grey[200],
+                child: item.imageUrl.isNotEmpty
+                    ? Image.network(item.imageUrl, fit: BoxFit.cover)
+                    : const Icon(Icons.photo_size_select_actual_outlined,
+                        color: Colors.grey, size: 40),
               ),
             ),
             const SizedBox(width: 16),
@@ -113,18 +95,29 @@ class _CartScreenState extends State<CartScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.productName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(item.productName,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  Text('${formatter.format(item.price)}원', style: const TextStyle(fontSize: 14)),
+                  Text('${formatter.format(item.price)}원',
+                      style: const TextStyle(fontSize: 14)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      _buildQuantityButton(Icons.remove, () => _decrementQuantity(item)),
+                      _buildQuantityButton(Icons.remove, () {
+                        _cartService.updateQuantity(
+                            item.productId, item.quantity - 1);
+                      }),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(item.quantity.toString(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        child: Text(item.quantity.toString(),
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
-                      _buildQuantityButton(Icons.add, () => _incrementQuantity(item)),
+                      _buildQuantityButton(Icons.add, () {
+                        _cartService.updateQuantity(
+                            item.productId, item.quantity + 1);
+                      }),
                     ],
                   ),
                 ],
@@ -132,7 +125,28 @@ class _CartScreenState extends State<CartScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.grey),
-              onPressed: () => _removeItem(item),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('상품 삭제'),
+                    content: const Text('정말로 이 상품을 장바구니에서 삭제하시겠습니까?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('취소'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          _cartService.removeFromCart(item.productId);
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('삭제', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -155,7 +169,8 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildTotalSection(NumberFormat formatter) {
+  Widget _buildTotalSection(
+      NumberFormat formatter, List<CartItem> cartItems) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -174,25 +189,41 @@ class _CartScreenState extends State<CartScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('총 상품 금액', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Text('${formatter.format(_calculateTotal())}원', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.redAccent)),
+              const Text('총 상품 금액',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text('${formatter.format(_calculateTotal(cartItems))}원',
+                  style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.redAccent)),
             ],
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              // TODO: 실제 결제 로직 연동
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('결제 기능은 아직 구현되지 않았습니다.')),
-              );
+              if (cartItems.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PaymentScreen(cartItems: cartItems),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('장바구니에 상품이 없습니다.')),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('주문하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: const Text('주문하기',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
