@@ -3,71 +3,139 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ===== Helper Functions =====
-    function isUserAdmin() {
-      return request.auth.token.admin == true;
-    }
     function isAuthenticated() {
       return request.auth != null;
     }
+    function isUserAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
     function isNotAnonymous() {
-      return request.auth.token.firebase.sign_in_provider != 'anonymous';
+      return isAuthenticated() &&
+             request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
     // ===== Users Collection =====
     match /users/{userId} {
-      allow create: if isAuthenticated() && request.auth.uid == userId && !("isAdmin" in request.resource.data.keys());
+      allow create: if isAuthenticated()
+                    && request.auth.uid == userId
+                    && !request.resource.data.keys().hasAny(['isAdmin']);
       allow read: if isAuthenticated();
-      allow update: if isAuthenticated() && request.auth.uid == userId && !("isAdmin" in request.resource.data.diff(resource.data).affectedKeys());
-      allow delete: if isAuthenticated() && (request.auth.uid == userId || isUserAdmin());
-    }
-
-    // ===== Carts Collection =====
-    match /carts/{userId} {
-      allow read, write: if isAuthenticated() && request.auth.uid == userId;
-      match /items/{itemId} {
-        allow read, write: if isAuthenticated() && request.auth.uid == userId;
-      }
+      allow update: if isAuthenticated()
+                    && request.auth.uid == userId
+                    && !request.resource.data
+                         .diff(resource.data)
+                         .affectedKeys()
+                         .hasAny(['isAdmin']);
+      allow delete: if isAuthenticated()
+                    && (request.auth.uid == userId || isUserAdmin());
     }
 
     // ===== Sell Requests Collection =====
-    match /sell_requests/{requestId} {
-      allow create: if isAuthenticated() && isNotAnonymous() && request.auth.uid == request.resource.data.sellerId && isValidSellRequest();
-      allow update, delete: if isAuthenticated() && isNotAnonymous() && request.auth.uid == resource.data.sellerId;
-      allow read: if isAuthenticated();
-    }
     function isValidSellRequest() {
       let data = request.resource.data;
-      let requiredFields = ['partId', 'sellerId', 'brand', 'modelName', 'purchaseDate', 'requestedPrice', 'imageUrls', 'status'];
-      return requiredFields.all(field in data.keys()) && data.partId is string && data.partId.size() > 0 && data.sellerId == request.auth.uid && data.requestedPrice is number && data.requestedPrice > 0 && data.imageUrls is list && data.imageUrls.size() > 0 && data.imageUrls.size() <= 10;
+      let required = ['partId','sellerId','brand','modelName',
+                      'purchaseDate','requestedPrice','imageUrls','status'];
+      return data.keys().hasAll(required)
+             && data.partId is string && data.partId.size() > 0
+             && data.sellerId == request.auth.uid
+             && data.requestedPrice is number && data.requestedPrice > 0
+             && data.imageUrls is list
+             && data.imageUrls.size() > 0 && data.imageUrls.size() <= 10;
+    }
+    match /sell_requests/{requestId} {
+      allow create: if isAuthenticated() && isNotAnonymous()
+                    && request.auth.uid == request.resource.data.sellerId
+                    && isValidSellRequest();
+      allow update: if isAuthenticated() && (
+                      (isNotAnonymous() && request.auth.uid == resource.data.sellerId) ||
+                      (isUserAdmin() && request.resource.data.keys().hasAny(['status', 'finalPrice', 'processedAt']))
+                    );
+      allow delete: if isAuthenticated() && isNotAnonymous()
+                            && request.auth.uid == resource.data.sellerId;
+      allow read: if isAuthenticated();
+      allow list: if isUserAdmin();
     }
 
-    // ===== Parts Collection (상품 마스터 DB) - [수정됨] =====
+    // ===== Carts Collection =====
+    match /carts/{userId}/{document=**} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ===== Parts Collection (Read-Only for users) =====
     match /parts/{partId} {
-      // 읽기: 누구나 가능
-      allow read;
-      // 쓰기: Admin만 가능
-      allow write: if isUserAdmin();
+      allow read: if true;
+      allow write: if false;
     }
 
-    // ===== Listings Collection (개별 판매 상품) - [수정됨] =====
+    // ===== Listings Collection =====
     match /listings/{listingId} {
-      // 읽기: 누구나 가능
-      allow read;
-      // 생성: 인증된 비익명 사용자, sellerId는 본인 uid와 일치해야 함
-      allow create: if isAuthenticated() && isNotAnonymous() && request.auth.uid == request.resource.data.sellerId;
-      // 수정/삭제: 상품을 등록한 본인만 가능
-      allow update, delete: if isAuthenticated() && request.auth.uid == resource.data.sellerId;
+      allow read: if true;
+
+      allow create: if isAuthenticated()
+                    && request.resource.data.sellerId == request.auth.uid;
+
+      allow update: if isAuthenticated() && (
+        // 판매자: 판매 가능 상태에서만 일반 수정 허용
+        (request.auth.uid == resource.data.sellerId
+         && resource.data.status == 'available')
+        ||
+        // 구매자: available -> sold 전환 + 허용 필드만 변경
+        (resource.data.status == 'available'
+         && request.resource.data.status == 'sold'
+         && request.resource.data.buyerId == request.auth.uid
+         && request.resource.data
+              .diff(resource.data)
+              .affectedKeys()
+              .hasOnly(['status','buyerId','soldAt']))
+      );
+
+      allow delete: if isAuthenticated()
+                    && request.auth.uid == resource.data.sellerId
+                    && resource.data.status == 'available';
     }
 
-    // ===== Orders Collection (예시) =====
+    // ===== Orders Collection =====
+    function hasItems(doc) {
+      return doc.keys().hasAny(['items']) && doc.items is list && doc.items.size() > 0;
+    }
+    function firstItemSellerId(doc) {
+      return hasItems(doc) ? doc.items[0].sellerId : '';
+    }
+
     match /orders/{orderId} {
-      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
-      allow read: if isAuthenticated() && (request.auth.uid == resource.data.userId || isUserAdmin());
-      allow update: if isUserAdmin();
+      allow create: if isAuthenticated()
+                    && request.resource.data.buyerId == request.auth.uid;
+
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.buyerId ||
+        request.auth.uid == firstItemSellerId(resource.data)
+      );
+
+      allow update: if isAuthenticated()
+                    && request.auth.uid == firstItemSellerId(resource.data);
+
       allow delete: if false;
     }
 
-    // ===== 기본 규칙: 모든 접근 거부 (White-list 방식) =====
+    // ===== Posts Collection =====
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isAuthenticated()
+                    && request.auth.uid == request.resource.data.authorId;
+      allow update, delete: if isAuthenticated()
+                            && request.auth.uid == resource.data.authorId;
+
+      // ===== Comments Subcollection =====
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && isUserAdmin()
+                      && request.auth.uid == request.resource.data.userId;
+        allow update, delete: if isAuthenticated()
+                              && request.auth.uid == resource.data.userId;
+      }
+    }
+
+    // ===== 기본 규칙: 모든 접근 거부 =====
     match /{document=**} {
       allow read, write: if false;
     }

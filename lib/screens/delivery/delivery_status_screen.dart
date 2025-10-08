@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../models/order_model.dart' as app_order;
+import '../../models/order_model.dart';
 import '../../services/order_service.dart';
 
 class DeliveryStatusScreen extends StatefulWidget {
@@ -14,7 +13,7 @@ class DeliveryStatusScreen extends StatefulWidget {
 
 class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
   final OrderService _orderService = OrderService();
-  late Future<List<app_order.Order>> _ordersFuture;
+  late Future<List<OrderModel>> _ordersFuture;
 
   @override
   void initState() {
@@ -22,32 +21,44 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
     _ordersFuture = _orderService.getOrdersForCurrentUser();
   }
 
-  String _statusToString(app_order.DeliveryStatus status) {
+  String _statusToString(DeliveryStatus status) {
     switch (status) {
-      case app_order.DeliveryStatus.preparing:
+      case DeliveryStatus.processing:
+        return '주문 처리중';
+      case DeliveryStatus.preparing:
         return '배송 준비중';
-      case app_order.DeliveryStatus.shipping:
+      case DeliveryStatus.shipped:
         return '배송중';
-      case app_order.DeliveryStatus.delivered:
+      case DeliveryStatus.delivered:
         return '배송 완료';
+      case DeliveryStatus.cancelled:
+        return '주문 취소';
+      case DeliveryStatus.returned:
+        return '반품 완료';
     }
   }
 
-  IconData _statusToIcon(app_order.DeliveryStatus status) {
+  IconData _statusToIcon(DeliveryStatus status) {
     switch (status) {
-      case app_order.DeliveryStatus.preparing:
+      case DeliveryStatus.processing:
+        return Icons.pending_actions_outlined;
+      case DeliveryStatus.preparing:
         return Icons.inventory_2_outlined;
-      case app_order.DeliveryStatus.shipping:
+      case DeliveryStatus.shipped:
         return Icons.local_shipping_outlined;
-      case app_order.DeliveryStatus.delivered:
+      case DeliveryStatus.delivered:
         return Icons.check_circle_outline;
+      case DeliveryStatus.cancelled:
+        return Icons.cancel_outlined;
+      case DeliveryStatus.returned:
+        return Icons.assignment_return_outlined;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<app_order.Order>>(
+      body: FutureBuilder<List<OrderModel>>(
         future: _ordersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -72,82 +83,55 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
     );
   }
 
-  Widget _buildStatusCard(app_order.Order order) {
+  Widget _buildStatusCard(OrderModel order) {
+    final representativeItemName = order.items.isNotEmpty ? order.items.first.productName : '상품 정보 없음';
+    final extraItemsCount = order.items.length - 1;
+
     return Card(
       elevation: 2.0,
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: order.imageUrl.isNotEmpty
-                  ? Image.network(
-                      order.imageUrl,
-                      width: 70,
-                      height: 70,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 70,
-                          height: 70,
-                          color: Colors.grey[200],
-                          child: const Icon(
-                            Icons.broken_image_outlined,
-                            color: Colors.grey,
-                            size: 35,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      width: 70,
-                      height: 70,
-                      color: Colors.grey[200],
-                      child: const Icon(
-                        Icons.photo_size_select_actual_outlined,
-                        color: Colors.grey,
-                        size: 35,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '주문일자: ${DateFormat('yyyy.MM.dd').format(order.orderDate.toDate())}',
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                Row(
+                  children: [
+                    Icon(_statusToIcon(order.status), color: Theme.of(context).primaryColor, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      _statusToString(order.status),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
+                  ],
+                )
+              ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    order.productName,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${NumberFormat('#,###').format(order.price)}원',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '주문일자: ${DateFormat('yyyy.MM.dd').format(order.orderDate)}',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(_statusToIcon(order.status), color: Theme.of(context).primaryColor, size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        _statusToString(order.status),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ],
-                  )
-                ],
+            const Divider(height: 20),
+            Text(
+              extraItemsCount > 0
+                  ? '$representativeItemName 외 ${extraItemsCount}건'
+                  : representativeItemName,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                '${NumberFormat('#,###').format(order.finalTotal)}원',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ),
           ],

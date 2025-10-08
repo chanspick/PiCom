@@ -70,24 +70,15 @@ abstract class Part {
   // 4. Firestore 데이터를 category에 따라 적절한 객체로 변환
   factory Part.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    final category = PartCategory.values.firstWhere(
-          (e) => e.name == data['category'],
-      orElse: () => throw Exception("Unknown category: ${data['category']}"),
-    );
-
-    switch (category) {
-      case PartCategory.cpu:
-        return CpuPart.fromMap(data);
-      // 다른 부품 카테고리 case들을 여기에 추가
-      default:
-        throw Exception("Unsupported category: $category");
-    }
+    return Part.fromMap(data);
   }
 
   factory Part.fromMap(Map<String, dynamic> map) {
+    final categoryString = map['category'] as String?;
+    // 카테고리 정보가 없거나, enum에 정의되지 않은 경우를 안전하게 처리
     final category = PartCategory.values.firstWhere(
-          (e) => e.name == map['category'],
-      orElse: () => throw Exception("Unknown category: ${map['category']}"),
+      (e) => e.name == categoryString,
+      orElse: () => PartCategory.pccase, // 기본값으로 pccase 사용 (임의)
     );
 
     switch (category) {
@@ -95,7 +86,8 @@ abstract class Part {
         return CpuPart.fromMap(map);
       // 다른 부품 카테고리 case들을 여기에 추가
       default:
-        throw Exception("Unsupported category: $category");
+        // 지원하지 않는 카테고리는 GenericPart로 처리하여 앱이 멈추지 않게 함
+        return GenericPart.fromMap(map);
     }
   }
 }
@@ -141,7 +133,7 @@ class CpuPart extends Part {
     return CpuPart(
       partId: map['part_id'] ?? '',
       brand: map['brand'] ?? '',
-      modelName: map['model'] ?? '', // 'model' 필드를 modelName에 매핑
+      modelName: map['model'] ?? map['modelName'] ?? 'N/A',
       referencePrice: map['reference_price']?.toInt(),
       imageUrl: map['image_url'],
       powerConsumptionW: map['power_consumption_w']?.toInt(),
@@ -159,6 +151,32 @@ class CpuPart extends Part {
       igpuFreqMhz: map['igpu_freq_mhz']?.toInt(),
       memory: MemorySpec.fromMap(map['memory'] ?? {}),
       coolerIncluded: map['cooler_included'] ?? false,
+    );
+  }
+}
+
+// 6. 상세 정보가 없는 부품을 위한 GenericPart 클래스 (안전장치)
+class GenericPart extends Part {
+  GenericPart({
+    required super.partId,
+    required super.category,
+    required super.brand,
+    required super.modelName,
+    super.referencePrice,
+    super.imageUrl,
+  });
+
+  factory GenericPart.fromMap(Map<String, dynamic> map) {
+    return GenericPart(
+      partId: map['part_id'] ?? map['objectID'] ?? '',
+      category: PartCategory.values.firstWhere(
+            (e) => e.name == map['category'],
+        orElse: () => PartCategory.pccase, // Fallback category
+      ),
+      brand: map['brand'] ?? 'N/A',
+      modelName: map['model'] ?? map['modelName'] ?? 'N/A',
+      referencePrice: map['reference_price']?.toInt(),
+      imageUrl: map['image_url'],
     );
   }
 }

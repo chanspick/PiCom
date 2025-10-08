@@ -1,11 +1,3 @@
-
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
-
-import '../../models/user_model.dart';
-import '../../models/post_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +6,9 @@ import 'package:intl/intl.dart';
 import '../../models/user_model.dart';
 import '../../models/listing_model.dart';
 import '../../models/part_model.dart';
+import '../../models/order_model.dart' as order_model;
 import '../../services/listing_service.dart';
+import '../../services/order_service.dart';
 import '../product/listing_detail_screen.dart';
 import '../product/part_shop_screen.dart';
 import '../product/sell_request_screen.dart';
@@ -32,11 +26,12 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ListingService _listingService = ListingService();
+  final OrderService _orderService = OrderService(); // OrderService 추가
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // 4 -> 3
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -49,7 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('내 정보'), // 프로필 -> 내 정보
+        title: const Text('내 정보'),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
@@ -75,7 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   controller: _tabController,
                   children: [
                     const DeliveryStatusScreen(),
-                    _HistoryListView(stream: _listingService.getMyPurchaseHistory(user.id), isPurchaseHistory: true),
+                    _OrderHistoryView(orderService: _orderService), // 구매내역 뷰 변경
                     _HistoryListView(stream: _listingService.getMySalesHistory(user.id), isPurchaseHistory: false),
                   ],
                 ),
@@ -123,6 +118,90 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 }
 
+// 새로운 주문 내역 뷰
+class _OrderHistoryView extends StatelessWidget {
+  final OrderService orderService;
+
+  const _OrderHistoryView({required this.orderService});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<order_model.OrderModel>>(
+      future: orderService.getOrdersForCurrentUser(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('주문 내역을 불러오는 중 오류가 발생했습니다: ${snapshot.error}'));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('주문 내역이 없습니다.'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PartShopScreen()),
+                    );
+                  },
+                  child: const Text('구매하러 가기'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final orders = snapshot.data!;
+        return ListView.builder(
+          itemCount: orders.length,
+          itemBuilder: (context, index) {
+            final order = orders[index];
+            return _OrderHistoryCard(order: order);
+          },
+        );
+      },
+    );
+  }
+}
+
+// 새로운 주문 내역 카드 위젯
+class _OrderHistoryCard extends StatelessWidget {
+  final order_model.OrderModel order;
+
+  const _OrderHistoryCard({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final formatter = NumberFormat('#,###');
+    final representativeItem = order.items.isNotEmpty ? order.items.first.productName : '주문 정보 없음';
+    final extraItemsCount = order.items.length - 1;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      child: ListTile(
+        title: Text(
+          extraItemsCount > 0
+              ? '$representativeItem 외 ${extraItemsCount}건'
+              : representativeItem,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text('${formatter.format(order.finalTotal)}원'),
+        trailing: Text(DateFormat('yy/MM/dd').format(order.orderDate.toDate())),
+        onTap: () {
+          // TODO: 주문 상세 화면으로 이동하는 로직 구현
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderId: order.orderId)));
+        },
+      ),
+    );
+  }
+}
+
+// 기존 판매 내역 뷰 (수정 없음)
 class _HistoryListView extends StatelessWidget {
   final Stream<List<Listing>> stream;
   final bool isPurchaseHistory;

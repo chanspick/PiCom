@@ -1,72 +1,89 @@
-import 'dart:convert';
-
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import '../models/part_model.dart';
 
 class SearchService {
-  Future<List<Product>> searchProducts(String keyword) async {
+  Future<List<Part>> searchProducts(String keyword) async {
+    print("--- SearchService: searchProducts initiated with keyword: '$keyword' ---");
     if (keyword.trim().isEmpty) {
+      print("--- SearchService: Keyword is empty. Returning empty list. ---");
       return [];
     }
 
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        print("User is not authenticated. Aborting search.");
+        print("--- SearchService: ERROR - User is not authenticated. ---");
         throw FirebaseFunctionsException(
           code: 'unauthenticated',
           message: 'User is not signed in.',
         );
       }
+      print("--- SearchService: User is authenticated: ${currentUser.uid} ---");
 
-      // 토큰을 가져와서 payload를 디코딩하고 출력합니다.
-      final idTokenString = await currentUser.getIdToken(true);
-      print("Successfully refreshed auth token.");
-
-      if (idTokenString == null) {
-        print("Failed to get ID token string.");
-        throw FirebaseFunctionsException(
-          code: 'unauthenticated',
-          message: 'Failed to retrieve a valid ID token.',
-        );
-      }
-
-      final parts = idTokenString.split('.');
-      if (parts.length == 3) {
-        final payload = parts[1];
-        final normalized = base64Url.normalize(payload);
-        final decoded = utf8.decode(base64Url.decode(normalized));
-        print('Decoded token payload: $decoded');
-      }
-
-      // 'searchProducts' 이름의 Cloud Function을 호출합니다.
       final FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'asia-northeast3');
       final HttpsCallable callable = functions.httpsCallable('searchProducts');
+
+      print("--- SearchService: Calling Cloud Function 'searchProducts' with keyword: '$keyword' ---");
       final result = await callable.call<List<dynamic>>({'keyword': keyword});
+      print("--- SearchService: Cloud Function call successful. ---");
 
-      print('Algolia raw result data: ${result.data}');
+      if (result.data == null) {
+        print("--- SearchService: WARNING - Cloud function returned null data. ---");
+        return [];
+      }
+      print("--- SearchService: Received ${result.data.length} hits from Algolia. ---");
+      print("--- SearchService: Raw data preview: ${result.data.toString().substring(0, 500)}...");
 
-      final products = result.data.map((hit) {
-        final data = hit as Map<String, dynamic>;
-        return Product(
-          id: data['objectID'] ?? '',
-          name: data['name'] ?? '',
-          brand: data['brand'] ?? '',
-          modelCode: data['modelCode'] ?? '',
-          imageUrl: data['imageUrl'] ?? '',
-          lastTradedPrice: (data['lastTradedPrice'] as num?)?.toDouble() ?? 0.0,
-          priceHistory: [],
-        );
-      }).toList();
+      final List<Part> parts = [];
+      for (final hit in result.data) {
+        try {
+          final data = _castMap(hit as Map<Object?, Object?>);
+          parts.add(Part.fromMap(data));
+        } catch (e) {
+          print("--- SearchService: ERROR - Failed to parse a search result, skipping. Error: $e ---");
+          print("--- SearchService: Problematic data: $hit ---");
+        }
+      }
+      print("--- SearchService: Successfully parsed ${parts.length} parts. ---");
+      return parts;
 
-      return products;
     } on FirebaseFunctionsException catch (e) {
-      print('Cloud Function 호출 실패: ${e.code} - ${e.message}');
+      print("--- SearchService: FATAL - Cloud Function Exception: ${e.code} - ${e.message} ---");
       return [];
     } catch (e) {
-      print('상품 검색 중 알 수 없는 에러: $e');
+      print("--- SearchService: FATAL - Unknown Exception: $e ---");
       return [];
     }
+  }
+
+  Map<String, dynamic> _castMap(Map<Object?, Object?> map) {
+    final newMap = <String, dynamic>{};
+    map.forEach((key, value) {
+      if (key is String) {
+        if (value is Map<Object?, Object?>) {
+          newMap[key] = _castMap(value);
+        } else if (value is List<Object?>) {
+          newMap[key] = _castList(value);
+        } else {
+          newMap[key] = value;
+        }
+      }
+    });
+    return newMap;
+  }
+
+  List<dynamic> _castList(List<Object?> list) {
+    final newList = <dynamic>[];
+    for (final item in list) {
+      if (item is Map<Object?, Object?>) {
+        newList.add(_castMap(item));
+      } else if (item is List<Object?>) {
+        newList.add(_castList(item));
+      } else {
+        newList.add(item);
+      }
+    }
+    return newList;
   }
 }

@@ -7,4 +7,7 @@ typings/
 
 # Node.js dependency directory
 node_modules/
-*.localservice-account-key.json 
+*.localservice-account-key.json
+
+# Environment variables
+.env.kream-132e4

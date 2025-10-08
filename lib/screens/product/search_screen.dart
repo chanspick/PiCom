@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:algolia/algolia.dart';
-import '../../models/part_model.dart'; // Import the Part model
+import '../../models/part_model.dart';
+import '../../services/search_service.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? category;
@@ -14,14 +14,10 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
-  List<AlgoliaObjectSnapshot> _results = []; // Changed to hold full objects
+  final SearchService _searchService = SearchService();
+  List<Part> _results = [];
   bool _isLoading = false;
   Timer? _debounce;
-
-  final Algolia _algolia = const Algolia.init(
-    applicationId: 'IRHJG9MGL7',
-    apiKey: 'a35df64bdcebb5654524e45b231e0998',
-  );
 
   @override
   void dispose() {
@@ -37,15 +33,10 @@ class _SearchScreenState extends State<SearchScreen> {
         setState(() {
           _isLoading = true;
         });
-
-        AlgoliaQuery query = _algolia.instance.index('parts').query(keyword);
-        if (widget.category != null) {
-          query = query.facetFilter('category:${widget.category}');
-        }
-
-        final snap = await query.getObjects();
+        // Use SearchService
+        final results = await _searchService.searchProducts(keyword);
         setState(() {
-          _results = snap.hits; // Store the full hits
+          _results = results;
           _isLoading = false;
         });
       } else {
@@ -61,14 +52,6 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       _results = [];
     });
-  }
-
-  // Helper to convert string to PartCategory enum
-  PartCategory _getPartCategoryFromString(String categoryString) {
-    return PartCategory.values.firstWhere(
-      (e) => e.name.toLowerCase() == categoryString.toLowerCase(),
-      orElse: () => PartCategory.cpu, // Default fallback
-    );
   }
 
   @override
@@ -114,17 +97,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       : ListView.builder(
                           itemCount: _results.length,
                           itemBuilder: (ctx, i) {
-                            final hit = _results[i];
-                            final data = hit.data;
-                            final modelName = data['modelName'] as String? ?? 'N/A';
-                            final brand = data['brand'] as String? ?? 'N/A';
-
+                            // Now we have a proper Part object
+                            final part = _results[i];
                             return ListTile(
-                              title: Text(modelName),
-                              subtitle: Text(brand),
+                              title: Text(part.modelName), // Use correct field
+                              subtitle: Text(part.brand),   // Use correct field
                               onTap: () {
-                                // Create a Part object from the Algolia hit data
-                                final part = Part.fromMap(hit.data);
                                 // Pop with the Part object
                                 Navigator.pop(context, part);
                               },
