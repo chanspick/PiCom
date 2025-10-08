@@ -1,101 +1,169 @@
 import * as admin from "firebase-admin";
-import {onRequest} from "firebase-functions/v2/https";
-import {logger} from "firebase-functions/v2";
+import { onRequest } from "firebase-functions/v2/https";
+import { logger } from "firebase-functions/v2";
 
 const db = admin.firestore();
 
-/**
- * [V2 HTTP onRequest] Approves a sell request and creates a listing.
- */
 export const approveSellRequest = onRequest(
-  {region: "asia-northeast3", cors: true},
-  async (req, res) => {
-    // 1. Auth check: Ensure user is an admin
-    const idToken = req.headers.authorization?.split("Bearer ")[1];
-    if (!idToken) {
-      res.status(403).send({error: "Unauthorized"});
-      return;
-    }
-    try {
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
-      if (decodedToken.admin !== true) {
-        res.status(403).send({error: "Forbidden: Not an admin"});
-        return;
-      }
-    } catch (e) {
-      res.status(403).send({error: "Unauthorized: Invalid token"});
+  { region: "asia-northeast3", cors: ["https://kream-132e4.web.app"] },
+  async (req, res): Promise<void> => {
+    // CORS
+    res.set('Access-Control-Allow-Origin', 'https://kream-132e4.web.app');
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.set('Vary', 'Origin');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
       return;
     }
 
-    // 2. Input validation
-    const {requestId, finalPrice, finalConditionScore} = req.body;
-    if (!requestId || !finalPrice || !finalConditionScore) {
-      res.status(400).send({error: "Missing required fields: requestId, finalPrice, or finalConditionScore"});
+    // 1️⃣ Auth
+    const idToken = req.headers.authorization?.split("Bearer ")[1];
+    if (!idToken) {
+      res.status(403).send({ error: "Unauthorized" });
+      return;
+    }
+    try {
+      const decoded = await admin.auth().verifyIdToken(idToken);
+      if (decoded.admin !== true) {
+        res.status(403).send({ error: "Forbidden: Not an admin" });
+        return;
+      }
+    } catch {
+      res.status(403).send({ error: "Unauthorized: Invalid token" });
+      return;
+    }
+
+    // 2️⃣ Input
+    const { requestId, finalPrice, finalConditionScore } = req.body || {};
+    if (
+      typeof requestId !== "string" || !requestId ||
+      typeof finalPrice !== "number" || !Number.isFinite(finalPrice) || finalPrice <= 0 ||
+      typeof finalConditionScore !== "number" || !Number.isFinite(finalConditionScore) || finalConditionScore < 0
+    ) {
+      res.status(400).send({ error: "Missing/invalid fields: requestId, finalPrice (>0), finalConditionScore (>=0)" });
       return;
     }
 
     const requestRef = db.collection("sell_requests").doc(requestId);
 
     try {
-      // 3. Core Logic (moved from onSellRequestApproved)
-      const sellRequestDoc = await requestRef.get();
-      if (!sellRequestDoc.exists) {
-        res.status(404).send({error: `Sell request ${requestId} not found.`});
+      const snap = await requestRef.get();
+      if (!snap.exists) {
+        res.status(404).send({ error: `Sell request ${requestId} not found.` });
         return;
       }
-      const sellRequestData = sellRequestDoc.data()!;
 
-      // Find corresponding part
-      const partQuerySnapshot = await db.collection("parts")
-        .where("category", "==", sellRequestData.partCategory)
-        .where("modelName", "==", sellRequestData.partModelName)
-        .limit(1)
-        .get();
+      const r = snap.data()!;
+      logger.info(`sell_request keys: ${Object.keys(r).join(',')}`);
 
-      if (partQuerySnapshot.empty) {
-        const errorMsg = `Part not found for category ${sellRequestData.partCategory} and model ${sellRequestData.partModelName}`;
-        logger.error(errorMsg);
-        res.status(400).send({error: errorMsg});
+      // 3️⃣ 정규화
+      const srPartId    = typeof r.partId === "string" ? r.partId : null;
+      const srBrand     = typeof r.brand === "string" ? r.brand : null;
+      const srModelName = typeof r.modelName === "string"
+        ? r.modelName
+        : (typeof r.partModelName === "string" ? r.partModelName : null);
+      const srCategory  = typeof r.category === "string"
+        ? r.category
+        : (typeof r.partCategory === "string" ? r.partCategory : null);
+
+      if (!srPartId && !(srModelName && (srBrand || srCategory))) {
+        res.status(400).send({ error: "Insufficient identifiers (need partId or (modelName + brand/category))." });
         return;
       }
-      const partData = partQuerySnapshot.docs[0].data();
-      const partId = partData.partId;
-      const brand = partData.brand;
 
-      // Create new listing
+      // 4️⃣ Part 조회 (undefined 절대 금지)
+      let partDoc: FirebaseFirestore.DocumentSnapshot | null = null;
+
+      if (srPartId) {
+        const byId = await db.collection("parts").doc(srPartId).get();
+        if (byId.exists) partDoc = byId;
+      }
+
+      if (!partDoc && srBrand && srModelName) {
+        const qs = await db.collection("parts")
+          .where("brand", "==", srBrand)
+          .where("modelName", "==", srModelName)
+          .limit(1)
+          .get();
+        if (!qs.empty) partDoc = qs.docs[0];
+      }
+
+      // parts 문서엔 modelName 대신 model이 있음
+      if (!partDoc && srBrand && srModelName) {
+        const qs = await db.collection("parts")
+          .where("brand", "==", srBrand)
+          .where("model", "==", srModelName)
+          .limit(1)
+          .get();
+        if (!qs.empty) partDoc = qs.docs[0];
+      }
+
+      if (!partDoc && srCategory && srModelName) {
+        const qs = await db.collection("parts")
+          .where("category", "==", srCategory)
+          .where("modelName", "==", srModelName)
+          .limit(1)
+          .get();
+        if (!qs.empty) partDoc = qs.docs[0];
+      }
+
+      if (!partDoc && srCategory && srModelName) {
+        const qs = await db.collection("parts")
+          .where("category", "==", srCategory)
+          .where("model", "==", srModelName)
+          .limit(1)
+          .get();
+        if (!qs.empty) partDoc = qs.docs[0];
+      }
+
+      if (!partDoc) {
+        res.status(400).send({
+          error: `Part not found (partId:${srPartId || 'N/A'}, brand:${srBrand || 'N/A'}, modelName:${srModelName || 'N/A'}, category:${srCategory || 'N/A'})`
+        });
+        return;
+      }
+
+      // 5️⃣ Listing 생성
+      const partData = partDoc.data()!;
+      const partId = partDoc.id;
+      const resolvedBrand = (partData.brand ?? srBrand) || "";
+      const resolvedModel = (srModelName ?? partData.modelName ?? partData.model) || "";
+
       const newListingRef = db.collection("listings").doc();
       const newListingId = newListingRef.id;
-      const listingData = {
+
+      await newListingRef.set({
         listingId: newListingId,
-        partId: partId,
+        partId,
         conditionScore: finalConditionScore,
         price: finalPrice,
         status: "available",
-        sellerId: sellRequestData.sellerId,
+        sellerId: r.sellerId,
         buyerId: null,
-        brand: brand,
-        modelName: sellRequestData.partModelName,
+        brand: resolvedBrand,
+        modelName: resolvedModel,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         soldAt: null,
-        imageUrls: sellRequestData.imageUrls,
-      };
-      await newListingRef.set(listingData);
+        imageUrls: Array.isArray(r.imageUrls) ? r.imageUrls : [],
+      });
 
-      // 4. Update original request to processed
       await requestRef.update({
         listingId: newListingId,
-        status: "processed", // Directly set to processed
-        finalPrice: finalPrice,
-        finalConditionScore: finalConditionScore,
+        status: "processed",
+        finalPrice,
+        finalConditionScore,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      logger.info(`Listing ${newListingId} created and request ${requestId} processed.`);
-      res.status(200).send({success: true, listingId: newListingId});
+      logger.info(`Listing ${newListingId} created successfully.`);
+      res.status(200).send({ success: true, listingId: newListingId });
+      return;
 
     } catch (error) {
       logger.error(`Error processing approveSellRequest for ${requestId}:`, error);
-      res.status(500).send({error: "Internal server error"});
+      res.status(500).send({ error: "Internal server error" });
+      return;
     }
   }
 );

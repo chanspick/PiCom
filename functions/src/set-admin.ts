@@ -2,6 +2,13 @@ import * as admin from 'firebase-admin';
 
 admin.initializeApp();
 
+const emailToMakeAdmin = process.argv[2]; // Expect email as the first argument
+
+if (!emailToMakeAdmin) {
+  console.error('Usage: ts-node src/set-admin.ts <email>');
+  process.exit(1);
+}
+
 const auth = admin.auth();
 
 (async () => {
