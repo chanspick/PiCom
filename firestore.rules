@@ -48,7 +48,7 @@ service cloud.firestore {
                     && isValidSellRequest();
       allow update: if isAuthenticated() && (
                       (isNotAnonymous() && request.auth.uid == resource.data.sellerId) ||
-                      (isUserAdmin() && request.resource.data.keys().hasAny(['status', 'finalPrice', 'processedAt']))
+                      (isUserAdmin() && request.resource.data.keys().hasAny(['status', 'finalPrice', 'finalConditionScore', 'processedAt']))
                     );
       allow delete: if isAuthenticated() && isNotAnonymous()
                             && request.auth.uid == resource.data.sellerId;

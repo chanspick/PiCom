@@ -32,6 +32,10 @@
     th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
     th { background-color: #f2f2f2; }
     td img { max-width: 100px; max-height: 100px; border-radius: 4px; }
+    #filter-container { margin-bottom: 20px; }
+    .btn-filter { background-color: #e0e0e0; color: #333; margin-right: 10px; }
+    .btn-filter:hover { background-color: #d5d5d5; }
+    .btn-filter.active { background-color: #1a73e8; color: white; }
   </style>
 </head>
 <body>
@@ -61,7 +65,14 @@
     </div>
 
     <div id="sell-requests-panel" class="hidden">
-        <h2>Pending Sell Requests</h2>
+        <h2 id="sell-requests-title">Pending Sell Requests</h2>
+        <div id="filter-container">
+            <button class="btn-filter" data-status="all">All</button>
+            <button class="btn-filter active" data-status="pending">Pending</button>
+            <button class="btn-filter" data-status="approved">Approved</button>
+            <button class="btn-filter" data-status="rejected">Rejected</button>
+            <button class="btn-filter" data-status="processed">Processed</button>
+        </div>
         <table id="sell-requests-table">
             <thead>
                 <tr>
@@ -154,17 +165,14 @@
           userStatus.textContent = isAdmin ? "Admin" : "User";
           userStatus.className = isAdmin ? "status admin" : "status user";
 
-          // ALWAYS show the admin panel for logged-in users.
-          // The backend function is protected and will handle authorization.
           adminPanel.classList.remove('hidden');
 
           if (isAdmin) {
             sellRequestsPanel.classList.remove('hidden');
             accessDenied.classList.add('hidden');
-            listenToSellRequests();
+            listenToSellRequests(); // Load initial data (pending)
           } else {
             sellRequestsPanel.classList.add('hidden');
-            // Hide the main access denied message, users will get specific errors from backend if they try actions.
             accessDenied.classList.add('hidden'); 
           }
         });
@@ -183,13 +191,25 @@
     });
 
     // --- Sell Request Management ---
-    function listenToSellRequests() {
+    function listenToSellRequests(status = 'pending') {
+        if (sellRequestsUnsubscribe) {
+            sellRequestsUnsubscribe(); // Detach previous listener
+        }
+
         const requestsRef = collection(db, "sell_requests");
-        const q = query(requestsRef, where("status", "==", "pending"));
+        const q = status === 'all' 
+            ? query(requestsRef) 
+            : query(requestsRef, where("status", "==", status));
+
+        document.getElementById('sell-requests-title').textContent = `${status.charAt(0).toUpperCase() + status.slice(1)} Sell Requests`;
 
         sellRequestsUnsubscribe = onSnapshot(q, (querySnapshot) => {
             const tableBody = document.getElementById('sell-requests-body');
             tableBody.innerHTML = ""; // Clear existing rows
+            if (querySnapshot.empty) {
+                tableBody.innerHTML = '<tr><td colspan="5">No requests found.</td></tr>';
+                return;
+            }
             querySnapshot.forEach((doc) => {
                 const request = doc.data();
                 const row = document.createElement('tr');
@@ -197,22 +217,28 @@
 
                 const imagesHTML = request.imageUrls.map(url => `<a href="${url}" target="_blank"><img src="${url}" alt="Part Image"></a>`).join('');
 
-                row.innerHTML = `
-                    <td>${request.sellerId}</td>
-                    <td>${request.brand} ${request.modelName}</td>
-                    <td>${request.requestedPrice.toLocaleString()}</td>
-                    <td>${imagesHTML}</td>
-                    <td>
+                let actionsHTML = '';
+                if (request.status === 'pending') {
+                    actionsHTML = `
                         <input type="number" placeholder="Final Price" id="price-${doc.id}" value="${request.suggestedPrice || ''}" />
                         <input type="number" placeholder="Condition (1-100)" id="score-${doc.id}" value="${request.calculatedConditionScore || ''}" />
                         <button class="btn-approve" data-id="${doc.id}">Approve</button>
                         <button class="btn-reject" data-id="${doc.id}">Reject</button>
-                    </td>
+                    `;
+                } else {
+                    actionsHTML = `Status: ${request.status}`;
+                }
+
+                row.innerHTML = `
+                    <td>${request.sellerId.substring(0, 6)}...</td>
+                    <td>${request.brand} ${request.modelName}</td>
+                    <td>${request.requestedPrice.toLocaleString()}</td>
+                    <td>${imagesHTML}</td>
+                    <td>${actionsHTML}</td>
                 `;
                 tableBody.appendChild(row);
             });
 
-            // Add event listeners to new buttons
             document.querySelectorAll('.btn-approve').forEach(button => {
                 button.addEventListener('click', handleApprove);
             });
@@ -222,36 +248,80 @@
         });
     }
 
+    document.querySelectorAll('.btn-filter').forEach(button => {
+        button.addEventListener('click', (e) => {
+            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            const status = e.target.dataset.status;
+            listenToSellRequests(status);
+        });
+    });
+
     async function handleApprove(event) {
-        const requestId = event.target.dataset.id;
+        const button = event.target;
+        button.disabled = true;
+        button.textContent = 'Processing...';
+
+        const requestId = button.dataset.id;
         const finalPrice = document.getElementById(`price-${requestId}`).value;
         const finalConditionScore = document.getElementById(`score-${requestId}`).value;
 
         if (!finalPrice || !finalConditionScore) {
             alert('Please enter both Final Price and Condition Score.');
+            button.disabled = false;
+            button.textContent = 'Approve';
             return;
         }
 
-        const requestRef = doc(db, "sellRequests", requestId);
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Error: You are not logged in.');
+            button.disabled = false;
+            button.textContent = 'Approve';
+            return;
+        }
+
         try {
-            await updateDoc(requestRef, {
-                status: "approved",
-                finalPrice: Number(finalPrice),
-                finalConditionScore: Number(finalConditionScore)
+            const idToken = await user.getIdToken();
+            const response = await fetch('https://asia-northeast3-kream-132e4.cloudfunctions.net/approveSellRequest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + idToken,
+                },
+                body: JSON.stringify({
+                    requestId: requestId,
+                    finalPrice: Number(finalPrice),
+                    finalConditionScore: Number(finalConditionScore),
+                }),
             });
-            console.log(`Request ${requestId} approved.`);
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'An unknown error occurred.');
+            }
+            
+            alert(`Success! Listing created with ID: ${data.listingId}`);
+
         } catch (error) {
-            console.error("Error approving request: ", error);
+            console.error("Error approving request:", error);
             alert(`Error: ${error.message}`);
+            button.disabled = false;
+            button.textContent = 'Approve';
         }
     }
 
     async function handleReject(event) {
-        const requestId = event.target.dataset.id;
+        const button = event.target;
+        const requestId = button.dataset.id;
         if (!confirm(`Are you sure you want to reject request ${requestId}?`)) {
             return;
         }
-        const requestRef = doc(db, "sellRequests", requestId);
+        button.disabled = true;
+        button.textContent = 'Rejecting...';
+
+        const requestRef = doc(db, "sell_requests", requestId);
         try {
             await updateDoc(requestRef, {
                 status: "rejected"
@@ -260,9 +330,10 @@
         } catch (error) {
             console.error("Error rejecting request: ", error);
             alert(`Error: ${error.message}`);
+            button.disabled = false;
+            button.textContent = 'Reject';
         }
     }
-
 
     // --- Admin Actions ---
     async function callSetAdmin(targetEmail, makeAdmin) {
@@ -280,7 +351,6 @@
       
       try {
         const idToken = await user.getIdToken();
-        // Call the function directly via its trigger URL
         const response = await fetch('https://asia-northeast3-kream-132e4.cloudfunctions.net/setAdmin', {
           method: 'POST',
           headers: {

@@ -324,6 +324,7 @@ import { onListingCreatedFraudCheck } from "./fraud_detection";
 import { addToCart, updateCartItemQuantity, removeFromCart } from "./cart";
 import { searchProducts } from "./search";
 import { setAdmin } from "./admin";
+import { approveSellRequest } from "./approve";
 
 export {
   createPart,
@@ -335,4 +336,5 @@ export {
   removeFromCart,
   searchProducts,
   setAdmin,
+  approveSellRequest,
 };

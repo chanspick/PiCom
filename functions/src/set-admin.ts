@@ -1,23 +1,6 @@
 import * as admin from 'firebase-admin';
 
-// IMPORTANT: Make sure you have your service account key file named 'key.json' 
-// in the 'functions' directory.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const serviceAccount = require('../key.json');
-
-// Get the email from command line arguments
-const emailToMakeAdmin = process.argv[2];
-
-if (!emailToMakeAdmin) {
-  console.error('ERROR: Please provide an email address as an argument.');
-  console.log('Usage: npm run set-admin -- <email-to-make-admin>');
-  process.exit(1);
-}
-
-// Initialize Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+admin.initializeApp();
 
 const auth = admin.auth();
 

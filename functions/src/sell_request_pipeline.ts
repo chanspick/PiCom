@@ -5,7 +5,7 @@ import { logger } from "firebase-functions/v2";
 const db = admin.firestore();
 
 // V2 Style: onNewSellRequest
-export const onNewSellRequest = onDocumentCreated({ document: "sellRequests/{requestId}", region: "asia-northeast3" }, async (event) => {
+export const onNewSellRequest = onDocumentCreated({ document: "sell_requests/{requestId}", region: "asia-northeast3" }, async (event) => {
   const snapshot = event.data;
   if (!snapshot) {
     logger.error("No data associated with the event for onNewSellRequest");
@@ -33,7 +33,7 @@ export const onNewSellRequest = onDocumentCreated({ document: "sellRequests/{req
 });
 
 // V2 Style: onSellRequestApproved
-export const onSellRequestApproved = onDocumentUpdated({ document: "sellRequests/{requestId}", region: "asia-northeast3" }, async (event) => {
+export const onSellRequestApproved = onDocumentUpdated({ document: "sell_requests/{requestId}", region: "asia-northeast3" }, async (event) => {
   const change = event.data;
   if (!change) {
     logger.error("No data associated with the event for onSellRequestApproved");

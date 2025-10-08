@@ -11,3 +11,4 @@ node_modules/
 
 # Environment variables
 .env.kream-132e4
+key.json
