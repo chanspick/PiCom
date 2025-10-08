@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 // Firebase Admin SDK 초기화
-admin.initializeApp({ projectId: 'kream-132e4' });
+admin.initializeApp();
 
 const db = admin.firestore();
 
@@ -12,7 +12,7 @@ async function migrateCpuData() {
   console.log("Starting CPU data migration from JSON...");
 
   // all_cpus_combined.json 파일 경로 설정
-  const filePath = path.join(__dirname, "../../lib/models/all_cpus_combined.json");
+  const filePath = path.join(__dirname, "../../../../lib/models/all_cpus_combined.json");
 
   let cpuObjects: any[];
 

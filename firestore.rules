@@ -16,7 +16,7 @@ service cloud.firestore {
     // ===== Users Collection =====
     match /users/{userId} {
       allow create: if isAuthenticated() && request.auth.uid == userId && !("isAdmin" in request.resource.data.keys());
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isUserAdmin());
+      allow read: if isAuthenticated();
       allow update: if isAuthenticated() && request.auth.uid == userId && !("isAdmin" in request.resource.data.diff(resource.data).affectedKeys());
       allow delete: if isAuthenticated() && (request.auth.uid == userId || isUserAdmin());
     }

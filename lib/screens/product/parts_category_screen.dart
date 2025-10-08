@@ -1,6 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:picom/models/part_model.dart';
+import 'package:picom/services/order_service.dart';
+import 'package:picom/widgets/mini_price_chart.dart';
+import 'package:picom/widgets/price_history_chart.dart';
 import '../../services/part_service.dart';
 import 'part_detail_screen.dart';
 import 'part_search_screen.dart';
@@ -14,14 +16,13 @@ class PartsCategoryScreen extends StatefulWidget {
 
 class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<PartCategory> _categories = PartCategory.values; // Changed to use PartCategory enum
-  final PartService _partService = PartService(); // Added PartService instance
+  final List<PartCategory> _categories = PartCategory.values;
+  final PartService _partService = PartService();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: _categories.length, vsync: this);
-    // _partsFuture removed
   }
 
   @override
@@ -38,7 +39,7 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          tabs: _categories.map((category) => Tab(text: category.name)).toList(), // Display enum name
+          tabs: _categories.map((category) => Tab(text: category.name.toUpperCase())).toList(),
         ),
       ),
       body: Column(
@@ -49,7 +50,7 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PartSearchScreen()),
+                  MaterialPageRoute(builder: (context) => const PartSearchScreen()),
                 );
               },
               child: Container(
@@ -75,8 +76,8 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
             child: TabBarView(
               controller: _tabController,
               children: _categories.map((category) {
-                return StreamBuilder<List<Part>>( // Changed to StreamBuilder
-                  stream: _partService.getPartsByCategory(category), // Fetch parts by category
+                return StreamBuilder<List<Part>>(
+                  stream: _partService.getPartsByCategory(category),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -89,7 +90,7 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
                     }
 
                     final parts = snapshot.data!;
-                    return _buildPartGrid(parts); // Pass List<Part> directly
+                    return _buildPartGrid(parts);
                   },
                 );
               }).toList(),
@@ -100,12 +101,12 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
     );
   }
 
-  Widget _buildPartGrid(List<Part> parts) { // Accepts List<Part> directly
+  Widget _buildPartGrid(List<Part> parts) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.7,
+        childAspectRatio: 0.8, // Adjusted for new layout
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
@@ -118,16 +119,30 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
   }
 }
 
-class _PartCard extends StatelessWidget {
+class _PartCard extends StatefulWidget {
   final Part part;
   const _PartCard({required this.part});
+
+  @override
+  State<_PartCard> createState() => _PartCardState();
+}
+
+class _PartCardState extends State<_PartCard> {
+  late Future<List<PricePoint>> _priceHistoryFuture;
+  final OrderService _orderService = OrderService();
+
+  @override
+  void initState() {
+    super.initState();
+    _priceHistoryFuture = _orderService.getPriceHistoryForPart(widget.part.partId);
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => PartDetailScreen(partId: part.partId), // Navigate to PartDetailScreen
+          builder: (_) => PartDetailScreen(partId: widget.part.partId),
         ));
       },
       child: Container(
@@ -149,9 +164,34 @@ class _PartCard extends StatelessWidget {
               flex: 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: Container(
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image_not_supported, size: 40, color: Colors.grey), // No image in Part model
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
+                    ),
+                    FutureBuilder<List<PricePoint>>(
+                      future: _priceHistoryFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)));
+                        }
+                        if (snapshot.hasError) {
+                          return const Center(child: Icon(Icons.error_outline, color: Colors.red, size: 30));
+                        }
+                        if (!snapshot.hasData || snapshot.data!.length < 2) {
+                          return const Center(
+                            child: Text(
+                              '가격 내역 없음',
+                              style: TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ); // Show nothing if no graph data
+                        }
+                        return MiniPriceChart(priceHistory: snapshot.data!);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -163,7 +203,7 @@ class _PartCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      part.brand,
+                      widget.part.brand,
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.grey,
@@ -173,7 +213,7 @@ class _PartCard extends StatelessWidget {
                     Expanded(
                       child: Center(
                         child: Text(
-                          part.modelName, // Changed from part.name to part.modelName
+                          widget.part.modelName,
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,

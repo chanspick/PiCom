@@ -124,12 +124,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               subtitle: Text(brand),
                               onTap: () {
                                 // Create a Part object from the Algolia hit data
-                                final part = Part(
-                                  partId: hit.objectID,
-                                  category: _getPartCategoryFromString(data['category'] as String? ?? ''),
-                                  brand: brand,
-                                  modelName: modelName,
-                                );
+                                final part = Part.fromMap(hit.data);
                                 // Pop with the Part object
                                 Navigator.pop(context, part);
                               },

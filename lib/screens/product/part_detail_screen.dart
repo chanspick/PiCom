@@ -1,8 +1,9 @@
+
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fl_chart/fl_chart.dart'; // Add this import
-import 'dart:math'; // Add this import
+import 'package:fl_chart/fl_chart.dart';
+import 'dart:math';
 import '../../models/part_model.dart';
+import '../../services/part_service.dart'; // Use PartService
 import 'package:picom/services/cart_service.dart';
 import 'sell_request_screen.dart';
 import '../payment_screen.dart';
@@ -16,8 +17,10 @@ class PartDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartService = CartService();
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('parts').doc(partId).get(),
+    final partService = PartService(); // Instantiate PartService
+
+    return FutureBuilder<Part?>( // Use PartService to get data
+      future: partService.getPartById(partId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -31,41 +34,45 @@ class PartDetailScreen extends StatelessWidget {
             body: Center(child: Text('오류: ${snapshot.error}')),
           );
         }
-        if (!snapshot.hasData || !snapshot.data!.exists) {
+        if (!snapshot.hasData || snapshot.data == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('부품 상세 정보')),
             body: const Center(child: Text('부품을 찾을 수 없습니다.')),
           );
         }
 
-        final part = Part.fromFirestore(snapshot.data!);
+        final part = snapshot.data!;
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('부품 상세 정보'),
+            title: Text(part.modelName),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
+                // --- Basic Info ---
                 Text(
                   part.modelName,
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  '브랜드: ${part.brand}',
-                  style: const TextStyle(fontSize: 18, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '카테고리: ${part.category.name}',
-                  style: const TextStyle(fontSize: 18, color: Colors.grey),
-                ),
                 const SizedBox(height: 20),
-                const _PriceGraphCard(),
+
+                // --- Dynamic Details based on Part Type ---
+                if (part is CpuPart)
+                  _CpuDetailsWidget(cpuPart: part)
+                // else if (part is GpuPart)
+                //   _GpuDetailsWidget(gpuPart: part) // Future extension
+                else
+                  const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text('이 부품 종류에 대한 상세 정보 위젯이 아직 구현되지 않았습니다.'),
+                    ),
+                  ),
+
+
               ],
             ),
           ),
@@ -81,8 +88,7 @@ class PartDetailScreen extends StatelessWidget {
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        // This should be modified to handle a list of items
-                        // For now, it will not work as expected with the cart
+                        // Purchase logic
                       },
                       child: const Text('구매'),
                     ),
@@ -155,6 +161,59 @@ class PartDetailScreen extends StatelessWidget {
   }
 }
 
+// Widget to display CPU specific details
+class _CpuDetailsWidget extends StatelessWidget {
+  final CpuPart cpuPart;
+
+  const _CpuDetailsWidget({required this.cpuPart});
+
+  Widget _buildSpecRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'CPU 상세 스펙',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const Divider(height: 20, thickness: 1),
+            _buildSpecRow('소켓', cpuPart.socket),
+            _buildSpecRow('코어', '${cpuPart.cores}코어'),
+            _buildSpecRow('스레드', '${cpuPart.threads}스레드'),
+            _buildSpecRow('기본 클럭', '${cpuPart.baseClockGhz}GHz'),
+            _buildSpecRow('부스트 클럭', '${cpuPart.boostClockGhz}GHz'),
+            _buildSpecRow('L3 캐시', '${cpuPart.l3CacheMb}MB'),
+            _buildSpecRow('내장그래픽', cpuPart.hasIntegratedGraphics ? '있음 (${cpuPart.igpuName ?? ''})' : '없음'),
+            _buildSpecRow('설계전력', '${cpuPart.powerConsumptionW ?? 'N/A'}W'),
+            _buildSpecRow('메모리 타입', cpuPart.memory.type),
+            _buildSpecRow('메모리 속도', '${cpuPart.memory.maxSpeedMhz}MHz'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+// This remains unchanged for now as it uses dummy data
 class _PriceGraphCard extends StatelessWidget {
   const _PriceGraphCard();
 

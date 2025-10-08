@@ -22,6 +22,19 @@ class PartService {
         .map((snapshot) => snapshot.docs.map((doc) => Part.fromFirestore(doc)).toList());
   }
 
+  /// Get a list of partIds for a given category string.
+  Future<List<String>> getPartIdsForCategory(String category) async {
+    if (category == 'All') {
+      return []; // 'All' should be handled separately, maybe return all part IDs or an empty list.
+    }
+    final querySnapshot = await _firestore
+        .collection('parts')
+        .where('category', isEqualTo: category.toLowerCase())
+        .get();
+    return querySnapshot.docs.map((doc) => doc.id).toList();
+  }
+
+
   // Get a single part by ID
   Future<Part?> getPartById(String partId) async {
     final doc = await _firestore.collection('parts').doc(partId).get();
