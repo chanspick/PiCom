@@ -4,6 +4,7 @@ import 'package:picom/services/auth_service.dart';
 import 'package:picom/screens/profile/profile_screen.dart'; // Added import
 import 'package:picom/screens/cart/cart_screen.dart';
 import 'package:picom/screens/community/community_screen.dart';
+import 'package:picom/screens/settings/settings_screen.dart';
 
 class HomeAppBarActions extends StatelessWidget {
   const HomeAppBarActions({super.key});
@@ -55,6 +56,11 @@ class HomeAppBarActions extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => const CommunityScreen()),
               );
+            } else if (value == 'settings') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
             }
           },
           itemBuilder: (BuildContext context) {
@@ -67,6 +73,10 @@ class HomeAppBarActions extends StatelessWidget {
               const PopupMenuItem<String>(
                 value: 'qna',
                 child: ListTile(leading: Icon(Icons.question_answer_outlined), title: Text('QnA')),
+              ),
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: ListTile(leading: Icon(Icons.settings_outlined), title: Text('설정')),
               ),
               const PopupMenuDivider(),
               PopupMenuItem<String>(

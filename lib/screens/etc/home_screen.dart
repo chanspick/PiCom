@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../models/listing_model.dart';
-import '../../models/part_model.dart';
 import '../../services/listing_service.dart';
-import '../product/part_shop_screen.dart';
 import '../product/listing_detail_screen.dart';
-import '../product/parts_category_screen.dart'; // Add this import
+import '../product/parts_category_screen.dart';
 import '../product/sell_request_screen.dart';
 import '../../widgets/home_app_bar_actions.dart';
 import '../../widgets/home_search_bar.dart';
@@ -16,6 +14,8 @@ import '../../widgets/home_banner.dart';
 import '../../widgets/circle_category.dart';
 import '../community/community_screen.dart';
 import '../pc_assembly_screen.dart';
+import '../product/part_shop_screen.dart';
+import 'part_name.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -25,7 +25,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const HomeSearchBar(),
-        actions: [HomeAppBarActions()],
+        actions: const [HomeAppBarActions()],
       ),
       body: const _HomeContent(),
     );
@@ -42,7 +42,6 @@ class _HomeContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           HomeBanner(),
-          SizedBox(height: 16),
           SizedBox(height: 24),
           _CircleMenuSection(),
           SizedBox(height: 24),
@@ -64,8 +63,8 @@ class _ProductListSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Just Dropped',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            '최신 상품',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           StreamBuilder<List<Listing>>(
@@ -118,7 +117,7 @@ class _ListingCard extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    ListingDetailScreen(listingId: listing.listingId), // Changed from listing.id to listing.listingId
+                    ListingDetailScreen(listingId: listing.listingId),
               ),
             );
           },
@@ -153,28 +152,8 @@ class _ListingCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: 48, // Increased height for two lines
-                        child: FutureBuilder<DocumentSnapshot>(
-                          future: FirebaseFirestore.instance.collection('parts').doc(listing.partId).get(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Text('...', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16));
-                            }
-                            if (!snapshot.hasData || !snapshot.data!.exists) {
-                              return const Text('부품 정보 없음', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16));
-                            }
-                            final part = Part.fromFirestore(snapshot.data!);
-                            return Text(
-                              part.modelName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            );
-                          },
-                        ),
+                        height: 48,
+                        child: PartName(partId: listing.partId),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -200,55 +179,46 @@ class _ListingCard extends StatelessWidget {
 class _CircleMenuSection extends StatelessWidget {
   const _CircleMenuSection();
 
+  static final _menuItems = [
+    {
+      'icon': Icons.settings,
+      'label': '부품 샵',
+      'screen': const PartShopScreen(),
+    },
+    {
+      'icon': Icons.store,
+      'label': '브랜드관',
+      'screen': PartsCategoryScreen(),
+    },
+    {
+      'icon': Icons.desktop_mac,
+      'label': '나만의 컴퓨터',
+      'screen': const PcAssemblyScreen(),
+    },
+    {
+      'icon': Icons.add_box_outlined,
+      'label': '판매 요청',
+      'screen': const SellRequestScreen(),
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final items = [
-      {
-        'icon': Icons.settings,
-        'label': '부품 샵',
-        'onTap': () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const PartShopScreen()),
-        ),
-      },
-      {
-        'icon': Icons.store,
-        'label': '브랜드관',
-        'onTap': () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PartsCategoryScreen()),
-        ),
-      },
-      {
-        'icon': Icons.desktop_mac,
-        'label': '나만의 컴퓨터',
-        'onTap': () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const PcAssemblyScreen()),
-        ),
-      },
-      {
-        'icon': Icons.add_box_outlined,
-        'label': '판매 요청',
-        'onTap': () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SellRequestScreen()),
-        ),
-      },
-    ];
-
     return SizedBox(
       height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: items.length,
+        itemCount: _menuItems.length,
         itemBuilder: (context, index) {
-          final item = items[index];
+          final item = _menuItems[index];
           return CircleCategory(
             iconData: item['icon']! as IconData,
             label: item['label']! as String,
-            onTap: item['onTap'] as VoidCallback,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => item['screen'] as Widget),
+            ),
           );
         },
       ),

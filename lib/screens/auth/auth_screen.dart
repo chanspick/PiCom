@@ -31,20 +31,13 @@ class _AuthScreenState extends State<AuthScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // 로고 섹션
                   _buildLogo(),
                   const SizedBox(height: 48),
-
-                  // 타이틀 섹션
                   _buildTitle(),
                   const SizedBox(height: 48),
-
-                  // 로그인 버튼들
                   _buildLoginButtons(),
                   const SizedBox(height: 24),
-
-                  // 로딩 표시
-                  if (_isLoading) const CircularProgressIndicator(),
+                  if (_isLoading) const CircularProgressIndicator(color: Colors.white),
                 ],
               ),
             ),
@@ -61,11 +54,11 @@ class _AuthScreenState extends State<AuthScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(60),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withAlpha(25),
+            color: Colors.black12,
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: Offset(0, 10),
           ),
         ],
       ),
@@ -92,7 +85,7 @@ class _AuthScreenState extends State<AuthScreen> {
         const SizedBox(height: 8),
         Text(
           '중고 PC 부품 및 완제품 거래 플랫폼',
-          style: TextStyle(fontSize: 16, color: Colors.white.withAlpha(204)),
+          style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.8)),
         ),
       ],
     );
@@ -101,19 +94,12 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget _buildLoginButtons() {
     return Column(
       children: [
-        // 구글 로그인 버튼
         _buildGoogleLoginButton(),
         const SizedBox(height: 16),
-
-        // 게스트 로그인 버튼
         _buildGuestLoginButton(),
         const SizedBox(height: 32),
-
-        // 또는 구분선
         _buildOrDivider(),
         const SizedBox(height: 16),
-
-        // 게스트로 계속하기 설명
         _buildGuestExplanation(),
       ],
     );
@@ -138,7 +124,7 @@ class _AuthScreenState extends State<AuthScreen> {
           height: 24,
           width: 24,
           errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.login, size: 24);
+            return const Icon(Icons.login, size: 24); // Fallback icon
           },
         ),
         label: const Text(
@@ -178,17 +164,17 @@ class _AuthScreenState extends State<AuthScreen> {
     return Row(
       children: [
         Expanded(
-          child: Divider(color: Colors.white.withAlpha(127), thickness: 1),
+          child: Divider(color: Colors.white.withOpacity(0.5), thickness: 1),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             '또는',
-            style: TextStyle(color: Colors.white.withAlpha(204), fontSize: 14),
+            style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
           ),
         ),
         Expanded(
-          child: Divider(color: Colors.white.withAlpha(127), thickness: 1),
+          child: Divider(color: Colors.white.withOpacity(0.5), thickness: 1),
         ),
       ],
     );
@@ -198,14 +184,14 @@ class _AuthScreenState extends State<AuthScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withAlpha(25),
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           Icon(
             Icons.info_outline,
-            color: Colors.white.withAlpha(204),
+            color: Colors.white.withOpacity(0.8),
             size: 20,
           ),
           const SizedBox(width: 8),
@@ -213,7 +199,7 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Text(
               '게스트로 로그인하면 둘러보기만 가능합니다.\n거래하려면 Google 계정으로 로그인해주세요.',
               style: TextStyle(
-                color: Colors.white.withAlpha(204),
+                color: Colors.white.withOpacity(0.8),
                 fontSize: 12,
               ),
             ),

@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/part_model.dart'; // Import the Part model
-
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  static const List<String> _adminEmails = ['wlsrb00g@gmail.com', 'jochanhyeong28@gmail.com'];
 
   Future<void> createOrUpdateUser({
     required String uid,
@@ -12,8 +11,7 @@ class FirestoreService {
     String? photoUrl,
     required String provider,
   }) async {
-    final List<String> adminEmails = ['wlsrb00g@gmail.com', 'jochanhyeong28@gmail.com'];
-    final bool isAdmin = adminEmails.contains(email);
+    final bool isAdmin = _adminEmails.contains(email);
 
     await _db.collection('users').doc(uid).set(
       {
@@ -22,10 +20,10 @@ class FirestoreService {
         'photoUrl': photoUrl,
         'provider': provider,
         'lastLogin': FieldValue.serverTimestamp(),
-        'createdAt': FieldValue.serverTimestamp(), // 최초 생성 시에만 설정
+        'createdAt': FieldValue.serverTimestamp(),
         'isAdmin': isAdmin,
       },
-      SetOptions(merge: true), // 기존 필드는 유지하고 새로운 필드만 추가/업데이트
+      SetOptions(merge: true),
     );
   }
 
@@ -33,17 +31,12 @@ class FirestoreService {
     await _db.collection('users').doc(uid).delete();
   }
 
-  // 사용자 문서 가져오기
   Future<DocumentSnapshot?> getUser(String uid) async {
     try {
       return await _db.collection('users').doc(uid).get();
     } catch (e) {
-      // TODO: 에러 처리
+      // Consider logging the error
       return null;
     }
   }
-
-
-
-
 }
