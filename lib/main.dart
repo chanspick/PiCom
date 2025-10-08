@@ -7,6 +7,9 @@ import 'screens/etc/home_screen.dart';
 import 'screens/auth/auth_screen.dart';
 import 'screens/pc_assembly_screen.dart';
 
+import 'package:provider/provider.dart';
+import 'package:picom/providers/theme_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -17,7 +20,12 @@ void main() async {
   // TODO: 여기에 자신의 Gemini API 키를 입력하세요.
   Gemini.init(apiKey: "YOUR_API_KEY");
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -25,15 +33,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'KREAM',
-      theme: ThemeData(primarySwatch: Colors.deepPurple, useMaterial3: true),
-      debugShowCheckedModeBanner: false,
-      home: AuthWrapper(),
-      routes: {
-        '/home': (context) => HomeScreen(),
-        '/auth': (context) => const AuthScreen(),
-        '/pc_assembly': (context) => const PcAssemblyScreen(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'KREAM',
+          theme: ThemeData(
+            brightness: Brightness.light,
+            primarySwatch: Colors.deepPurple,
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            primarySwatch: Colors.deepPurple,
+            useMaterial3: true,
+          ),
+          themeMode: themeProvider.themeMode,
+          debugShowCheckedModeBanner: false,
+          home: AuthWrapper(),
+          routes: {
+            '/home': (context) => HomeScreen(),
+            '/auth': (context) => const AuthScreen(),
+            '/pc_assembly': (context) => const PcAssemblyScreen(),
+          },
+        );
       },
     );
   }

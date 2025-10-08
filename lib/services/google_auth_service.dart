@@ -7,33 +7,27 @@ class GoogleAuthService {
   );
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // 구글 로그인
   Future<User?> signIn() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        // The user canceled the sign-in
         return null;
       }
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
         accessToken: googleAuth.accessToken,
       );
 
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
       return userCredential.user;
     } catch (e) {
-      // TODO: Handle error properly
-      print(e); // For debugging
+      // Error handling can be improved here
       return null;
     }
   }
 
-  // 구글 인증 정보 가져오기 (계정 연결용)
   Future<GoogleSignInAuthentication?> getGoogleAuthentication() async {
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
     if (googleUser == null) {
@@ -42,22 +36,20 @@ class GoogleAuthService {
     return await googleUser.authentication;
   }
 
-  // 로그아웃
   Future<void> signOut() async {
     try {
       await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
-      // TODO: Handle error properly
+      // Error handling can be improved here
     }
   }
 
-  // 연결 해제
   Future<void> disconnect() async {
     try {
       await _googleSignIn.disconnect();
     } catch (e) {
-      // TODO: Handle error properly
+      // Error handling can be improved here
     }
   }
 }
