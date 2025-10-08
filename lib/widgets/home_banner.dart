@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import '../screens/my_estimate_screen.dart';
 
 class HomeBanner extends StatefulWidget {
   const HomeBanner({super.key});
@@ -44,8 +45,16 @@ class _HomeBannerState extends State<HomeBanner> {
               builder: (BuildContext context) {
                 return GestureDetector(
                   onTap: () {
-                    // TODO: Implement navigation logic based on item['route']
-                    print("Navigating to ${item['route']}");
+                    if (item['route'] == '/pc-recommendation') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MyEstimateScreen()),
+                      );
+                    } else {
+                      // TODO: Implement navigation logic for other routes
+                      print("Navigating to ${item['route']}");
+                    }
                   },
                   child: Container(
                     width: MediaQuery.of(context).size.width,
