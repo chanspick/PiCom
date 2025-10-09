@@ -325,6 +325,7 @@ import { addToCart, updateCartItemQuantity, removeFromCart } from "./cart";
 import { searchProducts } from "./search";
 import { setAdmin } from "./admin";
 import { approveSellRequest } from "./approve";
+import { setupPartsData } from "./setup_parts_data";
 
 export {
   createPart,
@@ -337,4 +338,5 @@ export {
   searchProducts,
   setAdmin,
   approveSellRequest,
+  setupPartsData,
 };

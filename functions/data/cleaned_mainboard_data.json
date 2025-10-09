@@ -1,0 +1,2164 @@
+[
+  {
+    "partId": "mb-asus-unknown-d718f5",
+    "category": "MAINBOARD",
+    "brand": "ASUS",
+    "name": "ASUS Tinker Edge R (어댑터 포함)",
+    "displayName": "ASUS ASUS Tinker Edge R (어댑터 포함)",
+    "specs": {
+      "chipset": null,
+      "socket": null,
+      "formFactor": "Pico-iTX",
+      "cpuCompatibility": {
+        "generations": [
+          "임베디드 CPU"
+        ],
+        "socketType": null,
+        "brands": [
+          "Embedded"
+        ]
+      },
+      "memory": {
+        "type": "LPDDR4",
+        "maxSpeedMhz": null,
+        "maxCapacityGb": null,
+        "slots": null
+      },
+      "storage": {
+        "m2Slots": null,
+        "sata3Ports": null
+      },
+      "pciExpress": {
+        "pcie5_0": null,
+        "pcie4_0": null,
+        "x16Slots": null,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": 4,
+          "usb2_0": null,
+          "usb3_0Ports": 4,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "GbE"
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "asus_embedded.json"
+    },
+    "pricing": {
+      "basePrice": 258970,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ASUS ASUS Tinker Edge R (어댑터 포함)  ",
+    "searchKeywords": [
+      "pico-itx",
+      "asus"
+    ]
+  },
+  {
+    "partId": "mb-asus-unknown-0845f5",
+    "category": "MAINBOARD",
+    "brand": "ASUS",
+    "name": "ASUS Tinker Edge T (어댑터 포함)",
+    "displayName": "ASUS ASUS Tinker Edge T (어댑터 포함)",
+    "specs": {
+      "chipset": null,
+      "socket": null,
+      "formFactor": "Pico-iTX",
+      "cpuCompatibility": {
+        "generations": [
+          "임베디드 A53 CPU"
+        ],
+        "socketType": null,
+        "brands": [
+          "Embedded"
+        ]
+      },
+      "memory": {
+        "type": "LPDDR4",
+        "maxSpeedMhz": null,
+        "maxCapacityGb": 1,
+        "slots": null
+      },
+      "storage": {
+        "m2Slots": null,
+        "sata3Ports": null
+      },
+      "pciExpress": {
+        "pcie5_0": null,
+        "pcie4_0": null,
+        "x16Slots": null,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": 3,
+          "usb2_0": null,
+          "usb3_0Ports": 3,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "GbE"
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "asus_embedded.json"
+    },
+    "pricing": {
+      "basePrice": 128970,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ASUS ASUS Tinker Edge T (어댑터 포함)  ",
+    "searchKeywords": [
+      "pico-itx",
+      "asus"
+    ]
+  },
+  {
+    "partId": "mb-colorful-a520-bbb0a5",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful BATTLE-AX A520M-K M.2 V14 STCOM",
+    "displayName": "COLORFUL Colorful BATTLE-AX A520M-K M.2 V14 STCOM",
+    "specs": {
+      "chipset": "A520",
+      "socket": "AM4",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "AM4",
+        "brands": [
+          "AMD"
+        ]
+      },
+      "memory": {
+        "type": "DDR4",
+        "maxSpeedMhz": 3600,
+        "maxCapacityGb": 64,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 1,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": false,
+        "x16Slots": null,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": 2,
+          "usb3_0Ports": 4,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "1GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_amd.json"
+    },
+    "pricing": {
+      "basePrice": 61360,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful BATTLE-AX A520M-K M.2 V14 STCOM A520 AM4",
+    "searchKeywords": [
+      "colorful",
+      "am4",
+      "a520",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-colorful-b760-f8b89a",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful BATTLE-AX B760M-K V20 D5 STCOM",
+    "displayName": "COLORFUL Colorful BATTLE-AX B760M-K V20 D5 STCOM",
+    "specs": {
+      "chipset": "B760",
+      "socket": "LGA1700",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 12세대",
+          "Intel 13세대",
+          "Intel 14세대"
+        ],
+        "socketType": "LGA1700",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 7200,
+        "maxCapacityGb": 96,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": 1
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "1GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_intel.json"
+    },
+    "pricing": {
+      "basePrice": 125580,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful BATTLE-AX B760M-K V20 D5 STCOM B760 LGA1700",
+    "searchKeywords": [
+      "colorful",
+      "b760",
+      "lga1700",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-colorful-b760-244482",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful BATTLE-AX B760M-PLUS V20 D5 STCOM",
+    "displayName": "COLORFUL Colorful BATTLE-AX B760M-PLUS V20 D5 STCOM",
+    "specs": {
+      "chipset": "B760",
+      "socket": "LGA1700",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 12세대",
+          "Intel 13세대",
+          "Intel 14세대"
+        ],
+        "socketType": "LGA1700",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 6400,
+        "maxCapacityGb": 128,
+        "slots": 4
+      },
+      "storage": {
+        "m2Slots": 3,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": 1,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 1,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "2.5GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_intel.json"
+    },
+    "pricing": {
+      "basePrice": 153370,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful BATTLE-AX B760M-PLUS V20 D5 STCOM B760 LGA1700",
+    "searchKeywords": [
+      "colorful",
+      "b760",
+      "lga1700",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-colorful-b850-1252e5",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful BATTLE-AX B850M-PLUS PRO WIFI V14 STCOM",
+    "displayName": "COLORFUL Colorful BATTLE-AX B850M-PLUS PRO WIFI V14 STCOM",
+    "specs": {
+      "chipset": "B850",
+      "socket": "AM5",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "AM5",
+        "brands": [
+          "AMD"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 7600,
+        "maxCapacityGb": 192,
+        "slots": 4
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": true,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": 1,
+        "x1Slots": 1
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 1,
+          "typeA10Gbps": 1,
+          "typeA5Gbps": 2,
+          "usbATotal": 7,
+          "usb2_0": 4,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "2.5GbE"
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "audio": {
+        "channels": "7.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": true
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_amd.json"
+    },
+    "pricing": {
+      "basePrice": 191370,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful BATTLE-AX B850M-PLUS PRO WIFI V14 STCOM B850 AM5",
+    "searchKeywords": [
+      "colorful",
+      "b850",
+      "am5",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-colorful-h310-6b7dab",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful CH310M-F M.2 V20 STCOM",
+    "displayName": "COLORFUL Colorful CH310M-F M.2 V20 STCOM",
+    "specs": {
+      "chipset": "H310",
+      "socket": "LGA1151v2",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 8세대",
+          "Intel 9세대"
+        ],
+        "socketType": "LGA1151",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR4",
+        "maxSpeedMhz": 2666,
+        "maxCapacityGb": 32,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 1,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": false,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": 1
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": 2,
+          "usbATotal": 6,
+          "usb2_0": 4,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "1GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_intel.json"
+    },
+    "pricing": {
+      "basePrice": 89440,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful CH310M-F M.2 V20 STCOM H310 LGA1151v2",
+    "searchKeywords": [
+      "colorful",
+      "lga1151v2",
+      "h310",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-colorful-h470-ac2d76",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful CH510M-K M.2 V20 STCOM",
+    "displayName": "COLORFUL Colorful CH510M-K M.2 V20 STCOM",
+    "specs": {
+      "chipset": "H470",
+      "socket": "LGA1200",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 10세대",
+          "Intel 11세대"
+        ],
+        "socketType": "LGA1200",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR4",
+        "maxSpeedMhz": 3200,
+        "maxCapacityGb": 64,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 1,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": false,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "1GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_intel.json"
+    },
+    "pricing": {
+      "basePrice": 90480,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful CH510M-K M.2 V20 STCOM H470 LGA1200",
+    "searchKeywords": [
+      "colorful",
+      "lga1200",
+      "h470",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-colorful-b760-ca915b",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful COLORFIRE B760M-MEOW WIFI D5 ORANGE STCOM",
+    "displayName": "COLORFUL Colorful COLORFIRE B760M-MEOW WIFI D5 ORANGE STCOM",
+    "specs": {
+      "chipset": "B760",
+      "socket": "LGA1700",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 12세대",
+          "Intel 13세대",
+          "Intel 14세대"
+        ],
+        "socketType": "LGA1700",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 7200,
+        "maxCapacityGb": 192,
+        "slots": 4
+      },
+      "storage": {
+        "m2Slots": 3,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": 1,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 1,
+          "typeA10Gbps": null,
+          "typeA5Gbps": 2,
+          "usbATotal": 6,
+          "usb2_0": 4,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "2.5GbE"
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": true
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_intel.json"
+    },
+    "pricing": {
+      "basePrice": 230570,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful COLORFIRE B760M-MEOW WIFI D5 ORANGE STCOM B760 LGA1700",
+    "searchKeywords": [
+      "colorful",
+      "b760",
+      "lga1700",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-colorful-b850-4c2fc6",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful CVN B850I GAMING FROZEN V14 STCOM",
+    "displayName": "COLORFUL Colorful CVN B850I GAMING FROZEN V14 STCOM",
+    "specs": {
+      "chipset": "B850",
+      "socket": "AM5",
+      "formFactor": "m-iTX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "AM5",
+        "brands": [
+          "AMD"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 8000,
+        "maxCapacityGb": 96,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": 2
+      },
+      "pciExpress": {
+        "pcie5_0": true,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 1,
+          "typeA10Gbps": 1,
+          "typeA5Gbps": 4,
+          "usbATotal": 7,
+          "usb2_0": 2,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "2.5GbE"
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": true
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_amd.json"
+    },
+    "pricing": {
+      "basePrice": 209050,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful CVN B850I GAMING FROZEN V14 STCOM B850 AM5",
+    "searchKeywords": [
+      "colorful",
+      "m-itx",
+      "b850",
+      "am5"
+    ]
+  },
+  {
+    "partId": "mb-colorful-x870-3741b2",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful CVN X870 ARK FROZEN V14 STCOM",
+    "displayName": "COLORFUL Colorful CVN X870 ARK FROZEN V14 STCOM",
+    "specs": {
+      "chipset": "X870",
+      "socket": "AM5",
+      "formFactor": "ATX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "AM5",
+        "brands": [
+          "AMD"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 8200,
+        "maxCapacityGb": 192,
+        "slots": 4
+      },
+      "storage": {
+        "m2Slots": 3,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": true,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": 1,
+        "x1Slots": 1
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 1,
+          "typeA10Gbps": 1,
+          "typeA5Gbps": 4,
+          "usbATotal": 7,
+          "usb2_0": 2,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "5GbE"
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "audio": {
+        "channels": "7.1",
+        "hasSpdif": true
+      },
+      "features": {
+        "ledHeader": true
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_amd.json"
+    },
+    "pricing": {
+      "basePrice": 339050,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful CVN X870 ARK FROZEN V14 STCOM X870 AM5",
+    "searchKeywords": [
+      "colorful",
+      "atx",
+      "am5",
+      "x870"
+    ]
+  },
+  {
+    "partId": "mb-colorful-h610-88d489",
+    "category": "MAINBOARD",
+    "brand": "COLORFUL",
+    "name": "Colorful H610M-E M.2 V20 D4 STCOM",
+    "displayName": "COLORFUL Colorful H610M-E M.2 V20 D4 STCOM",
+    "specs": {
+      "chipset": "H610",
+      "socket": "LGA1700",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 12세대",
+          "Intel 13세대",
+          "Intel 14세대"
+        ],
+        "socketType": "LGA1700",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR4",
+        "maxSpeedMhz": 3200,
+        "maxCapacityGb": 64,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 1,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": false,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": 1
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "1GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "colorful_intel.json"
+    },
+    "pricing": {
+      "basePrice": 79260,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "COLORFUL Colorful H610M-E M.2 V20 D4 STCOM H610 LGA1700",
+    "searchKeywords": [
+      "colorful",
+      "lga1700",
+      "h610",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-ecs-b760-970103",
+    "category": "MAINBOARD",
+    "brand": "ECS",
+    "name": "ECS DURATHON2 B760H7-M8 코잇",
+    "displayName": "ECS ECS DURATHON2 B760H7-M8 코잇",
+    "specs": {
+      "chipset": "B760",
+      "socket": "LGA1700",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 12세대",
+          "Intel 13세대",
+          "Intel 14세대"
+        ],
+        "socketType": "LGA1700",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": null,
+        "maxCapacityGb": 64,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": null
+      },
+      "pciExpress": {
+        "pcie5_0": null,
+        "pcie4_0": null,
+        "x16Slots": null,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "DVI",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": null,
+          "spec": null
+        },
+        "wirelessLan": null,
+        "bluetooth": null
+      },
+      "features": {
+        "ledHeader": null
+      }
+    },
+    "metadata": {
+      "sourceFile": "ecs_intel.json"
+    },
+    "pricing": {
+      "basePrice": 143500,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ECS ECS DURATHON2 B760H7-M8 코잇 B760 LGA1700",
+    "searchKeywords": [
+      "m-atx",
+      "b760",
+      "lga1700",
+      "ecs"
+    ]
+  },
+  {
+    "partId": "mb-ecs-b760-c042c9",
+    "category": "MAINBOARD",
+    "brand": "ECS",
+    "name": "ECS DURATHON2 B760H7-M8 코잇 벌크",
+    "displayName": "ECS ECS DURATHON2 B760H7-M8 코잇 벌크",
+    "specs": {
+      "chipset": "B760",
+      "socket": "LGA1700",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 12세대",
+          "Intel 13세대",
+          "Intel 14세대"
+        ],
+        "socketType": "LGA1700",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": null,
+        "maxCapacityGb": 64,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": null
+      },
+      "pciExpress": {
+        "pcie5_0": null,
+        "pcie4_0": null,
+        "x16Slots": null,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "DVI",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": null,
+          "spec": null
+        },
+        "wirelessLan": null,
+        "bluetooth": null
+      },
+      "features": {
+        "ledHeader": null
+      }
+    },
+    "metadata": {
+      "sourceFile": "ecs_intel.json"
+    },
+    "pricing": {
+      "basePrice": 142490,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ECS ECS DURATHON2 B760H7-M8 코잇 벌크 B760 LGA1700",
+    "searchKeywords": [
+      "m-atx",
+      "b760",
+      "lga1700",
+      "ecs"
+    ]
+  },
+  {
+    "partId": "mb-gigabyte-z890-aea580",
+    "category": "MAINBOARD",
+    "brand": "GIGABYTE",
+    "name": "GIGABYTE Z890 AORUS XTREME AI TOP 피씨디렉트",
+    "displayName": "GIGABYTE GIGABYTE Z890 AORUS XTREME AI TOP 피씨디렉트",
+    "specs": {
+      "chipset": "Z890",
+      "socket": "LGA1851",
+      "formFactor": "e-ATX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "LGA1851",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 9500,
+        "maxCapacityGb": 256,
+        "slots": 4
+      },
+      "storage": {
+        "m2Slots": 4,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": true,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": 1,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 2,
+          "typeA10Gbps": 10,
+          "typeA5Gbps": null,
+          "usbATotal": 10,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 2,
+          "spec": "10GbE 듀얼LAN"
+        },
+        "wirelessLan": true,
+        "bluetooth": true,
+        "thunderbolt": {
+          "headers": null,
+          "version": 5
+        }
+      },
+      "audio": {
+        "channels": null,
+        "hasSpdif": true
+      },
+      "features": {
+        "ledHeader": true
+      }
+    },
+    "metadata": {
+      "sourceFile": "gigabyte(제조)_intel.json"
+    },
+    "pricing": {
+      "basePrice": 1452940,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "GIGABYTE GIGABYTE Z890 AORUS XTREME AI TOP 피씨디렉트 Z890 LGA1851",
+    "searchKeywords": [
+      "lga1851",
+      "gigabyte",
+      "e-atx",
+      "z890"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-b650-fd9323",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "maxsun e스포츠 B650ITX WIFI ICE",
+    "displayName": "MAXSUN maxsun e스포츠 B650ITX WIFI ICE",
+    "specs": {
+      "chipset": "B650",
+      "socket": "AM5",
+      "formFactor": "m-iTX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "AM5",
+        "brands": [
+          "AMD"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 8000,
+        "maxCapacityGb": 128,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": 2
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 1,
+          "typeA10Gbps": null,
+          "typeA5Gbps": 2,
+          "usbATotal": 6,
+          "usb2_0": 4,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "2.5GbE"
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "audio": {
+        "channels": "7.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_amd.json"
+    },
+    "pricing": {
+      "basePrice": 180130,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN maxsun e스포츠 B650ITX WIFI ICE B650 AM5",
+    "searchKeywords": [
+      "maxsun",
+      "m-itx",
+      "b650",
+      "am5"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-b850-a89783",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "maxsun e스포츠 B850ITX WIFI ICE",
+    "displayName": "MAXSUN maxsun e스포츠 B850ITX WIFI ICE",
+    "specs": {
+      "chipset": "B850",
+      "socket": "AM5",
+      "formFactor": "m-iTX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "AM5",
+        "brands": [
+          "AMD"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 8000,
+        "maxCapacityGb": 128,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": 2
+      },
+      "pciExpress": {
+        "pcie5_0": true,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 1,
+          "typeA10Gbps": null,
+          "typeA5Gbps": 2,
+          "usbATotal": 6,
+          "usb2_0": 4,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "2.5GbE"
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "audio": {
+        "channels": "7.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": true
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_amd.json"
+    },
+    "pricing": {
+      "basePrice": 189400,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN maxsun e스포츠 B850ITX WIFI ICE B850 AM5",
+    "searchKeywords": [
+      "maxsun",
+      "m-itx",
+      "b850",
+      "am5"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-n150-2833a6",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "MAXSUN Thin mini N150-AIO T3C (벌크)",
+    "displayName": "MAXSUN MAXSUN Thin mini N150-AIO T3C (벌크)",
+    "specs": {
+      "chipset": "N150",
+      "socket": null,
+      "formFactor": "m-iTX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": null,
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR4(노트북용)",
+        "maxSpeedMhz": 3200,
+        "maxCapacityGb": 16,
+        "slots": 1
+      },
+      "storage": {
+        "m2Slots": 1,
+        "sata3Ports": 1
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": false,
+        "x16Slots": null,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "1GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_intel.json"
+    },
+    "pricing": {
+      "basePrice": 168160,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN MAXSUN Thin mini N150-AIO T3C (벌크) N150 ",
+    "searchKeywords": [
+      "maxsun",
+      "m-itx",
+      "n150"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-z890-d608f4",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "maxsun 아이크레프트 Z890 아크틱",
+    "displayName": "MAXSUN maxsun 아이크레프트 Z890 아크틱",
+    "specs": {
+      "chipset": "Z890",
+      "socket": "LGA1851",
+      "formFactor": "ATX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "LGA1851",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 8800,
+        "maxCapacityGb": 256,
+        "slots": 4
+      },
+      "storage": {
+        "m2Slots": 4,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": null,
+        "pcie4_0": null,
+        "x16Slots": 2,
+        "x4Slots": 2,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": null,
+          "spec": null
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_intel.json"
+    },
+    "pricing": {
+      "basePrice": 446730,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN maxsun 아이크레프트 Z890 아크틱 Z890 LGA1851",
+    "searchKeywords": [
+      "maxsun",
+      "atx",
+      "lga1851",
+      "z890"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-a620-2f5277",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "maxsun 챌린저 A620A 2.5G",
+    "displayName": "MAXSUN maxsun 챌린저 A620A 2.5G",
+    "specs": {
+      "chipset": "A620",
+      "socket": "AM5",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "AM5",
+        "brands": [
+          "AMD"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 6400,
+        "maxCapacityGb": 128,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 1,
+        "sata3Ports": 2
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": 1,
+        "x1Slots": 1
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": null,
+          "spec": "2.5GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_amd.json"
+    },
+    "pricing": {
+      "basePrice": 99850,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN maxsun 챌린저 A620A 2.5G A620 AM5",
+    "searchKeywords": [
+      "maxsun",
+      "am5",
+      "a620",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-b760-6c9e12",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "maxsun 챌린저 B760ITX D5",
+    "displayName": "MAXSUN maxsun 챌린저 B760ITX D5",
+    "specs": {
+      "chipset": "B760",
+      "socket": "LGA1851",
+      "formFactor": "m-iTX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "LGA1851",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 8000,
+        "maxCapacityGb": 128,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": null,
+        "pcie4_0": null,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": 6,
+          "usb2_0": 4,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 2,
+          "spec": "2.5GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_intel.json"
+    },
+    "pricing": {
+      "basePrice": 189400,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN maxsun 챌린저 B760ITX D5 B760 LGA1851",
+    "searchKeywords": [
+      "maxsun",
+      "m-itx",
+      "b760",
+      "lga1851"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-h470-254992",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "maxsun 챌린저 H510M-H",
+    "displayName": "MAXSUN maxsun 챌린저 H510M-H",
+    "specs": {
+      "chipset": "H470",
+      "socket": "LGA1200",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 10세대",
+          "Intel 11세대"
+        ],
+        "socketType": "LGA1200",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR4",
+        "maxSpeedMhz": null,
+        "maxCapacityGb": null,
+        "slots": null
+      },
+      "storage": {
+        "m2Slots": null,
+        "sata3Ports": null
+      },
+      "pciExpress": {
+        "pcie5_0": null,
+        "pcie4_0": null,
+        "x16Slots": null,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": null,
+          "spec": null
+        },
+        "wirelessLan": null,
+        "bluetooth": null
+      },
+      "features": {
+        "ledHeader": null
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_intel.json"
+    },
+    "pricing": {
+      "basePrice": 82350,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN maxsun 챌린저 H510M-H H470 LGA1200",
+    "searchKeywords": [
+      "maxsun",
+      "lga1200",
+      "h470",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-h610-d0f249",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "MAXSUN 챌린저 H610ITX 2LAN",
+    "displayName": "MAXSUN MAXSUN 챌린저 H610ITX 2LAN",
+    "specs": {
+      "chipset": "H610",
+      "socket": "LGA1700",
+      "formFactor": "m-iTX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 12세대",
+          "Intel 13세대",
+          "Intel 14세대"
+        ],
+        "socketType": "LGA1700",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR4",
+        "maxSpeedMhz": null,
+        "maxCapacityGb": 64,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 2,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": null,
+        "pcie4_0": null,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": null,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 2,
+          "spec": "1GbE + 2.5GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_intel.json"
+    },
+    "pricing": {
+      "basePrice": 142050,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN MAXSUN 챌린저 H610ITX 2LAN H610 LGA1700",
+    "searchKeywords": [
+      "maxsun",
+      "m-itx",
+      "h610",
+      "lga1700"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-b550-001d1f",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "maxsun 터미네이터 B550M",
+    "displayName": "MAXSUN maxsun 터미네이터 B550M",
+    "specs": {
+      "chipset": "B550",
+      "socket": "AM4",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "AM4",
+        "brands": [
+          "AMD"
+        ]
+      },
+      "memory": {
+        "type": "DDR4",
+        "maxSpeedMhz": 3200,
+        "maxCapacityGb": 64,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 1,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": 1,
+        "x1Slots": 1
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": 2,
+          "usbATotal": 6,
+          "usb2_0": 4,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "1GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_amd.json"
+    },
+    "pricing": {
+      "basePrice": 84410,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN maxsun 터미네이터 B550M B550 AM4",
+    "searchKeywords": [
+      "maxsun",
+      "am4",
+      "b550",
+      "m-atx"
+    ]
+  },
+  {
+    "partId": "mb-maxsun-z890-f330e8",
+    "category": "MAINBOARD",
+    "brand": "MAXSUN",
+    "name": "maxsun 터미네이터 Z890-A WIFI",
+    "displayName": "MAXSUN maxsun 터미네이터 Z890-A WIFI",
+    "specs": {
+      "chipset": "Z890",
+      "socket": "LGA1851",
+      "formFactor": "ATX",
+      "cpuCompatibility": {
+        "generations": [],
+        "socketType": "LGA1851",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR5",
+        "maxSpeedMhz": 8800,
+        "maxCapacityGb": null,
+        "slots": null
+      },
+      "storage": {
+        "m2Slots": 4,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": true,
+        "pcie4_0": true,
+        "x16Slots": 1,
+        "x4Slots": 2,
+        "x1Slots": null
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "HDMI",
+          "DP"
+        ],
+        "usb": {
+          "typeC": 1,
+          "typeA10Gbps": 2,
+          "typeA5Gbps": 4,
+          "usbATotal": 8,
+          "usb2_0": 2,
+          "usb3_0Ports": null,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": null,
+          "spec": null
+        },
+        "wirelessLan": true,
+        "bluetooth": true
+      },
+      "audio": {
+        "channels": "7.1",
+        "hasSpdif": true
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "maxsun_intel.json"
+    },
+    "pricing": {
+      "basePrice": 247040,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN maxsun 터미네이터 Z890-A WIFI Z890 LGA1851",
+    "searchKeywords": [
+      "maxsun",
+      "atx",
+      "lga1851",
+      "z890"
+    ]
+  },
+  {
+    "partId": "mb-h310-554823",
+    "category": "MAINBOARD",
+    "brand": "액슬",
+    "name": "액슬 MBAIH310 에즈윈",
+    "displayName": "액슬 액슬 MBAIH310 에즈윈",
+    "specs": {
+      "chipset": "H310",
+      "socket": "LGA1151v2",
+      "formFactor": "m-ATX",
+      "cpuCompatibility": {
+        "generations": [
+          "Intel 8세대",
+          "Intel 9세대"
+        ],
+        "socketType": "LGA1151",
+        "brands": [
+          "Intel"
+        ]
+      },
+      "memory": {
+        "type": "DDR4",
+        "maxSpeedMhz": 2666,
+        "maxCapacityGb": 32,
+        "slots": 2
+      },
+      "storage": {
+        "m2Slots": 1,
+        "sata3Ports": 4
+      },
+      "pciExpress": {
+        "pcie5_0": false,
+        "pcie4_0": false,
+        "x16Slots": 1,
+        "x4Slots": null,
+        "x1Slots": 1
+      },
+      "connectivity": {
+        "graphicsOutput": [
+          "D-SUB",
+          "DVI",
+          "HDMI"
+        ],
+        "usb": {
+          "typeC": null,
+          "typeA10Gbps": null,
+          "typeA5Gbps": null,
+          "usbATotal": null,
+          "usb2_0": 4,
+          "usb3_0Ports": 2,
+          "usb3_1Ports": null,
+          "usb3_2Ports": null
+        },
+        "lan": {
+          "ports": 1,
+          "spec": "1GbE"
+        },
+        "wirelessLan": false,
+        "bluetooth": false
+      },
+      "audio": {
+        "channels": "5.1",
+        "hasSpdif": false
+      },
+      "features": {
+        "ledHeader": false
+      }
+    },
+    "metadata": {
+      "sourceFile": "액슬_intel.json"
+    },
+    "pricing": {
+      "basePrice": 78740,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "액슬 액슬 MBAIH310 에즈윈 H310 LGA1151v2",
+    "searchKeywords": [
+      "m-atx",
+      "h310",
+      "액슬",
+      "lga1151v2"
+    ]
+  }
+]

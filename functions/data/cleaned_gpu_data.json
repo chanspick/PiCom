@@ -1,0 +1,4446 @@
+[
+  {
+    "partId": "gpu-afox-rx-580-2048sp-8gb-a9f2c5",
+    "category": "GPU",
+    "brand": "AFOX",
+    "model": "라데온 RX 580 2048SP D5 8GB 디앤디컴",
+    "displayName": "AFOX 라데온 RX 580 2048SP D5 8GB 디앤디컴",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 580 2048SP",
+      "baseClockMhz": null,
+      "boostClockMhz": 1244,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR5",
+        "busWidthBit": 256,
+        "speedMhz": 7000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 2,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2048,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 400
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": null,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AFOX",
+      "sourceFile": "afox_amd.json"
+    },
+    "pricing": {
+      "basePrice": 126800,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AFOX 라데온 RX 580 2048SP D5 8GB 디앤디컴 AMD RX 580 2048SP",
+    "searchKeywords": [
+      "rx 580 2048sp",
+      "radeon rx 500",
+      "amd",
+      "afox"
+    ]
+  },
+  {
+    "partId": "gpu-afox-rx-580-2048sp-8gb-2328b6",
+    "category": "GPU",
+    "brand": "AFOX",
+    "model": "라데온 RX 580 2048SP H1 D5 8GB 대원씨티에스",
+    "displayName": "AFOX 라데온 RX 580 2048SP H1 D5 8GB 대원씨티에스",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 580 2048SP",
+      "baseClockMhz": null,
+      "boostClockMhz": 1125,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR5",
+        "busWidthBit": 256,
+        "speedMhz": 7000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2048,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 400
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": null,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AFOX",
+      "sourceFile": "afox_amd.json"
+    },
+    "pricing": {
+      "basePrice": 128590,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AFOX 라데온 RX 580 2048SP H1 D5 8GB 대원씨티에스 AMD RX 580 2048SP",
+    "searchKeywords": [
+      "rx 580 2048sp",
+      "radeon rx 500",
+      "amd",
+      "afox"
+    ]
+  },
+  {
+    "partId": "gpu-amd-w-5500-8gb-2dfb25",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO W5500 D6 8GB 대원CTS",
+    "displayName": "AMD 라데온 PRO W5500 D6 8GB 대원CTS",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "W 5500",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR6",
+        "busWidthBit": 128,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 4,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 241,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 398460,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO W5500 D6 8GB 대원CTS AMD W 5500",
+    "searchKeywords": [
+      "radeon pro",
+      "w 5500",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-amd-w-6600-8gb-2bcf75",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO W6600 D6 8GB",
+    "displayName": "AMD 라데온 PRO W6600 D6 8GB",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "W 6600",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR6",
+        "busWidthBit": 128,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": 4,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 241,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 999450,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO W6600 D6 8GB AMD W 6600",
+    "searchKeywords": [
+      "w 6600",
+      "radeon pro",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-amd-w-6600-8gb-b12516",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO W6600 D6 8GB 대원CTS",
+    "displayName": "AMD 라데온 PRO W6600 D6 8GB 대원CTS",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "W 6600",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR6",
+        "busWidthBit": 128,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 4,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": null,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 748300,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO W6600 D6 8GB 대원CTS AMD W 6600",
+    "searchKeywords": [
+      "w 6600",
+      "radeon pro",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-amd-w-7600-8gb-d7e0fc",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO W7600 D6 8GB",
+    "displayName": "AMD 라데온 PRO W7600 D6 8GB",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "W 7600",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR6",
+        "busWidthBit": 128,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 4,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 350
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 241,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 946620,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO W7600 D6 8GB AMD W 7600",
+    "searchKeywords": [
+      "radeon pro",
+      "w 7600",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-amd-w7700-16gb-9ac6c7",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO W7700 D6 16GB",
+    "displayName": "AMD 라데온 PRO W7700 D6 16GB",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "W7700",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 16,
+        "type": "GDDR6",
+        "busWidthBit": 256,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 4,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 267,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 1530000,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO W7700 D6 16GB AMD W7700",
+    "searchKeywords": [
+      "radeon pro",
+      "amd",
+      "w7700"
+    ]
+  },
+  {
+    "partId": "gpu-amd-w-7800-32gb-80689f",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO W7800 D6 32GB",
+    "displayName": "AMD 라데온 PRO W7800 D6 32GB",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "W 7800",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 32,
+        "type": null,
+        "busWidthBit": 256,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 280,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 3962580,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO W7800 D6 32GB AMD W 7800",
+    "searchKeywords": [
+      "radeon pro",
+      "amd",
+      "w 7800"
+    ]
+  },
+  {
+    "partId": "gpu-amd-w-7900-48gb-2fb2e4",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO W7900 D6 48GB",
+    "displayName": "AMD 라데온 PRO W7900 D6 48GB",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "W 7900",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 48,
+        "type": null,
+        "busWidthBit": 384,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 280,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 6264940,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO W7900 D6 48GB AMD W 7900",
+    "searchKeywords": [
+      "radeon pro",
+      "w 7900",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-amd-w-7900-48gb-9c4602",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO W7900 Dual Slot D6 48GB",
+    "displayName": "AMD 라데온 PRO W7900 Dual Slot D6 48GB",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "W 7900",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 48,
+        "type": "GDDR6 ECC",
+        "busWidthBit": 384,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 6144,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 280,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 7033930,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO W7900 Dual Slot D6 48GB AMD W 7900",
+    "searchKeywords": [
+      "radeon pro",
+      "w 7900",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-amd-wx-3200-4gb-8bb186",
+    "category": "GPU",
+    "brand": "AMD",
+    "model": "라데온 PRO WX3200 D5 4GB LP 대원CTS",
+    "displayName": "AMD 라데온 PRO WX3200 D5 4GB LP 대원CTS",
+    "specs": {
+      "series": "Radeon PRO",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "WX 3200",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 4,
+        "type": "GDDR5",
+        "busWidthBit": 128,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": null,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 168,
+        "heightMm": 18,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "AMD",
+      "sourceFile": "amd_amd.json"
+    },
+    "pricing": {
+      "basePrice": 207000,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "AMD 라데온 PRO WX3200 D5 4GB LP 대원CTS AMD WX 3200",
+    "searchKeywords": [
+      "wx 3200",
+      "radeon pro",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-arktek-rtx-3060-12gb-2c96b9",
+    "category": "GPU",
+    "brand": "ARKTEK",
+    "model": "지포스 RTX 3060 D6 12GB",
+    "displayName": "ARKTEK 지포스 RTX 3060 D6 12GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3060",
+      "baseClockMhz": 1320,
+      "boostClockMhz": 1777,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 15000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 3584,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 550
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 250,
+        "heightMm": 35,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "ARKTEK",
+      "sourceFile": "arktek_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 380850,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ARKTEK 지포스 RTX 3060 D6 12GB NVIDIA RTX 3060",
+    "searchKeywords": [
+      "nvidia",
+      "arktek",
+      "geforce rtx 30",
+      "rtx 3060"
+    ]
+  },
+  {
+    "partId": "gpu-asl-gtx-1660-super-6gb-a2be5f",
+    "category": "GPU",
+    "brand": "ASL",
+    "model": "지포스 GTX 1660 SUPER RAGE-X D6 6GB",
+    "displayName": "ASL 지포스 GTX 1660 SUPER RAGE-X D6 6GB",
+    "specs": {
+      "series": "GeForce 16",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GTX 1660 SUPER",
+      "baseClockMhz": 1530,
+      "boostClockMhz": 1785,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 1408,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 450
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 235,
+        "heightMm": 40,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "ASL",
+      "sourceFile": "asl_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 234690,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ASL 지포스 GTX 1660 SUPER RAGE-X D6 6GB NVIDIA GTX 1660 SUPER",
+    "searchKeywords": [
+      "nvidia",
+      "asl",
+      "geforce 16",
+      "gtx 1660 super"
+    ]
+  },
+  {
+    "partId": "gpu-asl-rtx-3050-6gb-095b14",
+    "category": "GPU",
+    "brand": "ASL",
+    "model": "지포스 RTX 3050 RAGE-X BLACK D6 6GB Dual",
+    "displayName": "ASL 지포스 RTX 3050 RAGE-X BLACK D6 6GB Dual",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3050",
+      "baseClockMhz": 1042,
+      "boostClockMhz": 1470,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 96,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2304,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 227,
+        "heightMm": null,
+        "widthMm": 45
+      }
+    },
+    "metadata": {
+      "manufacturer": "ASL",
+      "sourceFile": "asl_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 243830,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ASL 지포스 RTX 3050 RAGE-X BLACK D6 6GB Dual NVIDIA RTX 3050",
+    "searchKeywords": [
+      "nvidia",
+      "asl",
+      "geforce rtx 30",
+      "rtx 3050"
+    ]
+  },
+  {
+    "partId": "gpu-asrock-arc-b580-12gb-11b2c7",
+    "category": "GPU",
+    "brand": "ASROCK",
+    "model": "Arc B580 CHALLENGER OC D6 12GB",
+    "displayName": "ASROCK Arc B580 CHALLENGER OC D6 12GB",
+    "specs": {
+      "series": "ARC",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC B580",
+      "baseClockMhz": null,
+      "boostClockMhz": 2740,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 20000
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 650
+      },
+      "cooling": {
+        "fanCount": 3,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 249,
+        "heightMm": 41,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "ASRock",
+      "sourceFile": "asrock_intel.json"
+    },
+    "pricing": {
+      "basePrice": 419970,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ASROCK Arc B580 CHALLENGER OC D6 12GB Intel ARC B580",
+    "searchKeywords": [
+      "arc b580",
+      "arc",
+      "asrock",
+      "intel"
+    ]
+  },
+  {
+    "partId": "gpu-atum-rtx-3050-6gb-3cf9f0",
+    "category": "GPU",
+    "brand": "ATUM",
+    "model": "지포스 RTX 3050 BARAMINE D6 6GB DUAL",
+    "displayName": "ATUM 지포스 RTX 3050 BARAMINE D6 6GB DUAL",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3050",
+      "baseClockMhz": 1042,
+      "boostClockMhz": 1470,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 96,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2304,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 200,
+        "heightMm": null,
+        "widthMm": 39
+      }
+    },
+    "metadata": {
+      "manufacturer": "아툼",
+      "sourceFile": "atum_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 247040,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "ATUM 지포스 RTX 3050 BARAMINE D6 6GB DUAL NVIDIA RTX 3050",
+    "searchKeywords": [
+      "nvidia",
+      "rtx 3050",
+      "geforce rtx 30",
+      "atum"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-rx-580-2048sp-8gb-5685aa",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "라데온 RX 580 2048SP D5 8GB 벌크",
+    "displayName": "FORSA 라데온 RX 580 2048SP D5 8GB 벌크",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 580 2048SP",
+      "baseClockMhz": 1125,
+      "boostClockMhz": 1266,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR5",
+        "busWidthBit": 256,
+        "speedMhz": 7000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 195,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_amd.json"
+    },
+    "pricing": {
+      "basePrice": 131400,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 라데온 RX 580 2048SP D5 8GB 벌크 AMD RX 580 2048SP",
+    "searchKeywords": [
+      "rx 580 2048sp",
+      "radeon rx 500",
+      "forsa",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-rx-6600-8gb-d850f1",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "라데온 RX 6600 D6 8GB",
+    "displayName": "FORSA 라데온 RX 6600 D6 8GB",
+    "specs": {
+      "series": "Radeon RX 6000",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 6600",
+      "baseClockMhz": 2045,
+      "boostClockMhz": 2495,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR6",
+        "busWidthBit": 128,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 500
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 220,
+        "heightMm": 45,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_amd.json"
+    },
+    "pricing": {
+      "basePrice": 277920,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 라데온 RX 6600 D6 8GB AMD RX 6600",
+    "searchKeywords": [
+      "rx 6600",
+      "radeon rx 6000",
+      "forsa",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-rx-6600-8gb-333fea",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "라데온 RX 6600 D6 8GB (벌크)",
+    "displayName": "FORSA 라데온 RX 6600 D6 8GB (벌크)",
+    "specs": {
+      "series": "Radeon RX 6000",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 6600",
+      "baseClockMhz": 2045,
+      "boostClockMhz": 2495,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR6",
+        "busWidthBit": 128,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 220,
+        "heightMm": 45,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_amd.json"
+    },
+    "pricing": {
+      "basePrice": 277900,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 라데온 RX 6600 D6 8GB (벌크) AMD RX 6600",
+    "searchKeywords": [
+      "rx 6600",
+      "radeon rx 6000",
+      "forsa",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-g210-05gb-edd409",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 G210 D3 512MB",
+    "displayName": "FORSA 지포스 G210 D3 512MB",
+    "specs": {
+      "series": "GeForce 200",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "G210",
+      "baseClockMhz": 589,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 0.5,
+        "type": "SDDR3",
+        "busWidthBit": 32,
+        "speedMhz": 1000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "2.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 16,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 148,
+        "heightMm": 18,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 26520,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 G210 D3 512MB NVIDIA G210",
+    "searchKeywords": [
+      "nvidia",
+      "forsa",
+      "g210",
+      "geforce 200"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-g210-05gb-b854d2",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 G210 D3 512MB 64-bit LP",
+    "displayName": "FORSA 지포스 G210 D3 512MB 64-bit LP",
+    "specs": {
+      "series": "GeForce 200",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "G210",
+      "baseClockMhz": 589,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 0.5,
+        "type": "DDR3",
+        "busWidthBit": 64,
+        "speedMhz": 1580
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "2.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": null,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 16,
+        "multiMonitorSupport": 2,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 148,
+        "heightMm": 18,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 29200,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 G210 D3 512MB 64-bit LP NVIDIA G210",
+    "searchKeywords": [
+      "nvidia",
+      "forsa",
+      "g210",
+      "geforce 200"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-gt-1030-2gb-71bf02",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 GT1030 D5 2GB",
+    "displayName": "FORSA 지포스 GT1030 D5 2GB",
+    "specs": {
+      "series": "GeForce GT 10",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GT 1030",
+      "baseClockMhz": null,
+      "boostClockMhz": 1228,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 2,
+        "type": "GDDR5",
+        "busWidthBit": 64,
+        "speedMhz": 6008
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 384,
+        "multiMonitorSupport": 2,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 170,
+        "heightMm": 23,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 94640,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 GT1030 D5 2GB NVIDIA GT 1030",
+    "searchKeywords": [
+      "nvidia",
+      "gt 1030",
+      "forsa",
+      "geforce gt 10"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-gt-710-2gb-531556",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 GT710 D3 2GB LP",
+    "displayName": "FORSA 지포스 GT710 D3 2GB LP",
+    "specs": {
+      "series": "GeForce 700",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GT 710",
+      "baseClockMhz": 954,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 2,
+        "type": "GDDR3",
+        "busWidthBit": 64,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "2.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 192,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 150,
+        "heightMm": 15,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 47840,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 GT710 D3 2GB LP NVIDIA GT 710",
+    "searchKeywords": [
+      "nvidia",
+      "geforce 700",
+      "forsa",
+      "gt 710"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-gt-730-1gb-bd6c21",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 GT730 D3 1GB LP",
+    "displayName": "FORSA 지포스 GT730 D3 1GB LP",
+    "specs": {
+      "series": "GeForce 700",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GT 730",
+      "baseClockMhz": 902,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 1,
+        "type": "GDDR3",
+        "busWidthBit": 64,
+        "speedMhz": 1800
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "2.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 384,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 147,
+        "heightMm": 18,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 52500,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 GT730 D3 1GB LP NVIDIA GT 730",
+    "searchKeywords": [
+      "nvidia",
+      "geforce 700",
+      "forsa",
+      "gt 730"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-gt-730-2gb-f6efcb",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 GT730 D3 2GB WIN",
+    "displayName": "FORSA 지포스 GT730 D3 2GB WIN",
+    "specs": {
+      "series": "GeForce 700",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GT 730",
+      "baseClockMhz": 700,
+      "boostClockMhz": 1400,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 2,
+        "type": "SDDR3",
+        "busWidthBit": 128,
+        "speedMhz": 1333
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 96,
+        "multiMonitorSupport": 2,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 162,
+        "heightMm": 28,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 47840,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 GT730 D3 2GB WIN NVIDIA GT 730",
+    "searchKeywords": [
+      "nvidia",
+      "geforce 700",
+      "forsa",
+      "gt 730"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-gtx-1650-4gb-df6d22",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 GTX 1650 D6 4GB",
+    "displayName": "FORSA 지포스 GTX 1650 D6 4GB",
+    "specs": {
+      "series": "GeForce GTX 16",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GTX 1650",
+      "baseClockMhz": 1410,
+      "boostClockMhz": 1590,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 4,
+        "type": "GDDR6",
+        "busWidthBit": 128,
+        "speedMhz": 12000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 896,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 350
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 195,
+        "heightMm": 42,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 229540,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 GTX 1650 D6 4GB NVIDIA GTX 1650",
+    "searchKeywords": [
+      "nvidia",
+      "forsa",
+      "gtx 1650",
+      "geforce gtx 16"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-gtx-1660-super-6gb-3b37c6",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 GTX 1660 SUPER X D6 6GB",
+    "displayName": "FORSA 지포스 GTX 1660 SUPER X D6 6GB",
+    "specs": {
+      "series": "GeForce GTX 16",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GTX 1660 SUPER",
+      "baseClockMhz": 1530,
+      "boostClockMhz": 1785,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 1408,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 450
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": true,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 222,
+        "heightMm": 40,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 254810,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 GTX 1660 SUPER X D6 6GB NVIDIA GTX 1660 SUPER",
+    "searchKeywords": [
+      "nvidia",
+      "forsa",
+      "gtx 1660 super",
+      "geforce gtx 16"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-rtx-3050-6gb-8c9049",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 RTX 3050 K D6 6GB",
+    "displayName": "FORSA 지포스 RTX 3050 K D6 6GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3050",
+      "baseClockMhz": 1042,
+      "boostClockMhz": 1470,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 96,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2304,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 450
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 220,
+        "heightMm": 42,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 252200,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 RTX 3050 K D6 6GB NVIDIA RTX 3050",
+    "searchKeywords": [
+      "nvidia",
+      "forsa",
+      "geforce rtx 30",
+      "rtx 3050"
+    ]
+  },
+  {
+    "partId": "gpu-forsa-rtx-3060-12gb-b78c79",
+    "category": "GPU",
+    "brand": "FORSA",
+    "model": "지포스 RTX 3060 K D6 12GB",
+    "displayName": "FORSA 지포스 RTX 3060 K D6 12GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3060",
+      "baseClockMhz": 1320,
+      "boostClockMhz": 1777,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 15000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 3584,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 550
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 252,
+        "heightMm": 42,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "FORSA",
+      "sourceFile": "forsa_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 400410,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "FORSA 지포스 RTX 3060 K D6 12GB NVIDIA RTX 3060",
+    "searchKeywords": [
+      "nvidia",
+      "forsa",
+      "geforce rtx 30",
+      "rtx 3060"
+    ]
+  },
+  {
+    "partId": "gpu-maxsun-arc-b580-12gb-24ad64",
+    "category": "GPU",
+    "brand": "MAXSUN",
+    "model": "Arc B580 iCraft D6 12GB",
+    "displayName": "MAXSUN Arc B580 iCraft D6 12GB",
+    "specs": {
+      "series": "ARC",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC B580",
+      "baseClockMhz": 2850,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 20000
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 3,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": true,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 312,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "maxsun",
+      "sourceFile": "maxsun_intel.json"
+    },
+    "pricing": {
+      "basePrice": 395270,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN Arc B580 iCraft D6 12GB Intel ARC B580",
+    "searchKeywords": [
+      "maxsun",
+      "arc b580",
+      "arc",
+      "intel"
+    ]
+  },
+  {
+    "partId": "gpu-maxsun-arc-b580-12gb-2186c0",
+    "category": "GPU",
+    "brand": "MAXSUN",
+    "model": "Arc B580 Milestone D6 12GB",
+    "displayName": "MAXSUN Arc B580 Milestone D6 12GB",
+    "specs": {
+      "series": "ARC",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC B580",
+      "baseClockMhz": 2670,
+      "boostClockMhz": 2850,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 20000
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 241,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "maxsun",
+      "sourceFile": "maxsun_intel.json"
+    },
+    "pricing": {
+      "basePrice": 381880,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN Arc B580 Milestone D6 12GB Intel ARC B580",
+    "searchKeywords": [
+      "maxsun",
+      "arc b580",
+      "arc",
+      "intel"
+    ]
+  },
+  {
+    "partId": "gpu-maxsun-rx-580-8gb-766e2e",
+    "category": "GPU",
+    "brand": "MAXSUN",
+    "model": "라데온 RX 580 2048SP 빅맥 화이트 D5 8GB",
+    "displayName": "MAXSUN 라데온 RX 580 2048SP 빅맥 화이트 D5 8GB",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 580",
+      "baseClockMhz": 1206,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR5",
+        "busWidthBit": 256,
+        "speedMhz": 6000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 2,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2048,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 400
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 190,
+        "heightMm": 38,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "MAXSUN",
+      "sourceFile": "maxsun_amd.json"
+    },
+    "pricing": {
+      "basePrice": 136600,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN 라데온 RX 580 2048SP 빅맥 화이트 D5 8GB AMD RX 580",
+    "searchKeywords": [
+      "maxsun",
+      "radeon rx 500",
+      "amd",
+      "rx 580"
+    ]
+  },
+  {
+    "partId": "gpu-maxsun-gt-710-1gb-40a7b7",
+    "category": "GPU",
+    "brand": "MAXSUN",
+    "model": "지포스 GT710 파워해머 D3 1GB",
+    "displayName": "MAXSUN 지포스 GT710 파워해머 D3 1GB",
+    "specs": {
+      "series": "GeForce 700",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GT 710",
+      "baseClockMhz": 954,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 1,
+        "type": "GDDR3",
+        "busWidthBit": 64,
+        "speedMhz": 1333
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "2.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 192,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 145,
+        "heightMm": 23,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "MAXSUN",
+      "sourceFile": "maxsun_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 45290,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN 지포스 GT710 파워해머 D3 1GB NVIDIA GT 710",
+    "searchKeywords": [
+      "maxsun",
+      "geforce 700",
+      "nvidia",
+      "gt 710"
+    ]
+  },
+  {
+    "partId": "gpu-maxsun-rtx-3050-6gb-186c23",
+    "category": "GPU",
+    "brand": "MAXSUN",
+    "model": "지포스 RTX 3050 터미네이터 D6 6GB",
+    "displayName": "MAXSUN 지포스 RTX 3050 터미네이터 D6 6GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3050",
+      "baseClockMhz": null,
+      "boostClockMhz": 1470,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 96,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 222,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "MAXSUN",
+      "sourceFile": "maxsun_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 246010,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN 지포스 RTX 3050 터미네이터 D6 6GB NVIDIA RTX 3050",
+    "searchKeywords": [
+      "maxsun",
+      "nvidia",
+      "geforce rtx 30",
+      "rtx 3050"
+    ]
+  },
+  {
+    "partId": "gpu-maxsun-rtx-3050-6gb-2f70b1",
+    "category": "GPU",
+    "brand": "MAXSUN",
+    "model": "지포스 RTX 3050 트랜스포머 D6 6GB",
+    "displayName": "MAXSUN 지포스 RTX 3050 트랜스포머 D6 6GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3050",
+      "baseClockMhz": null,
+      "boostClockMhz": 1470,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 96,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 189,
+        "heightMm": 111,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "MAXSUN",
+      "sourceFile": "maxsun_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 239840,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "MAXSUN 지포스 RTX 3050 트랜스포머 D6 6GB NVIDIA RTX 3050",
+    "searchKeywords": [
+      "maxsun",
+      "nvidia",
+      "geforce rtx 30",
+      "rtx 3050"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-a310-4gb-3c20aa",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc A310 ECO OC D6 4GB",
+    "displayName": "SPARKLE Arc A310 ECO OC D6 4GB",
+    "specs": {
+      "series": "Arc A",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "A310",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 4,
+        "type": "GDDR6",
+        "busWidthBit": 64,
+        "speedMhz": 15500
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 2,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 156,
+        "heightMm": 15,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 144110,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc A310 ECO OC D6 4GB Intel A310",
+    "searchKeywords": [
+      "arc a",
+      "intel",
+      "sparkle",
+      "a310"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-arc-a310-4gb-3b9f17",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc A310 Omni View D6 4GB",
+    "displayName": "SPARKLE Arc A310 Omni View D6 4GB",
+    "specs": {
+      "series": "Arc A",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC A310",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 4,
+        "type": "GDDR6",
+        "busWidthBit": 64,
+        "speedMhz": 15500
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 4,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 145,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 153370,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc A310 Omni View D6 4GB Intel ARC A310",
+    "searchKeywords": [
+      "arc a",
+      "intel",
+      "sparkle",
+      "arc a310"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-arc-a380-6gb-130f06",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc A380 ELF OC D6 6GB",
+    "displayName": "SPARKLE Arc A380 ELF OC D6 6GB",
+    "specs": {
+      "series": "Arc A",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC A380",
+      "baseClockMhz": null,
+      "boostClockMhz": 2000,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 96,
+        "speedMhz": 15500
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 450
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 152.6,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 165720,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc A380 ELF OC D6 6GB Intel ARC A380",
+    "searchKeywords": [
+      "arc a",
+      "arc a380",
+      "intel",
+      "sparkle"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-arc-a380-6gb-9183ed",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc A380 GENIE OC D6 6GB",
+    "displayName": "SPARKLE Arc A380 GENIE OC D6 6GB",
+    "specs": {
+      "series": "Arc A",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC A380",
+      "baseClockMhz": null,
+      "boostClockMhz": 2000,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 96,
+        "speedMhz": 15500
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 145,
+        "heightMm": 35,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 161370,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc A380 GENIE OC D6 6GB Intel ARC A380",
+    "searchKeywords": [
+      "arc a",
+      "arc a380",
+      "intel",
+      "sparkle"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-arc-b570-10gb-9507b4",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc B570 GUARDIAN LUNA OC D6 10GB",
+    "displayName": "SPARKLE Arc B570 GUARDIAN LUNA OC D6 10GB",
+    "specs": {
+      "series": "Arc B",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC B570",
+      "baseClockMhz": null,
+      "boostClockMhz": 2660,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 10,
+        "type": "GDDR6",
+        "busWidthBit": 160,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 600
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 242,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 341490,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc B570 GUARDIAN LUNA OC D6 10GB Intel ARC B570",
+    "searchKeywords": [
+      "arc b",
+      "intel",
+      "arc b570",
+      "sparkle"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-arc-b580-12gb-99494e",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc B580 GUARDAIN OC D6 12GB",
+    "displayName": "SPARKLE Arc B580 GUARDAIN OC D6 12GB",
+    "specs": {
+      "series": "Arc B",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC B580",
+      "baseClockMhz": null,
+      "boostClockMhz": 2670,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 20000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 242,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 366440,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc B580 GUARDAIN OC D6 12GB Intel ARC B580",
+    "searchKeywords": [
+      "arc b",
+      "arc b580",
+      "intel",
+      "sparkle"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-arc-b580-12gb-7b3de5",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc B580 ROC LUNA OC Ultra D6 12GB",
+    "displayName": "SPARKLE Arc B580 ROC LUNA OC Ultra D6 12GB",
+    "specs": {
+      "series": "Arc B",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC B580",
+      "baseClockMhz": null,
+      "boostClockMhz": 2800,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 20000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 230,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 424090,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc B580 ROC LUNA OC Ultra D6 12GB Intel ARC B580",
+    "searchKeywords": [
+      "arc b",
+      "arc b580",
+      "intel",
+      "sparkle"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-arc-b580-12gb-33dc1f",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc B580 TITAN LUNA OC D6 12GB",
+    "displayName": "SPARKLE Arc B580 TITAN LUNA OC D6 12GB",
+    "specs": {
+      "series": "Arc B",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC B580",
+      "baseClockMhz": null,
+      "boostClockMhz": 2740,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 20000
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 3,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 315,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 404530,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc B580 TITAN LUNA OC D6 12GB Intel ARC B580",
+    "searchKeywords": [
+      "arc b",
+      "arc b580",
+      "intel",
+      "sparkle"
+    ]
+  },
+  {
+    "partId": "gpu-sparkle-arc-b580-12gb-b13a88",
+    "category": "GPU",
+    "brand": "SPARKLE",
+    "model": "Arc B580 TITAN OC D6 12GB",
+    "displayName": "SPARKLE Arc B580 TITAN OC D6 12GB",
+    "specs": {
+      "series": "Arc B",
+      "chipsetVendor": "Intel",
+      "chipsetModel": "ARC B580",
+      "baseClockMhz": 2740,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 20000
+      },
+      "interface": {
+        "type": null,
+        "version": null,
+        "lanes": null
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 600
+      },
+      "cooling": {
+        "fanCount": 3,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 315,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "SPARKLE",
+      "sourceFile": "sparkle_intel.json"
+    },
+    "pricing": {
+      "basePrice": 395270,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "SPARKLE Arc B580 TITAN OC D6 12GB Intel ARC B580",
+    "searchKeywords": [
+      "arc b",
+      "arc b580",
+      "intel",
+      "sparkle"
+    ]
+  },
+  {
+    "partId": "gpu-stcom-rx-580-8gb-f657c9",
+    "category": "GPU",
+    "brand": "STCOM",
+    "model": "라데온 RX 580 2048SP Gaming D5 8GB",
+    "displayName": "STCOM 라데온 RX 580 2048SP Gaming D5 8GB",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 580",
+      "baseClockMhz": null,
+      "boostClockMhz": 1244,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR5",
+        "busWidthBit": 256,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 2,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2048,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 500
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 212,
+        "heightMm": 47,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "STCOM",
+      "sourceFile": "stcom_amd.json"
+    },
+    "pricing": {
+      "basePrice": 132900,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "STCOM 라데온 RX 580 2048SP Gaming D5 8GB AMD RX 580",
+    "searchKeywords": [
+      "radeon rx 500",
+      "amd",
+      "stcom",
+      "rx 580"
+    ]
+  },
+  {
+    "partId": "gpu-stcom-gtx-1660-super-6gb-53d214",
+    "category": "GPU",
+    "brand": "STCOM",
+    "model": "지포스 GTX 1660 SUPER D6 6GB",
+    "displayName": "STCOM 지포스 GTX 1660 SUPER D6 6GB",
+    "specs": {
+      "series": "GeForce 16",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GTX 1660 SUPER",
+      "baseClockMhz": 1530,
+      "boostClockMhz": 1785,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 1408,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 450
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 212,
+        "heightMm": 45,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "STCOM",
+      "sourceFile": "stcom_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 256890,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "STCOM 지포스 GTX 1660 SUPER D6 6GB NVIDIA GTX 1660 SUPER",
+    "searchKeywords": [
+      "nvidia",
+      "geforce 16",
+      "gtx 1660 super",
+      "stcom"
+    ]
+  },
+  {
+    "partId": "gpu-stcom-rtx-3060-12gb-877ccb",
+    "category": "GPU",
+    "brand": "STCOM",
+    "model": "지포스 RTX 3060 BLACK D6 12GB",
+    "displayName": "STCOM 지포스 RTX 3060 BLACK D6 12GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3060",
+      "baseClockMhz": 1320,
+      "boostClockMhz": 1777,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 15000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 3584,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 550
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 250,
+        "heightMm": 42,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "STCOM",
+      "sourceFile": "stcom_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 400830,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "STCOM 지포스 RTX 3060 BLACK D6 12GB NVIDIA RTX 3060",
+    "searchKeywords": [
+      "nvidia",
+      "geforce rtx 30",
+      "stcom",
+      "rtx 3060"
+    ]
+  },
+  {
+    "partId": "gpu-stcom-rtx-3060-12gb-a213ea",
+    "category": "GPU",
+    "brand": "STCOM",
+    "model": "지포스 RTX 3060 D6 12GB",
+    "displayName": "STCOM 지포스 RTX 3060 D6 12GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3060",
+      "baseClockMhz": null,
+      "boostClockMhz": 1777,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 15000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 3584,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 550
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 250,
+        "heightMm": 42,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "STCOM",
+      "sourceFile": "stcom_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 400830,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "STCOM 지포스 RTX 3060 D6 12GB NVIDIA RTX 3060",
+    "searchKeywords": [
+      "nvidia",
+      "geforce rtx 30",
+      "stcom",
+      "rtx 3060"
+    ]
+  },
+  {
+    "partId": "gpu-tager-rx-580-2048sp-8gb-62eac1",
+    "category": "GPU",
+    "brand": "TAGER",
+    "model": "라데온 RX580 2048SP 게이밍 화이트 D5 8GB",
+    "displayName": "TAGER 라데온 RX580 2048SP 게이밍 화이트 D5 8GB",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 580 2048SP",
+      "baseClockMhz": 1206,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR5",
+        "busWidthBit": 256,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2048,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 450
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 210,
+        "heightMm": null,
+        "widthMm": 40
+      }
+    },
+    "metadata": {
+      "manufacturer": "TAGER",
+      "sourceFile": "tager_amd.json"
+    },
+    "pricing": {
+      "basePrice": 138900,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "TAGER 라데온 RX580 2048SP 게이밍 화이트 D5 8GB AMD RX 580 2048SP",
+    "searchKeywords": [
+      "rx 580 2048sp",
+      "radeon rx 500",
+      "tager",
+      "amd"
+    ]
+  },
+  {
+    "partId": "gpu-tager-g-210-05gb-1d2de7",
+    "category": "GPU",
+    "brand": "TAGER",
+    "model": "지포스 G210 D3 512MB LP",
+    "displayName": "TAGER 지포스 G210 D3 512MB LP",
+    "specs": {
+      "series": "GeForce 200",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "G 210",
+      "baseClockMhz": 589,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 0.5,
+        "type": "DDR3",
+        "busWidthBit": 64,
+        "speedMhz": 1000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "2.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 16,
+        "multiMonitorSupport": 2,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 150,
+        "heightMm": 17,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "TAGER",
+      "sourceFile": "tager_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 26250,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "TAGER 지포스 G210 D3 512MB LP NVIDIA G 210",
+    "searchKeywords": [
+      "nvidia",
+      "tager",
+      "g 210",
+      "geforce 200"
+    ]
+  },
+  {
+    "partId": "gpu-tager-gt-1030-2gb-9b0c73",
+    "category": "GPU",
+    "brand": "TAGER",
+    "model": "지포스 GT1030 D5 2GB",
+    "displayName": "TAGER 지포스 GT1030 D5 2GB",
+    "specs": {
+      "series": "GeForce 10",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GT 1030",
+      "baseClockMhz": 1228,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 2,
+        "type": "GDDR5",
+        "busWidthBit": 64,
+        "speedMhz": 6008
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 384,
+        "multiMonitorSupport": 2,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 170,
+        "heightMm": 23,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "TAGER",
+      "sourceFile": "tager_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 92640,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "TAGER 지포스 GT1030 D5 2GB NVIDIA GT 1030",
+    "searchKeywords": [
+      "nvidia",
+      "tager",
+      "geforce 10",
+      "gt 1030"
+    ]
+  },
+  {
+    "partId": "gpu-tager-gt-710-2gb-4fca83",
+    "category": "GPU",
+    "brand": "TAGER",
+    "model": "지포스 GT710 D3 2GB LP",
+    "displayName": "TAGER 지포스 GT710 D3 2GB LP",
+    "specs": {
+      "series": "GeForce 700",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GT 710",
+      "baseClockMhz": 954,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 2,
+        "type": "GDDR3",
+        "busWidthBit": 64,
+        "speedMhz": 1330
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "2.0",
+        "lanes": 8
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 192,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 150,
+        "heightMm": 17,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "TAGER",
+      "sourceFile": "tager_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 47350,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "TAGER 지포스 GT710 D3 2GB LP NVIDIA GT 710",
+    "searchKeywords": [
+      "nvidia",
+      "geforce 700",
+      "tager",
+      "gt 710"
+    ]
+  },
+  {
+    "partId": "gpu-tager-gt-730-2gb-b3258c",
+    "category": "GPU",
+    "brand": "TAGER",
+    "model": "지포스 GT730 D3 2GB WIN",
+    "displayName": "TAGER 지포스 GT730 D3 2GB WIN",
+    "specs": {
+      "series": "GeForce 700",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GT 730",
+      "baseClockMhz": 700,
+      "boostClockMhz": 1400,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 2,
+        "type": "DDR3",
+        "busWidthBit": 128,
+        "speedMhz": 1333
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "2.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 96,
+        "multiMonitorSupport": 2,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 300
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 162,
+        "heightMm": null,
+        "widthMm": 28
+      }
+    },
+    "metadata": {
+      "manufacturer": "TAGER",
+      "sourceFile": "tager_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 47350,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "TAGER 지포스 GT730 D3 2GB WIN NVIDIA GT 730",
+    "searchKeywords": [
+      "nvidia",
+      "geforce 700",
+      "tager",
+      "gt 730"
+    ]
+  },
+  {
+    "partId": "gpu-tager-gtx-1650-4gb-817c00",
+    "category": "GPU",
+    "brand": "TAGER",
+    "model": "지포스 GTX 1650 D6 4GB",
+    "displayName": "TAGER 지포스 GTX 1650 D6 4GB",
+    "specs": {
+      "series": "GeForce 16",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GTX 1650",
+      "baseClockMhz": 1410,
+      "boostClockMhz": 1590,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 4,
+        "type": "GDDR6",
+        "busWidthBit": 128,
+        "speedMhz": 12000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 896,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 350
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 170,
+        "heightMm": 35,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "TAGER",
+      "sourceFile": "tager_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 226450,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "TAGER 지포스 GTX 1650 D6 4GB NVIDIA GTX 1650",
+    "searchKeywords": [
+      "nvidia",
+      "tager",
+      "geforce 16",
+      "gtx 1650"
+    ]
+  },
+  {
+    "partId": "gpu-tager-gtx-1660-super-6gb-5e3488",
+    "category": "GPU",
+    "brand": "TAGER",
+    "model": "지포스 GTX 1660 SUPER K D6 6GB",
+    "displayName": "TAGER 지포스 GTX 1660 SUPER K D6 6GB",
+    "specs": {
+      "series": "GeForce 16",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "GTX 1660 SUPER",
+      "baseClockMhz": 1530,
+      "boostClockMhz": 1785,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 1408,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 450
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 257,
+        "heightMm": 42,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "TAGER",
+      "sourceFile": "tager_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 252190,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "TAGER 지포스 GTX 1660 SUPER K D6 6GB NVIDIA GTX 1660 SUPER",
+    "searchKeywords": [
+      "nvidia",
+      "tager",
+      "geforce 16",
+      "gtx 1660 super"
+    ]
+  },
+  {
+    "partId": "gpu-tager-rtx-3060-12gb-b3725b",
+    "category": "GPU",
+    "brand": "TAGER",
+    "model": "지포스 RTX 3060 K D6 12GB",
+    "displayName": "TAGER 지포스 RTX 3060 K D6 12GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3060",
+      "baseClockMhz": 1320,
+      "boostClockMhz": 1777,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR6",
+        "busWidthBit": 192,
+        "speedMhz": 15000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 3584,
+        "multiMonitorSupport": 4,
+        "support4K": true,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": 550
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": true
+      },
+      "dimensions": {
+        "lengthMm": 252,
+        "heightMm": 42,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "TAGER",
+      "sourceFile": "tager_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 397320,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "TAGER 지포스 RTX 3060 K D6 12GB NVIDIA RTX 3060",
+    "searchKeywords": [
+      "nvidia",
+      "tager",
+      "geforce rtx 30",
+      "rtx 3060"
+    ]
+  },
+  {
+    "partId": "gpu-rtx-5070-12gb-a13745",
+    "category": "GPU",
+    "brand": "리드텍",
+    "model": "WinFast 지포스 RTX 5070 HURRICANE D7 12GB",
+    "displayName": "리드텍 WinFast 지포스 RTX 5070 HURRICANE D7 12GB",
+    "specs": {
+      "series": "GeForce RTX 50",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 5070",
+      "baseClockMhz": 2325,
+      "boostClockMhz": 2512,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 12,
+        "type": "GDDR7",
+        "busWidthBit": 192,
+        "speedMhz": 28000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "5.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 3,
+        "hdmi": 1,
+        "dvi": null,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 6144,
+        "multiMonitorSupport": 4,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 314,
+        "heightMm": 127.5,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "리드텍",
+      "sourceFile": "리드텍_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 937700,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "리드텍 WinFast 지포스 RTX 5070 HURRICANE D7 12GB NVIDIA RTX 5070",
+    "searchKeywords": [
+      "리드텍",
+      "rtx 5070",
+      "nvidia",
+      "geforce rtx 50"
+    ]
+  },
+  {
+    "partId": "gpu-rx-550-4gb-998653",
+    "category": "GPU",
+    "brand": "액슬",
+    "model": "라데온 RX 550 D5 4GB 에즈윈",
+    "displayName": "액슬 라데온 RX 550 D5 4GB 에즈윈",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 550",
+      "baseClockMhz": 1183,
+      "boostClockMhz": 1183,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 4,
+        "type": "GDDR5",
+        "busWidthBit": 128,
+        "speedMhz": 1500
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": null,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 512,
+        "multiMonitorSupport": 3,
+        "support4K": false,
+        "support5K": false,
+        "support8K": false,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 1,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 157,
+        "heightMm": null,
+        "widthMm": 38
+      }
+    },
+    "metadata": {
+      "manufacturer": "액슬",
+      "sourceFile": "axle_amd.json"
+    },
+    "pricing": {
+      "basePrice": 98800,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "액슬 라데온 RX 550 D5 4GB 에즈윈 AMD RX 550",
+    "searchKeywords": [
+      "radeon rx 500",
+      "amd",
+      "액슬",
+      "rx 550"
+    ]
+  },
+  {
+    "partId": "gpu-rx-580-2048sp-8gb-9c0170",
+    "category": "GPU",
+    "brand": "이도디스플레이",
+    "model": "라데온 RX 580 2048SP RAGE-X D5 8GB",
+    "displayName": "이도디스플레이 라데온 RX 580 2048SP RAGE-X D5 8GB",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 580 2048SP",
+      "baseClockMhz": null,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR5",
+        "busWidthBit": 256,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": null,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": null,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 198,
+        "heightMm": null,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "이도디스플레이",
+      "sourceFile": "이도_amd.json"
+    },
+    "pricing": {
+      "basePrice": 128100,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "이도디스플레이 라데온 RX 580 2048SP RAGE-X D5 8GB AMD RX 580 2048SP",
+    "searchKeywords": [
+      "rx 580 2048sp",
+      "radeon rx 500",
+      "amd",
+      "이도디스플레이"
+    ]
+  },
+  {
+    "partId": "gpu-rx-580-2048sp-8gb-b4b8a1",
+    "category": "GPU",
+    "brand": "이도디스플레이",
+    "model": "라데온 RX 580 2048SP RAGE-X D5 8GB 화이트",
+    "displayName": "이도디스플레이 라데온 RX 580 2048SP RAGE-X D5 8GB 화이트",
+    "specs": {
+      "series": "Radeon RX 500",
+      "chipsetVendor": "AMD",
+      "chipsetModel": "RX 580 2048SP",
+      "baseClockMhz": 1206,
+      "boostClockMhz": null,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 8,
+        "type": "GDDR5",
+        "busWidthBit": 256,
+        "speedMhz": null
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "3.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2048,
+        "multiMonitorSupport": null,
+        "support4K": false,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": 450
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": false,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 210,
+        "heightMm": null,
+        "widthMm": 40
+      }
+    },
+    "metadata": {
+      "manufacturer": "이도디스플레이",
+      "sourceFile": "이도_amd.json"
+    },
+    "pricing": {
+      "basePrice": 127600,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "이도디스플레이 라데온 RX 580 2048SP RAGE-X D5 8GB 화이트 AMD RX 580 2048SP",
+    "searchKeywords": [
+      "rx 580 2048sp",
+      "radeon rx 500",
+      "amd",
+      "이도디스플레이"
+    ]
+  },
+  {
+    "partId": "gpu-rtx-3050-6gb-0325ef",
+    "category": "GPU",
+    "brand": "이도디스플레이",
+    "model": "지포스 RTX 3050 RAGE-X D6 6GB",
+    "displayName": "이도디스플레이 지포스 RTX 3050 RAGE-X D6 6GB",
+    "specs": {
+      "series": "GeForce RTX 30",
+      "chipsetVendor": "NVIDIA",
+      "chipsetModel": "RTX 3050",
+      "baseClockMhz": 1042,
+      "boostClockMhz": 1470,
+      "ocClockMhz": null,
+      "memory": {
+        "sizeGb": 6,
+        "type": "GDDR6",
+        "busWidthBit": 96,
+        "speedMhz": 14000
+      },
+      "interface": {
+        "type": "PCIe",
+        "version": "4.0",
+        "lanes": 16
+      },
+      "outputs": {
+        "displayPort": 1,
+        "hdmi": 1,
+        "dvi": 1,
+        "usbC": null,
+        "rgb": null,
+        "thunderbolt": null
+      },
+      "performance": {
+        "cudaCores": 2304,
+        "multiMonitorSupport": 3,
+        "support4K": true,
+        "support5K": false,
+        "support8K": true,
+        "recommendedPsuWatt": null
+      },
+      "cooling": {
+        "fanCount": 2,
+        "vaporChamber": false,
+        "liquidCooled": false,
+        "hasLED": true,
+        "hasBackplate": false
+      },
+      "dimensions": {
+        "lengthMm": 200,
+        "heightMm": 39,
+        "widthMm": null
+      }
+    },
+    "metadata": {
+      "manufacturer": "이도디스플레이",
+      "sourceFile": "이도_nvidia.json"
+    },
+    "pricing": {
+      "basePrice": 238810,
+      "currency": "KRW"
+    },
+    "timestamps": {
+      "createdAt": "2025-10-09T05:51:13.852014",
+      "updatedAt": "2025-10-09T05:51:13.852014"
+    },
+    "searchableText": "이도디스플레이 지포스 RTX 3050 RAGE-X D6 6GB NVIDIA RTX 3050",
+    "searchKeywords": [
+      "nvidia",
+      "geforce rtx 30",
+      "이도디스플레이",
+      "rtx 3050"
+    ]
+  }
+]

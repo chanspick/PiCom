@@ -1,180 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Sell Request Admin</title>
-  <link type="text/css" rel="stylesheet" href="/style.css">
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="kreambased-platform">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="kream">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>kream</title>
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
-
-  <div id="login-container">
-    <h2>Admin Login</h2>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button id="login-btn">Login</button>
-    <p id="error-message" style="color:red;"></p>
-  </div>
-
-  <div id="app" style="display:none;">
-    <h1>Sell Requests Pending Approval</h1>
-    <div id="requests-container"></div>
-  </div>
-
-  <!-- Firebase SDKs -->
-  <script src="/__/firebase/9.6.1/firebase-app-compat.js"></script>
-  <script src="/__/firebase/9.6.1/firebase-auth-compat.js"></script>
-  <script src="/__/firebase/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="/__/firebase/9.6.1/firebase-functions-compat.js"></script>
-  <script src="/__/firebase/init.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const auth = firebase.auth();
-      const db = firebase.firestore();
-
-      const loginContainer = document.getElementById('login-container');
-      const appContainer = document.getElementById('app');
-      const loginButton = document.getElementById('login-btn');
-      const emailInput = document.getElementById('email');
-      const passwordInput = document.getElementById('password');
-      const errorMessage = document.getElementById('error-message');
-
-      // Check auth state
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          loginContainer.style.display = 'none';
-          appContainer.style.display = 'block';
-          loadSellRequestsIfAdmin(user);
-        } else {
-          appContainer.style.display = 'none';
-          loginContainer.style.display = 'block';
-        }
-      });
-
-      // Handle Login Button Click
-      loginButton.addEventListener('click', () => {
-        const email = emailInput.value;
-        const password = passwordInput.value;
-        errorMessage.textContent = ''; // Clear previous errors
-
-        if (!email || !password) {
-          errorMessage.textContent = 'Please enter both email and password.';
-          return;
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-          .then(userCredential => {
-            // onAuthStateChanged will handle the UI switch
-            console.log('Login successful');
-          })
-          .catch(error => {
-            console.error('Login Error:', error);
-            errorMessage.textContent = error.message;
-          });
-      });
-
-      function loadSellRequestsIfAdmin(user) {
-         user.getIdTokenResult().then(idTokenResult => {
-            if (idTokenResult.claims.admin === true) {
-              console.log('User is an admin. Loading requests...');
-              loadSellRequests();
-            } else {
-              console.log('User is not an admin. Access denied.');
-              appContainer.innerHTML = '<h1>Access Denied</h1><p>You are not authorized to view this page. <button id="logout-btn">Logout</button></p>';
-              document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
-            }
-         });
-      }
-
-      function loadSellRequests() {
-        const container = document.getElementById('requests-container');
-        container.innerHTML = ''; // Clear previous content
-
-        db.collection('sellRequests').where('status', '==', 'pending').onSnapshot(snapshot => {
-          if (snapshot.empty) {
-            container.innerHTML = '<p>No pending sell requests.</p>';
-            return;
-          }
-
-          let content = '';
-          snapshot.forEach(doc => {
-            const request = doc.data();
-            const requestId = doc.id;
-
-            let imagesHTML = '<div class="image-gallery">';
-            request.imageUrls.forEach(url => {
-              imagesHTML += `<a href="${url}" target="_blank"><img src="${url}" alt="Part Image"></a>`;
-            });
-            imagesHTML += '</div>';
-
-            content += `
-            <div class="request-card" id="request-${requestId}">
-              <h2>${request.modelName}</h2>
-              <p><strong>Brand:</strong> ${request.brand}</p>
-              <p><strong>Seller ID:</strong> ${request.sellerId}</p>
-              <p><strong>Requested Price:</strong> ${request.requestedPrice.toLocaleString()}원</p>
-              <p><strong>Suggested Price:</strong> ${request.suggestedPrice ? request.suggestedPrice.toLocaleString() + '원' : 'N/A'}</p>
-              <p><strong>Condition Score:</strong> ${request.calculatedConditionScore || 'N/A'}</p>
-              ${imagesHTML}
-              <div class="actions">
-                <input type="number" id="final-price-${requestId}" placeholder="Final Price (e.g., ${request.suggestedPrice || request.requestedPrice})">
-                <button class="approve-btn" data-id="${requestId}">Approve</button>
-                <button class="reject-btn" data-id="${requestId}">Reject</button>
-              </div>
-            </div>
-            `;
-          });
-          container.innerHTML = content;
-
-          addEventListeners();
-        }, error => {
-          console.error('Error fetching sell requests:', error);
-          container.innerHTML = '<p>Error loading requests. Check the console.</p>';
-        });
-      }
-
-      function addEventListeners() {
-        const approveButtons = document.querySelectorAll('.approve-btn');
-        approveButtons.forEach(button => {
-          button.addEventListener('click', handleApproval);
-        });
-
-        const rejectButtons = document.querySelectorAll('.reject-btn');
-        rejectButtons.forEach(button => {
-          button.addEventListener('click', handleRejection);
-        });
-      }
-
-      function handleApproval(event) {
-        const requestId = event.target.dataset.id;
-        const finalPriceInput = document.getElementById(`final-price-${requestId}`);
-        const finalPrice = parseInt(finalPriceInput.value, 10);
-
-        if (!finalPrice || finalPrice <= 0) {
-          alert('Please enter a valid final price.');
-          return;
-        }
-
-        db.collection('sellRequests').doc(requestId).update({
-          status: 'approved',
-          finalPrice: finalPrice,
-          processedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(error => {
-          console.error('Error approving request:', error);
-          alert('Failed to approve the request. See console for details.');
-        });
-      }
-
-      function handleRejection(event) {
-        const requestId = event.target.dataset.id;
-        db.collection('sellRequests').doc(requestId).update({
-          status: 'rejected',
-          processedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(error => {
-          console.error('Error rejecting request:', error);
-          alert('Failed to reject the request. See console for details.');
-        });
-      }
-    });
-  </script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
