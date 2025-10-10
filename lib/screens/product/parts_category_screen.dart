@@ -35,7 +35,7 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('부품 카테고리'),
+        title: const Text('부품 시세'), // 제목 변경
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -106,7 +106,7 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> with SingleTi
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.8, // Adjusted for new layout
+        childAspectRatio: 0.8,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
@@ -160,68 +160,71 @@ class _PartCardState extends State<_PartCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // ==================== 수정된 부분 ====================
             Expanded(
               flex: 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
-                    ),
-                    FutureBuilder<List<PricePoint>>(
-                      future: _priceHistoryFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)));
-                        }
-                        if (snapshot.hasError) {
-                          return const Center(child: Icon(Icons.error_outline, color: Colors.red, size: 30));
-                        }
-                        if (!snapshot.hasData || snapshot.data!.length < 2) {
-                          return const Center(
-                            child: Text(
-                              '가격 내역 없음',
-                              style: TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                          ); // Show nothing if no graph data
-                        }
-                        return MiniPriceChart(priceHistory: snapshot.data!);
-                      },
-                    ),
-                  ],
+                // Stack과 이미지 플레이스홀더를 제거하고 FutureBuilder를 바로 배치합니다.
+                child: FutureBuilder<List<PricePoint>>(
+                  future: _priceHistoryFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)));
+                    }
+                    // 오류 또는 데이터가 없을 때도 회색 배경을 표시하여 레이아웃을 유지합니다.
+                    if (snapshot.hasError) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: const Center(child: Icon(Icons.error_outline, color: Colors.red, size: 30)),
+                      );
+                    }
+                    if (!snapshot.hasData || snapshot.data!.length < 2) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: Text(
+                            '가격 내역 없음',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
+                      );
+                    }
+                    // 데이터가 있으면 MiniPriceChart를 보여줍니다.
+                    return MiniPriceChart(priceHistory: snapshot.data!);
+                  },
                 ),
               ),
             ),
+            // =====================================================
             Expanded(
               flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                // Column의 정렬을 수정하여 안정적인 레이아웃 확보
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround, // 공간을 균등하게 배분
+                  crossAxisAlignment: CrossAxisAlignment.center, // 수평 중앙 정렬
                   children: [
+                    // 모델명이 길 경우를 대비해 Flexible 위젯 사용
+                    Flexible(
+                      child: Text(
+                        // 모델명이 비어있을 경우 fallback 텍스트 표시
+                        (widget.part.modelName.isNotEmpty) ? widget.part.modelName : "이름 정보 없음",
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
                     Text(
                       widget.part.brand,
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          widget.part.modelName,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
                       ),
                     ),
                   ],

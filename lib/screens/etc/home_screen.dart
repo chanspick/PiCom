@@ -187,7 +187,7 @@ class _CircleMenuSection extends StatelessWidget {
     },
     {
       'icon': Icons.store,
-      'label': '브랜드관',
+      'label': '부품 시세',
       'screen': PartsCategoryScreen(),
     },
     {

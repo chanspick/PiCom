@@ -1,26 +1,43 @@
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
 import '../../models/part_model.dart';
-import '../../services/part_service.dart'; // Use PartService
+import '../../services/part_service.dart';
 import 'package:picom/services/cart_service.dart';
+import 'package:picom/services/order_service.dart'; // 시세 그래프를 위해 추가
+import 'package:picom/widgets/price_history_chart.dart'; // 상세 그래프 위젯
 import 'sell_request_screen.dart';
-import '../payment_screen.dart';
 import 'part_comment_screen.dart';
 
-class PartDetailScreen extends StatelessWidget {
+// StatelessWidget에서 StatefulWidget으로 변경하여 시세 정보를 비동기 로드
+class PartDetailScreen extends StatefulWidget {
   final String partId;
-
   const PartDetailScreen({super.key, required this.partId});
 
   @override
-  Widget build(BuildContext context) {
-    final cartService = CartService();
-    final partService = PartService(); // Instantiate PartService
+  State<PartDetailScreen> createState() => _PartDetailScreenState();
+}
 
-    return FutureBuilder<Part?>( // Use PartService to get data
-      future: partService.getPartById(partId),
+class _PartDetailScreenState extends State<PartDetailScreen> {
+  final PartService _partService = PartService();
+  final OrderService _orderService = OrderService();
+  final CartService _cartService = CartService();
+
+  late Future<Part?> _partFuture;
+  late Future<List<PricePoint>> _priceHistoryFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // initState에서 Future를 한 번만 호출
+    _partFuture = _partService.getPartById(widget.partId);
+    _priceHistoryFuture = _orderService.getPriceHistoryForPart(widget.partId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Part?>(
+      future: _partFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -28,16 +45,10 @@ class PartDetailScreen extends StatelessWidget {
             body: const Center(child: CircularProgressIndicator()),
           );
         }
-        if (snapshot.hasError) {
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('부품 상세 정보')),
-            body: Center(child: Text('오류: ${snapshot.error}')),
-          );
-        }
-        if (!snapshot.hasData || snapshot.data == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('부품 상세 정보')),
-            body: const Center(child: Text('부품을 찾을 수 없습니다.')),
+            appBar: AppBar(title: const Text('오류')),
+            body: Center(child: Text('부품 정보를 불러올 수 없습니다: ${snapshot.error}')),
           );
         }
 
@@ -52,133 +63,114 @@ class PartDetailScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- Basic Info ---
+                // --- 이미지 자리 (향후 추가) ---
+                Container(
+                  height: 250,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.image_not_supported, size: 80, color: Colors.grey),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // --- 기본 정보 ---
+                Text(
+                  part.brand,
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 8),
                 Text(
                   part.modelName,
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
-                // --- Dynamic Details based on Part Type ---
+                // --- 시세 정보 그래프 ---
+                _PriceGraphCard(priceHistoryFuture: _priceHistoryFuture),
+                const SizedBox(height: 24),
+
+                // --- 부품 타입에 따른 동적 상세 정보 ---
                 if (part is CpuPart)
                   _CpuDetailsWidget(cpuPart: part)
-                // else if (part is GpuPart)
-                //   _GpuDetailsWidget(gpuPart: part) // Future extension
-                else
-                  const Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text('이 부품 종류에 대한 상세 정보 위젯이 아직 구현되지 않았습니다.'),
+                else if (part is GpuPart)
+                  _GpuDetailsWidget(gpuPart: part)
+                else if (part is MainboardPart)
+                    _MainboardDetailsWidget(mainboardPart: part)
+                  else
+                    const Card( // GenericPart 또는 다른 타입들을 위한 fallback
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text('이 부품 종류에 대한 상세 스펙 정보가 없습니다.'),
+                      ),
                     ),
-                  ),
-
-
               ],
             ),
           ),
-          bottomNavigationBar: BottomAppBar(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () {
-                        // Purchase logic
-                      },
-                      child: const Text('구매'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () async {
-                        try {
-                          await cartService.addToCart(part.partId, 1);
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('장바구니에 담았습니다.')),
-                            );
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('오류: $e')),
-                            );
-                          }
-                        }
-                      },
-                      child: const Text('장바구니'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const SellRequestScreen()),
-                        );
-                      },
-                      child: const Text('판매'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => PartCommentScreen(partId: part.partId)),
-                        );
-                      },
-                      child: const Text('댓글'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          bottomNavigationBar: _buildBottomAppBar(part),
         );
       },
     );
   }
-}
 
-// Widget to display CPU specific details
-class _CpuDetailsWidget extends StatelessWidget {
-  final CpuPart cpuPart;
-
-  const _CpuDetailsWidget({required this.cpuPart});
-
-  Widget _buildSpecRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ],
+  BottomAppBar _buildBottomAppBar(Part part) {
+    return BottomAppBar(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.shopping_cart_checkout),
+                label: const Text('구매'),
+                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Colors.white),
+                onPressed: () { /* 구매 로직 */ },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.add_shopping_cart),
+                label: const Text('담기'),
+                onPressed: () async {
+                  try {
+                    await _cartService.addToCart(part.partId, 1);
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('장바구니에 담았습니다.')));
+                  } catch (e) {
+                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('오류: $e')));
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+// 공용 상세 스펙 행 위젯
+Widget _buildSpecRow(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      ],
+    ),
+  );
+}
+
+// --- 각 부품별 상세 정보 위젯들 ---
+
+class _CpuDetailsWidget extends StatelessWidget {
+  final CpuPart cpuPart;
+  const _CpuDetailsWidget({required this.cpuPart});
 
   @override
   Widget build(BuildContext context) {
@@ -190,10 +182,7 @@ class _CpuDetailsWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'CPU 상세 스펙',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            const Text('CPU 상세 스펙', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const Divider(height: 20, thickness: 1),
             _buildSpecRow('소켓', cpuPart.socket),
             _buildSpecRow('코어', '${cpuPart.cores}코어'),
@@ -212,10 +201,9 @@ class _CpuDetailsWidget extends StatelessWidget {
   }
 }
 
-
-// This remains unchanged for now as it uses dummy data
-class _PriceGraphCard extends StatelessWidget {
-  const _PriceGraphCard();
+class _GpuDetailsWidget extends StatelessWidget {
+  final GpuPart gpuPart;
+  const _GpuDetailsWidget({required this.gpuPart});
 
   @override
   Widget build(BuildContext context) {
@@ -227,126 +215,89 @@ class _PriceGraphCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '시세 정보',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('2024-07-26', style: TextStyle(color: Colors.grey)),
-                Flexible(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Flexible(child: _buildPriceInfo('평균가', '1,200,000원', Colors.blue)),
-                      const SizedBox(width: 8),
-                      Flexible(child: _buildPriceInfo('최저가', '1,100,000원', Colors.red)),
-                      const SizedBox(width: 8),
-                      Flexible(child: _buildPriceInfo('최고가', '1,300,000원', Colors.green)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            const Text('GPU 상세 스펙', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Divider(height: 20, thickness: 1),
+            _buildSpecRow('칩셋', gpuPart.chipset),
+            _buildSpecRow('메모리', '${gpuPart.memoryType} ${gpuPart.memorySizeGb}GB'),
+            _buildSpecRow('부스트 클럭', '${gpuPart.boostClockMhz ?? 'N/A'}MHz'),
+            _buildSpecRow('CUDA 코어', '${gpuPart.cudaCores ?? 'N/A'}'),
+            _buildSpecRow('인터페이스', gpuPart.interfaceType ?? 'N/A'),
+            _buildSpecRow('권장 파워', '${gpuPart.powerConsumptionW ?? 'N/A'}W'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MainboardDetailsWidget extends StatelessWidget {
+  final MainboardPart mainboardPart;
+  const _MainboardDetailsWidget({required this.mainboardPart});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('메인보드 상세 스펙', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Divider(height: 20, thickness: 1),
+            _buildSpecRow('플랫폼', mainboardPart.socket.contains('AM') ? 'AMD' : 'Intel'),
+            _buildSpecRow('소켓', mainboardPart.socket),
+            _buildSpecRow('칩셋', mainboardPart.chipset),
+            _buildSpecRow('폼팩터', mainboardPart.formFactor),
+            _buildSpecRow('메모리 타입', mainboardPart.memoryType),
+            _buildSpecRow('메모리 슬롯', '${mainboardPart.memorySlots}개'),
+            _buildSpecRow('최대 메모리', '${mainboardPart.maxMemoryGb}GB'),
+            _buildSpecRow('SATA 포트', '${mainboardPart.sataPorts}개'),
+            _buildSpecRow('M.2 슬롯', '${mainboardPart.m2Slots}개'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class _PriceGraphCard extends StatelessWidget {
+  final Future<List<PricePoint>> priceHistoryFuture;
+  const _PriceGraphCard({required this.priceHistoryFuture});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('시세 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: true,
-                    getDrawingHorizontalLine: (value) {
-                      return const FlLine(
-                        color: Color(0xff37434d),
-                        strokeWidth: 0.1,
-                      );
-                    },
-                    getDrawingVerticalLine: (value) {
-                      return const FlLine(
-                        color: Color(0xff37434d),
-                        strokeWidth: 0.1,
-                      );
-                    },
-                  ),
-                  titlesData: _getTitlesData(),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: Border.all(color: const Color(0xff37434d), width: 1),
-                  ),
-                  minX: 0,
-                  maxX: 29,
-                  minY: 950000,
-                  maxY: 1350000,
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: _generateDummyData(),
-                      isCurved: true,
-                      color: Colors.blue,
-                      barWidth: 3,
-                      isStrokeCapRound: true,
-                      dotData: FlDotData(show: false),
-                      belowBarData: BarAreaData(show: false),
-                    ),
-                  ],
-                ),
+              child: FutureBuilder<List<PricePoint>>(
+                future: priceHistoryFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError || !snapshot.hasData || snapshot.data!.length < 2) {
+                    return const Center(child: Text('시세 정보가 충분하지 않습니다.'));
+                  }
+                  // PriceHistoryChart 위젯을 사용하여 실제 데이터로 그래프를 그림
+                  return PriceHistoryChart(priceHistory: snapshot.data!);
+                },
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  FlTitlesData _getTitlesData() {
-    return FlTitlesData(
-      show: true,
-      bottomTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 30,
-          interval: 7,
-          getTitlesWidget: (value, meta) {
-            final date = DateTime.now().subtract(Duration(days: 29 - value.toInt()));
-            return Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text('${date.month}/${date.day}', style: const TextStyle(fontSize: 10)),
-            );
-          },
-        ),
-      ),
-      leftTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 60,
-          interval: 50000,
-          getTitlesWidget: (value, meta) {
-            return Text('${(value / 10000).round()}만', style: const TextStyle(fontSize: 10));
-          },
-        ),
-      ),
-      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    );
-  }
-
-  Widget _buildPriceInfo(String label, String price, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        Text(price, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
-
-  List<FlSpot> _generateDummyData() {
-    final random = Random();
-    return List.generate(30, (index) {
-      return FlSpot(index.toDouble(), 1100000 + random.nextDouble() * 150000);
-    });
   }
 }
