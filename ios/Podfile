@@ -37,13 +37,10 @@ target 'Runner' do
 end
 
 post_install do |installer|
-  # Flutter 필수 빌드 설정
   installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
-
-    # 사용자가 추가하고자 한 비모듈(non-modular) 헤der 포함 허용 옵션 (오타 수정)
     target.build_configurations.each do |config|
-      config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+      # 인텔 맥 시뮬레이터에서 arm64 제외
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
     end
   end
 end
