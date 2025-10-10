@@ -44,7 +44,35 @@ class MyApp extends StatelessWidget {
           ),
           darkTheme: ThemeData(
             brightness: Brightness.dark,
-            primarySwatch: Colors.deepPurple,
+            primaryColor: Colors.deepPurple,
+            scaffoldBackgroundColor: const Color(0xFF121212), // Very dark grey
+            cardColor: const Color(0xFF1E1E1E), // Slightly lighter grey for cards
+            textTheme: const TextTheme(
+              bodyLarge: TextStyle(color: Colors.white),
+              bodyMedium: TextStyle(color: Colors.white70),
+              titleLarge: TextStyle(color: Colors.white),
+              titleMedium: TextStyle(color: Colors.white),
+              titleSmall: TextStyle(color: Colors.white),
+            ),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF1E1E1E),
+              foregroundColor: Colors.white,
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+              ),
+            ),
+            colorScheme: ColorScheme.fromSwatch(
+              brightness: Brightness.dark,
+              primarySwatch: Colors.deepPurple,
+            ).copyWith(
+              secondary: Colors.amber,
+              surface: const Color(0xFF1E1E1E),
+              onSurface: Colors.white,
+              onPrimary: Colors.white, // Explicitly set onPrimary for text on buttons
+            ),
             useMaterial3: true,
           ),
           themeMode: themeProvider.themeMode,

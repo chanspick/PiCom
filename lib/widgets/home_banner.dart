@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import '../screens/my_estimate_screen.dart';
+import '../screens/etc/warranty_screen.dart';
+import '../screens/etc/guideline_screen.dart';
 
 class HomeBanner extends StatefulWidget {
   const HomeBanner({super.key});
@@ -16,21 +18,21 @@ class _HomeBannerState extends State<HomeBanner> {
   // Banner-specific data
   final List<Map<String, String>> bannerItems = [
     {
-      "image": "https://picsum.photos/seed/pccom_warranty/1080/720",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoAwEMVPATJ0-mHBX-fvx_PWmfUfBTriSWqg&s", // 보증
       "title": "신뢰의 시작, PiCom 보증",
       "description": "엄격한 검수를 통과한 중고 컴퓨터, 안심하고 구매하세요.",
       "route": "/warranty-info"
     },
     {
-      "image": "https://picsum.photos/seed/pccom_choice/1080/720",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPg36RNntJJR3tB578o3d41UdIAcq-164vHQ&s", // 나만의 견적
       "title": "어떤 컴퓨터를 살지 고민되나요?",
       "description": "PiCom의 전문가가 당신에게 딱 맞는 PC를 찾아드립니다.",
       "route": "/pc-recommendation"
     },
     {
-      "image": "https://picsum.photos/seed/pccom_event/1080/720",
-      "title": "리뷰 남기고 포인트 받자!",
-      "description": "소중한 후기를 작성해주신 모든 분들께 혜택을 드려요.",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQBtnvYAIA_5kIOED7P4zxK-1Gl0CZ17jKWQ&s", // 가이드라인
+      "title": "PiCom이 처음이라면?",
+      "description": "바로 거래 가이드라인 확인!",
       "route": "/review-event"
     }
   ];
@@ -50,6 +52,18 @@ class _HomeBannerState extends State<HomeBanner> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const MyEstimateScreen()),
+                      );
+                    } else if (item['route'] == '/warranty-info') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const WarrantyScreen()),
+                      );
+                    } else if (item['route'] == '/review-event') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const GuidelineScreen()),
                       );
                     } else {
                       // TODO: Implement navigation logic for other routes
