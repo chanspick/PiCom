@@ -89,6 +89,10 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/data/
+
   # fonts:
   #   - family: Pretendard
   #     fonts:

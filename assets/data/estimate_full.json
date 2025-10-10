@@ -1,0 +1,244 @@
+{
+  "samples": [
+    {
+      "match_key": "C_150_200_O_개발/코딩",
+      "budget": { "min": 150, "max": 200 },
+      "ssd": "1000",
+      "task": {
+        "main_use": "창작작업",
+        "work": "개발/코딩",
+        "progs": "5~10개",
+        "monitors": "1개 또는 2개",
+        "data_size": "1TB 미만"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠7 7700",
+          "mainboard": "ASRock B650M Pro X3D",
+          "memory": "ADATA DDR5-5600 16GB x 2 (32GB)",
+          "gpu": "갤럭시 GALAX RTX 4060 Ti OC V2",
+          "ssd": "WD BLACK SN850X NVMe 1TB",
+          "psu": "MSI MAG A650BN 650W",
+          "cpu_cooler": "DEEPCOOL AG620 듀얼타워 공랭",
+          "case": "마이크로닉스 COOLMAX 스테디 블랙"
+        }
+      ]
+    },
+    {
+      "match_key": "C_150_200_QHD_개인_가끔_포토샵/라이트룸",
+      "budget": { "min": 150, "max": 200 },
+      "ssd": "1000",
+      "task": {
+        "main_use": "창작작업",
+        "software": "포토샵/라이트룸",
+        "resolution": "QHD",
+        "scale": "개인",
+        "frequency": "가끔"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "인텔 코어 i5-14세대 14600K",
+          "mainboard": "ASUS ROG STRIX B760-G GAMING WIFI",
+          "memory": "ADATA DDR5-5600 32GB x2 (64GB)",
+          "gpu": "지포스 RTX 3060 D6 12GB",
+          "ssd": "마이크론 Crucial T500 NVMe 1TB",
+          "psu": "SF-700R12ST MEGA 700W (슈퍼플라워)",
+          "cpu_cooler": "DARKFLASH NEBULA DN-360D ARGB (3열 수냉)",
+          "case": "DAVEN AQUARIUM 블랙"
+        }
+      ]
+    },
+    {
+      "match_key": "C_150_200_QHD_소규모_자주_기타",
+      "budget": { "min": 150, "max": 200 },
+      "ssd": "1000",
+      "task": {
+        "main_use": "창작작업",
+        "software": "기타 (웹툰/클튜/스케치업/포토샵)",
+        "resolution": "QHD",
+        "scale": "소규모",
+        "frequency": "자주"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠9-5세대 7900 (라파엘)",
+          "mainboard": "ASRock B650M Pro X3D",
+          "memory": "ADATA DDR5-5600 CL46 32GB x 2 (64GB)",
+          "gpu": "MSI 지포스 RTX 3050 벤투스 8GB",
+          "ssd": "마이크론 Crucial T500 1TB",
+          "psu": "마이크로닉스 Classic II 600W 브론즈",
+          "cpu_cooler": "DEEPCOOL AG620",
+          "case": "마이크로닉스 COOLMAX 스테디 블랙"
+        }
+      ]
+    },
+    {
+      "match_key": "C_130_140_4K_소규모_자주_포토샵/라이트룸, C4D",
+      "budget": { "min": 130, "max": 140 },
+      "ssd": "1000",
+      "task": {
+        "main_use": "창작작업",
+        "software": "포토샵/라이트룸, C4D",
+        "resolution": "4K",
+        "scale": "소규모",
+        "frequency": "자주"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠9-5세대 7900 (라파엘)",
+          "mainboard": "ASRock B650M Pro X3D 에즈윈",
+          "memory": "ADATA DDR5-5600 CL46 16GB x 2 (32GB)",
+          "gpu": "GIGABYTE 지포스 RTX 3050 WINDFORCE (6GB)",
+          "ssd": "마이크론 Crucial T500 M.2 NVMe 1TB",
+          "psu": "마이크로닉스 Classic II 700W 브론즈",
+          "cpu_cooler": "DEEPCOOL AG620",
+          "case": "마이크로닉스 COOLMAX 스테디 블랙"
+        }
+      ]
+    },
+    {
+      "match_key": "C_100_130_QHD_개인_가끔_프리미어, 포토샵, AE",
+      "budget": { "min": 100, "max": 130 },
+      "ssd": "1000",
+      "task": {
+        "main_use": "창작작업",
+        "software": "프리미어, 포토샵, AE",
+        "resolution": "FHD~QHD",
+        "scale": "개인",
+        "frequency": "가끔"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠5 7600 (라파엘)",
+          "mainboard": "GIGABYTE B650M AORUS ELITE AX ICE",
+          "memory": "ADATA DDR5-5600 16GB x2 (32GB)",
+          "gpu": "액슬 지포스 RTX 3060 D6 12GB",
+          "ssd": "마이크론 Crucial T500 NVMe 1TB",
+          "psu": "마이크로닉스 Classic II 700W Bronze ATX 3.1 화이트",
+          "cpu_cooler": null,
+          "case": "DAVEN D6 MESH 화이트"
+        }
+      ]
+    },
+    {
+      "match_key": "C_115_115_QHD_개인/소규모_가끔/자주_프리미어, 포토샵/라이트룸, 기타",
+      "budget": { "min": 115, "max": 115 },
+      "ssd": "1000",
+      "task": {
+        "main_use": "창작작업",
+        "software": "프리미어, 포토샵/라이트룸, 기타",
+        "resolution": "FHD, QHD",
+        "scale": "개인, 소규모",
+        "frequency": "가끔, 자주"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠5 7500F (라파엘)",
+          "mainboard": "GIGABYTE B650M K",
+          "memory": "ADATA DDR5-5600 CL46 16GB × 2 (32GB)",
+          "gpu": "SPARKLE Arc B580 GUARDIAN OC D6 12GB",
+          "ssd": "마이크론 Crucial T500 M.2 NVMe 1TB",
+          "psu": "MSI MAG A650BN 80PLUS BRONZE",
+          "cpu_cooler": "3RSYS Socoool RC370 ARGB",
+          "case": "마이크로닉스 COOLMAX 스테디 블랙"
+        }
+      ]
+    },
+    {
+      "match_key": "C_110_110_QHD_개인/소규모_가끔/자주_프리미어, 포토샵/라이트룸, 기타",
+      "budget": { "min": 110, "max": 110 },
+      "ssd": "1000",
+      "task": {
+        "main_use": "창작작업",
+        "software": "프리미어, 포토샵/라이트룸, 기타",
+        "resolution": "FHD, QHD",
+        "scale": "개인, 소규모",
+        "frequency": "가끔, 자주"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠5-4세대 5600",
+          "mainboard": "ASRock B550M Phantom Gaming 4",
+          "memory": "마이크론 Crucial DDR4-3200 16GB × 2 (32GB)",
+          "gpu": "ASRock 라데온 RX 6600 CHALLENGER D 8GB",
+          "ssd": "WD BLACK SN850X M.2 NVMe 1TB",
+          "psu": "MSI MAG A650BN 80PLUS BRONZE 650W",
+          "cpu_cooler": "DARKFLASH Ellsworth S21 ARGB 공랭",
+          "case": "DAVEN D6 MESH 강화유리 미들타워"
+        }
+      ]
+    },
+    {
+      "match_key": "C_70_80_FHD_개인_가끔_포토샵/라이트룸, C4D",
+      "budget": { "min": 70, "max": 80 },
+      "ssd": "500",
+      "task": {
+        "main_use": "창작작업",
+        "software": "포토샵/라이트룸, C4D",
+        "resolution": "FHD",
+        "scale": "개인",
+        "frequency": "가끔"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠5-4세대 5600 (버미어)",
+          "mainboard": "ASUS PRIME A520M-K",
+          "memory": "마이크론 Crucial DDR4-3200 8GB x 2 (16GB)",
+          "gpu": "GIGABYTE 지포스 RTX 3050 6GB",
+          "ssd": "ESSENCORE KLEVV CRAS C910 500GB",
+          "psu": "마이크로닉스 Classic II 600W 80PLUS BRONZE",
+          "cpu_cooler": "PCCOOLER PALADIN 400",
+          "case": "앱코 U30 마린 블랙"
+        }
+      ]
+    },
+    {
+      "match_key": "O_600_700_데이터분석",
+      "budget": { "min": 600, "max": 700 },
+      "ssd": "2000",
+      "task": {
+        "main_use": "사무·개발",
+        "work": "데이터분석",
+        "progs": "10개 이상",
+        "monitors": "3개 이상",
+        "data_size": "1TB 이상"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠9-6세대 9900X",
+          "mainboard": "ASRock B650M Pro X3D 에즈윈",
+          "memory": "ADATA DDR5-5600 CL46 서린 32GB x 2 (64GB)",
+          "gpu": "PALIT 지포스 RTX 5090 GAMEROCK OC D7 32GB",
+          "ssd": "마이크론 Crucial T500 M.2 NVMe 1TB",
+          "psu": "MSI MAG A1250GL 80PLUS골드 풀모듈러 ATX3.1",
+          "cpu_cooler": "DEEPCOOL LT720 (BLACK) 402mm 3열 일체형 수냉 쿨러",
+          "case": "3RSYS L600 Quiet 블랙"
+        }
+      ]
+    },
+    {
+      "match_key": "O_350_400_데이터분석",
+      "budget": { "min": 350, "max": 400 },
+      "ssd": "2000",
+      "task": {
+        "main_use": "사무·개발",
+        "work": "데이터분석",
+        "progs": "10개 이상",
+        "monitors": "3개 이상",
+        "data_size": "1TB 이상"
+      },
+      "hardware_recommendations": [
+        {
+          "cpu": "AMD 라이젠9-6세대 9900X",
+          "mainboard": "ASRock B650M Pro X3D 에즈윈",
+          "memory": "ADATA DDR5-5600 CL46 서린 32GB x 2 (64GB)",
+          "gpu": "PALIT 지포스 RTX 5080 GAMEROCK D7 16GB",
+          "ssd": "솔리다임 P44 Pro M.2 NVMe 2TB",
+          "psu": "마이크로닉스 Classic II 1050W 80PLUS골드 풀모듈러 ATX3.1",
+          "cpu_cooler": "DEEPCOOL LT720 (BLACK) 402mm 3열 일체형 수냉 쿨러",
+          "case": "3RSYS L600 Quiet 블랙"
+        }
+      ]
+    }
+  ]
+}

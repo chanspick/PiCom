@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:math';
 
-// Enum for Q1 choices to make branching clearer
-enum ComputerUsage { game, creative, office, mixed }
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:picom/models/estimate_sample_model.dart';
 
 class MyEstimateScreen extends StatefulWidget {
   const MyEstimateScreen({super.key});
@@ -11,146 +14,110 @@ class MyEstimateScreen extends StatefulWidget {
 }
 
 class _MyEstimateScreenState extends State<MyEstimateScreen> {
-  final Map<String, dynamic> _answers = {};
-  final Map<String, TextEditingController> _textControllers = {};
+  // ---------------------------------------------------------------------------
+  // QUESTION DATA
+  // ---------------------------------------------------------------------------
+  static const Map<String, Map<String, dynamic>> _questionData = {
+    'Q1': {
+      'text': '컴퓨터의 주된 용도는?',
+      'options': {'① 게임': 'G', '② 창작작업': 'C', '③ 사무·개발': 'O'},
+    },
+    'Q2': {
+      'text': '예산 범위 (만원 단위)',
+      'options': 'BUDGET', // Special case for budget input
+    },
+    'Q3': {
+      'text': '필요한 SSD 용량 (GB)',
+      'options': {'① 500': 500, '② 1000': 1000, '③ 2000': 2000, '④ 그 이상': 9999},
+    },
+    // --- Game Branch ---
+    'Q4G': {
+      'text': '즐기실 게임 번호 선택 (최대 3개)',
+      'options': 'N/A', // Special case for text input
+      'hint': '1~154번 사이의 게임 번호를 입력하세요',
+    },
+    'Q5G': {
+      'text': '현재 모니터 해상도',
+      'options': {'① FHD': 'FHD', '② QHD': 'QHD', '③ 4K': '4K'},
+    },
+    'Q6G': {
+      'text': '원하는 평균 FPS',
+      'options': {'① 60': 60, '② 100': 100, '③ 120': 120, '④ 144': 144, '⑤ 165': 165, '⑥ 240': 240},
+    },
+    'Q7G': {
+      'text': '선호하는 그래픽 품질',
+      'options': {'① 낮음': '낮음', '② 보통': '보통', '③ 높음': '높음', '④ 최고': '최고', '⑤ 레이트레이싱': '레이트레이싱'},
+    },
+    // --- Creative Branch ---
+    'Q4C': {
+      'text': '주로 사용하는 소프트웨어',
+      'options': {'① 프리미어': '프리미어', '② 블렌더': '블렌더', '③ 포토샵/라이트룸': '포토샵/라이트룸', '④ AE': 'AE', '⑤ C4D': 'C4D', '⑥ 기타': '기타'},
+    },
+    'Q5C': {
+      'text': '작업 영상/이미지 해상도',
+      'options': {'① FHD': 'FHD', '② QHD': 'QHD', '③ 4K': '4K', '④ 8K': '8K'},
+    },
+    'Q6C': {
+      'text': '프로젝트 규모',
+      'options': {'① 개인': '개인', '② 소규모': '소규모', '③ 대규모': '대규모', '④ 스튜디오급': '스튜디오급'},
+    },
+    'Q7C': {
+      'text': '렌더링 빈도',
+      'options': {'① 가끔': '가끔', '② 자주': '자주', '③ 실시간': '실시간'},
+    },
+    // --- Office Branch ---
+    'Q4O': {
+      'text': '주된 업무',
+      'options': {'① 문서': '문서', '② 개발/코딩': '개발/코딩', '③ 웹서핑/이메일': '웹서핑/이메일', '④ 데이터분석': '데이터분석', '⑤ 기타': '기타'},
+    },
+    'Q5O': {
+      'text': '동시에 실행할 프로그램 수',
+      'options': {'① 5개 미만': '5개 미만', '② 5~10개': '5~10개', '③ 10개 이상': '10개 이상'},
+    },
+    'Q6O': {
+      'text': '사용할 모니터 개수',
+      'options': {'① 1개': '1개', '② 2개': '2개', '③ 3개 이상': '3개 이상'},
+    },
+    'Q7O': {
+      'text': '저장할 데이터 규모',
+      'options': {'① 100GB 미만': '100GB 미만', '② 1TB 미만': '1TB 미만', '③ 1TB 이상': '3TB 이상'},
+    },
+  };
 
-  // Holds the key of the current question and the history for back navigation
-  final List<String> _questionHistory = ['Q1'];
-  String get _currentQuestionKey => _questionHistory.last;
+  // ---------------------------------------------------------------------------
+  // STATE MANAGEMENT
+  // ---------------------------------------------------------------------------
+  final List<String> _history = ['Q1'];
+  final Map<String, dynamic> _answers = {};
+  final TextEditingController _textController = TextEditingController();
+  final TextEditingController _minBudgetController = TextEditingController();
+  final TextEditingController _maxBudgetController = TextEditingController();
+
+  HardwareRecommendation? _recommendation;
+  bool _isLoading = false;
+  String? _error;
+
+  String get _currentQCode => _history.last;
+  bool get _isFinished => _currentQCode == 'Q_FINISH';
 
   @override
   void dispose() {
-    _textControllers.values.forEach((controller) => controller.dispose());
+    _textController.dispose();
+    _minBudgetController.dispose();
+    _maxBudgetController.dispose();
     super.dispose();
   }
 
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
-    );
-  }
-
-  void _handleNext() {
-    // --- VALIDATION AND ANSWER SAVING --- //
-    bool validationPassed = false;
-    switch (_currentQuestionKey) {
-      case 'Q2': // Budget
-        final minText = _textControllers['Q2_min']!.text.trim();
-        final maxText = _textControllers['Q2_max']!.text.trim();
-        if (minText.isEmpty || maxText.isEmpty) {
-          _showError('예산을 입력해주세요.');
-          return;
-        }
-        final minVal = int.tryParse(minText);
-        final maxVal = int.tryParse(maxText);
-        if (minVal == null || maxVal == null) {
-          _showError('숫자만 입력해주세요.');
-          return;
-        }
-        if (maxVal < minVal) {
-          _showError('최대값은 최소값보다 작을 수 없습니다.');
-          return;
-        }
-        _answers[_currentQuestionKey] = {'min': minVal, 'max': maxVal};
-        validationPassed = true;
-        break;
-
-      case 'Q4G': // Game Numbers
-        final text = _textControllers[_currentQuestionKey]!.text.trim();
-        if (text.isEmpty) {
-          _showError('답변을 입력해주세요.');
-          return;
-        }
-        final parts = text.split(',');
-        final List<int> gameNumbers = [];
-        for (final part in parts) {
-          final num = int.tryParse(part.trim());
-          if (num == null) {
-            _showError('숫자와 쉼표(,)만 사용하여 올바르게 입력해주세요.');
-            return;
-          }
-          gameNumbers.add(num);
-        }
-        if (gameNumbers.any((num) => num > 154 || num < 1)) {
-          _showError('게임 번호는 1에서 154 사이여야 합니다.');
-          return;
-        }
-        if (gameNumbers.toSet().length != gameNumbers.length) {
-          _showError('중복된 게임 번호를 입력할 수 없습니다.');
-          return;
-        }
-        _answers[_currentQuestionKey] = gameNumbers;
-        validationPassed = true;
-        break;
-
-      case 'Q4M': // Representative Game Number
-        final text = _textControllers[_currentQuestionKey]!.text.trim();
-        if (text.isEmpty) {
-          _showError('답변을 입력해주세요.');
-          return;
-        }
-        final num = int.tryParse(text);
-        if (num == null) {
-          _showError('숫자만 입력해주세요.');
-          return;
-        }
-        if (num > 154 || num < 1) {
-          _showError('게임 번호는 1에서 154 사이여야 합니다.');
-          return;
-        }
-        _answers[_currentQuestionKey] = num;
-        validationPassed = true;
-        break;
-
-      default:
-        // For multiple choice questions, the answer is already in the map.
-        if (_answers.containsKey(_currentQuestionKey)) {
-          validationPassed = true;
-        } else {
-          _showError('답변을 선택해주세요.');
-          return;
-        }
-        break;
-    }
-
-    if (!validationPassed) return;
-
-    // --- NAVIGATION --- //
-    final nextQuestionKey = _determineNextQuestionKey();
-    if (nextQuestionKey != null) {
-      setState(() {
-        _questionHistory.add(nextQuestionKey);
-      });
-    } else {
-      // End of survey
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('설문 완료!'), duration: Duration(seconds: 2)),
-      );
-      print("Final Answers: $_answers");
-    }
-  }
-
-  void _handleBack() {
-    if (_questionHistory.length > 1) {
-      setState(() {
-        final removedKey = _questionHistory.removeLast();
-        _answers.remove(removedKey);
-      });
-    }
-  }
-
-  String? _determineNextQuestionKey() {
-    switch (_currentQuestionKey) {
+  // ---------------------------------------------------------------------------
+  // NAVIGATION LOGIC
+  // ---------------------------------------------------------------------------
+  String _getNextQCode() {
+    switch (_currentQCode) {
       case 'Q1': return 'Q2';
       case 'Q2': return 'Q3';
       case 'Q3':
         final usage = _answers['Q1'];
-        switch (usage) {
-          case ComputerUsage.game: return 'Q4G';
-          case ComputerUsage.creative: return 'Q4C';
-          case ComputerUsage.office: return 'Q4O';
-          case ComputerUsage.mixed: return 'Q4M';
-        }
+        return 'Q4$usage'; // Q4G, Q4C, or Q4O
       case 'Q4G': return 'Q5G';
       case 'Q5G': return 'Q6G';
       case 'Q6G': return 'Q7G';
@@ -160,129 +127,444 @@ class _MyEstimateScreenState extends State<MyEstimateScreen> {
       case 'Q4O': return 'Q5O';
       case 'Q5O': return 'Q6O';
       case 'Q6O': return 'Q7O';
-      case 'Q4M': return 'Q5M';
-      case 'Q5M': return 'Q6M';
-      default: return null; // End of survey
+      default: return 'Q_FINISH';
     }
   }
 
-  Widget _buildQuestionByKey(String key) {
-    switch (key) {
-      case 'Q1':
-        return _buildMultipleChoiceQuestion(
-          questionKey: 'Q1', question: "컴퓨터의 주된 용도는?",
-          options: {"게임": ComputerUsage.game, "창작작업": ComputerUsage.creative, "사무·개발": ComputerUsage.office, "혼합": ComputerUsage.mixed},
-          onSelected: (value) => setState(() => _answers['Q1'] = value),
-        );
-      case 'Q2': return _buildBudgetQuestion();
-      case 'Q3':
-        return _buildMultipleChoiceQuestion(
-          questionKey: 'Q3', question: "필요한 SSD 용량 (GB)",
-          options: {"500": 500, "1000": 1000, "2000": 2000, "그 이상": -1},
-          onSelected: (value) => setState(() => _answers['Q3'] = value),
-        );
-      // Game Branch
-      case 'Q4G': return _buildTextQuestion(question: "즐기실 게임 번호 선택 (최대 3개, 1~154번)", questionKey: 'Q4G');
-      case 'Q5G': return _buildMultipleChoiceQuestion(questionKey: 'Q5G', question: "현재 모니터 해상도", options: {"FHD": "FHD", "QHD": "QHD", "4K": "4K"}, onSelected: (value) => setState(() => _answers['Q5G'] = value));
-      case 'Q6G': return _buildMultipleChoiceQuestion(questionKey: 'Q6G', question: "원하는 평균 FPS", options: {"60": 60, "100": 100, "120": 120, "144": 144, "165": 165, "240": 240}, onSelected: (value) => setState(() => _answers['Q6G'] = value));
-      case 'Q7G': return _buildMultipleChoiceQuestion(questionKey: 'Q7G', question: "선호하는 그래픽 품질", options: {"낮음": 1, "보통": 2, "높음": 3, "최고": 4, "레이트레이싱": 5}, onSelected: (value) => setState(() => _answers['Q7G'] = value));
-      // Creative Branch
-      case 'Q4C': return _buildMultipleChoiceQuestion(questionKey: 'Q4C', question: "주로 사용하는 소프트웨어", options: {"프리미어": "premiere", "블렌더": "blender", "포토샵/라이트룸": "photoshop", "AE": "ae", "C4D": "c4d", "기타": "other"}, onSelected: (value) => setState(() => _answers['Q4C'] = value));
-      case 'Q5C': return _buildMultipleChoiceQuestion(questionKey: 'Q5C', question: "작업 영상/이미지 해상도", options: {"FHD": "FHD", "QHD": "QHD", "4K": "4K", "8K": "8K"}, onSelected: (value) => setState(() => _answers['Q5C'] = value));
-      case 'Q6C': return _buildMultipleChoiceQuestion(questionKey: 'Q6C', question: "프로젝트 규모", options: {"개인": "personal", "소규모": "small", "대규모": "large", "스튜디오급": "studio"}, onSelected: (value) => setState(() => _answers['Q6C'] = value));
-      case 'Q7C': return _buildMultipleChoiceQuestion(questionKey: 'Q7C', question: "렌더링 빈도", options: {"가끔": "occasional", "자주": "frequent", "실시간": "realtime"}, onSelected: (value) => setState(() => _answers['Q7C'] = value));
-      // Office Branch
-      case 'Q4O': return _buildMultipleChoiceQuestion(questionKey: 'Q4O', question: "주된 업무", options: {"문서": "documents", "개발/코딩": "development", "웹서핑/이메일": "web", "데이터분석": "data", "기타": "other"}, onSelected: (value) => setState(() => _answers['Q4O'] = value));
-      case 'Q5O': return _buildMultipleChoiceQuestion(questionKey: 'Q5O', question: "동시에 실행할 프로그램 수", options: {"5개 미만": "<5", "5~10개": "5-10", "10개 이상": ">10"}, onSelected: (value) => setState(() => _answers['Q5O'] = value));
-      case 'Q6O': return _buildMultipleChoiceQuestion(questionKey: 'Q6O', question: "사용할 모니터 개수", options: {"1개": 1, "2개": 2, "3개 이상": 3}, onSelected: (value) => setState(() => _answers['Q6O'] = value));
-      case 'Q7O': return _buildMultipleChoiceQuestion(questionKey: 'Q7O', question: "저장할 데이터 규모", options: {"100GB 미만": "<100GB", "1TB 미만": "<1TB", "1TB 이상": ">=1TB"}, onSelected: (value) => setState(() => _answers['Q7O'] = value));
-      // Mixed Branch
-      case 'Q4M': return _buildTextQuestion(question: "대표 게임 번호 입력 (예: 39)", questionKey: 'Q4M');
-      case 'Q5M': return _buildMultipleChoiceQuestion(questionKey: 'Q5M', question: "대표 작업 선택", options: {"영상편집": "video", "3D 모델링": "3d", "디자인": "design", "개발/코딩": "dev"}, onSelected: (value) => setState(() => _answers['Q5M'] = value));
-      case 'Q6M': return _buildMultipleChoiceQuestion(questionKey: 'Q6M', question: "게임:작업 비율", options: {"8:2": "8:2", "6:4": "6:4", "5:5": "5:5", "4:6": "4:6", "2:8": "2:8"}, onSelected: (value) => setState(() => _answers['Q6M'] = value));
-      default: return Center(child: Text("설문조사가 완료되었습니다. 최종 답변: $_answers"));
+  void _onNext() {
+    final currentQuestion = _questionData[_currentQCode]!;
+    dynamic answer;
+
+    if (_currentQCode == 'Q2') {
+      final min = _minBudgetController.text.trim();
+      final max = _maxBudgetController.text.trim();
+      if (min.isEmpty || max.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('최소값과 최대값을 모두 입력해주세요.')));
+        return;
+      }
+      final minVal = int.tryParse(min) ?? 0;
+      final maxVal = int.tryParse(max) ?? 0;
+      if (minVal > maxVal) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('최소값은 최대값보다 클 수 없습니다.')));
+        return;
+      }
+      answer = '$min ~ $max';
+    } else if (currentQuestion['options'] == 'N/A') {
+      if (_textController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('답변을 입력해주세요.')));
+        return;
+      }
+      answer = _textController.text.trim();
+    } else {
+      if (!_answers.containsKey(_currentQCode)) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('답변을 선택해주세요.')));
+        return;
+      }
+      answer = _answers[_currentQCode];
+    }
+
+    setState(() {
+      _answers[_currentQCode] = answer;
+      _textController.clear();
+      final nextQ = _getNextQCode();
+      _history.add(nextQ);
+      if (nextQ == 'Q_FINISH') {
+        _processResults();
+      }
+    });
+  }
+
+  void _onBack() {
+    if (_history.length > 1) {
+      setState(() {
+        _recommendation = null;
+        _error = null;
+        final lastQ = _history.removeLast();
+        _answers.remove(lastQ);
+        
+        _textController.clear();
+        _minBudgetController.clear();
+        _maxBudgetController.clear();
+
+        final prevQ = _questionData[_currentQCode]!;
+        final prevAnswer = _answers[_currentQCode];
+
+        if (prevAnswer != null) {
+          if (_currentQCode == 'Q2') {
+            final parts = prevAnswer.toString().split(' ~ ');
+            if (parts.length == 2) {
+              _minBudgetController.text = parts[0];
+              _maxBudgetController.text = parts[1];
+            }
+          } else if (prevQ['options'] == 'N/A') {
+            _textController.text = prevAnswer;
+          }
+        }
+      });
+    }
+  }
+  
+  void _onRestart() {
+    setState(() {
+      _history.clear();
+      _history.add('Q1');
+      _answers.clear();
+      _textController.clear();
+      _minBudgetController.clear();
+      _maxBudgetController.clear();
+      _recommendation = null;
+      _isLoading = false;
+      _error = null;
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // DATA PROCESSING
+  // ---------------------------------------------------------------------------
+  Future<void> _processResults() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final jsonString = await rootBundle.loadString('assets/data/estimate_full.json');
+      final jsonData = json.decode(jsonString);
+      final estimateSamples = EstimateSamples.fromJson(jsonData);
+      
+      final bestMatch = _findBestMatch(estimateSamples, _answers);
+
+      setState(() {
+        _recommendation = bestMatch;
+      });
+
+    } catch (e, s) {
+      print('Error processing results: $e\n$s');
+      setState(() {
+        _error = '오류가 발생했습니다:\n$e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  Widget _buildMultipleChoiceQuestion({ required String questionKey, required String question, required Map<String, dynamic> options, required ValueChanged<dynamic> onSelected }) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(question, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        ...options.entries.map((entry) {
-          final isSelected = _answers[questionKey] == entry.value;
-          return GestureDetector(
-            onTap: () => onSelected(entry.value),
-            child: Container(
-              width: double.infinity, padding: const EdgeInsets.all(16.0), margin: const EdgeInsets.symmetric(vertical: 6.0),
-              decoration: BoxDecoration(
-                color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Colors.transparent,
-                border: Border.all(color: isSelected ? Theme.of(context).primaryColor : Colors.grey.shade400, width: 1.5),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Text(entry.key, style: const TextStyle(fontSize: 16)),
-            ),
-          );
-        }),
-      ],
-    );
+  HardwareRecommendation? _findBestMatch(EstimateSamples samples, Map<String, dynamic> userAnswers) {
+    int bestScore = -1;
+    Sample? bestMatch;
+    double minAbsBudgetDiff = double.infinity;
+    Sample? closestBudgetMatch;
+
+    final budgetParts = (userAnswers['Q2'] as String).split(' ~ ');
+    final userMinBudget = int.tryParse(budgetParts[0]) ?? 0;
+    final userMaxBudget = int.tryParse(budgetParts[1]) ?? 0;
+    final userAvgBudget = (userMinBudget + userMaxBudget) / 2.0;
+
+    for (final sample in samples.samples) {
+      int currentScore = 0;
+
+      // --- Budget Scoring ---
+      if (sample.budget != null) {
+        final sampleMin = sample.budget!.min;
+        final sampleMax = sample.budget!.max;
+        final sampleAvg = (sampleMin + sampleMax) / 2.0;
+
+        // Check for overlap
+        if (userMinBudget <= sampleMax && userMaxBudget >= sampleMin) {
+          currentScore += 20; // Base score for any overlap
+          // Bonus for user average budget falling within sample range
+          if (userAvgBudget >= sampleMin && userAvgBudget <= sampleMax) {
+            currentScore += 15;
+          }
+        }
+        final absDiff = (userAvgBudget - sampleAvg).abs();
+        if (absDiff < minAbsBudgetDiff) {
+          minAbsBudgetDiff = absDiff;
+          closestBudgetMatch = sample;
+        }
+      }
+
+      // --- SSD Scoring ---
+      final userSsd = userAnswers['Q3'] as int;
+      final sampleSsd = int.tryParse(sample.ssd ?? '0') ?? 0;
+      if (sampleSsd >= userSsd) {
+        currentScore += 10;
+      }
+
+      // --- Task Scoring ---
+      final usage = userAnswers['Q1'];
+      if (sample.task != null) {
+        final task = sample.task!;
+        
+        MapEntry<String, String>? mainUseEntry;
+        try {
+          mainUseEntry = ( _questionData['Q1']!['options'] as Map<String, String>).entries.firstWhere((e) => e.value == usage);
+        } catch (e) {
+          mainUseEntry = null;
+        }
+
+        String mainUseText = '';
+        if (mainUseEntry != null && mainUseEntry.key.length > 2) {
+            mainUseText = mainUseEntry.key.substring(2).trim();
+        }
+        bool mainUseMatches = task.mainUse == null || (mainUseText.isNotEmpty && task.mainUse!.contains(mainUseText));
+        
+        if(mainUseMatches) {
+            currentScore += 10; // Base score for correct main usage
+
+            switch (usage) {
+              case 'C': // Creative
+                if (task.software != null && userAnswers['Q4C'] != null && task.software!.contains(userAnswers['Q4C'])) currentScore += 20;
+                if (task.resolution != null && userAnswers['Q5C'] != null && task.resolution!.contains(userAnswers['Q5C'])) currentScore += 15;
+                if (task.scale != null && userAnswers['Q6C'] != null && task.scale!.contains(userAnswers['Q6C'])) currentScore += 10;
+                if (task.frequency != null && userAnswers['Q7C'] != null && task.frequency!.contains(userAnswers['Q7C'])) currentScore += 10;
+                break;
+              case 'O': // Office
+                if (task.work != null && userAnswers['Q4O'] != null && task.work!.contains(userAnswers['Q4O'])) currentScore += 20;
+                if (task.progs != null && userAnswers['Q5O'] != null && task.progs!.contains(userAnswers['Q5O'])) currentScore += 10;
+                if (task.monitors != null && userAnswers['Q6O'] != null && task.monitors!.contains(userAnswers['Q6O'])) currentScore += 10;
+                if (task.dataSize != null && userAnswers['Q7O'] != null && task.dataSize!.contains(userAnswers['Q7O'])) currentScore += 10;
+                break;
+              case 'G': // Gaming
+                // Add scoring for games when data is available
+                if (task.resolution != null && userAnswers['Q5G'] != null && task.resolution!.contains(userAnswers['Q5G'])) currentScore += 15;
+                break;
+            }
+        }
+      }
+
+      if (currentScore > bestScore) {
+        bestScore = currentScore;
+        bestMatch = sample;
+      }
+    }
+
+    // If no good match found, fall back to the one with the closest budget.
+    if (bestScore < 20 && closestBudgetMatch != null) {
+       bestMatch = closestBudgetMatch;
+    }
+
+    // Final fallback: if bestMatch is still null (e.g., empty JSON), return at least the closest budget match.
+    if (bestMatch == null && closestBudgetMatch != null) {
+      bestMatch = closestBudgetMatch;
+    }
+
+    return bestMatch?.hardwareRecommendations.first;
   }
 
-  Widget _buildBudgetQuestion() {
-    const minKey = 'Q2_min';
-    const maxKey = 'Q2_max';
-    _textControllers.putIfAbsent(minKey, () => TextEditingController());
-    _textControllers.putIfAbsent(maxKey, () => TextEditingController());
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("예산 범위 (만원 단위)", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        Row(children: [
-          Expanded(child: TextField(controller: _textControllers[minKey]!, decoration: const InputDecoration(labelText: "최소", border: OutlineInputBorder()), keyboardType: TextInputType.number)),
-          const SizedBox(width: 10), const Text("~"), const SizedBox(width: 10),
-          Expanded(child: TextField(controller: _textControllers[maxKey]!, decoration: const InputDecoration(labelText: "최대", border: OutlineInputBorder()), keyboardType: TextInputType.number)),
-        ]),
-      ],
-    );
-  }
 
-  Widget _buildTextQuestion({ required String question, required String questionKey }) {
-    _textControllers.putIfAbsent(questionKey, () => TextEditingController());
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(question, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        TextField(controller: _textControllers[questionKey]!, decoration: const InputDecoration(border: OutlineInputBorder())),
-      ],
-    );
-  }
-
+  // ---------------------------------------------------------------------------
+  // UI BUILDERS
+  // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: _questionHistory.length > 1 ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: _handleBack) : null,
-        title: const Text('나만의 견적'),
+        leading: _history.length > 1 && !_isFinished
+            ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: _onBack)
+            : null,
+        title: const Text('나만의 PC 견적'),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: _buildQuestionByKey(_currentQuestionKey),
+      body: _isFinished ? _buildResultView() : _buildQuestionView(),
+      bottomNavigationBar: _isFinished ? null : _buildNextButton(),
+    );
+  }
+
+  Widget _buildQuestionView() {
+    final question = _questionData[_currentQCode]!;
+    final text = question['text'] as String;
+    final options = question['options'];
+    final hint = question['hint'] as String?;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Q${_history.length}. $text', style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 24),
+          if (_currentQCode == 'Q2')
+            _buildBudgetQuestion()
+          else if (options == 'N/A')
+            TextField(
+              controller: _textController,
+              decoration: InputDecoration(
+                hintText: hint ?? '답변을 입력하세요',
+                border: const OutlineInputBorder(),
+              ),
+            )
+          else
+            _buildOptions(options as Map<String, dynamic>),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBudgetQuestion() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _minBudgetController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: const InputDecoration(
+              labelText: '최소',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          child: Text('~', style: TextStyle(fontSize: 24)),
+        ),
+        Expanded(
+          child: TextField(
+            controller: _maxBudgetController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: const InputDecoration(
+              labelText: '최대',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOptions(Map<String, dynamic> options) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: options.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final key = options.keys.elementAt(index);
+        final value = options[key];
+        final isSelected = _answers[_currentQCode] == value;
+
+        return ListTile(
+          title: Text(key),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          tileColor: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Theme.of(context).colorScheme.surface,
+          selected: isSelected,
+          onTap: () => setState(() => _answers[_currentQCode] = value),
+        );
+      },
+    );
+  }
+
+  Widget _buildResultView() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 80),
+              const SizedBox(height: 24),
+              Text('오류가 발생했습니다', style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 12),
+              Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _onRestart,
+                child: const Text('다시하기'),
+              )
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_recommendation == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 80),
+            const SizedBox(height: 24),
+            Text('추천 견적을 찾지 못했습니다.', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 12),
+            const Text('조건에 맞는 견적이 없습니다. 다시 시도해주세요.', style: TextStyle(color: Colors.grey)),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _onRestart,
+              child: const Text('다시하기'),
+            )
+          ],
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('회원님을 위한 추천 견적', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          _buildRecommendationCard(_recommendation!),
+          const SizedBox(height: 32),
+           Center(
+             child: ElevatedButton(
+              onPressed: _onRestart,
+              child: const Text('견적 다시 만들기'),
+                       ),
+           ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildRecommendationCard(HardwareRecommendation rec) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          children: [
+            _buildSpecRow(Symbols.developer_board, 'CPU', rec.cpu),
+            _buildSpecRow(Symbols.ac_unit, 'CPU 쿨러', rec.cpuCooler),
+            _buildSpecRow(Symbols.view_in_ar, '메인보드', rec.mainboard),
+            _buildSpecRow(Symbols.memory, '메모리', rec.memory),
+            _buildSpecRow(Symbols.screenshot_monitor, '그래픽카드', rec.gpu),
+            _buildSpecRow(Symbols.storage, 'SSD', rec.ssd),
+            _buildSpecRow(Symbols.desktop_windows, '케이스', rec.pcCase),
+            _buildSpecRow(Symbols.power, '파워', rec.psu),
+          ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-          onPressed: _handleNext,
-          child: Text(_determineNextQuestionKey() == null ? '완료' : '다음'),
+    );
+  }
+
+  Widget _buildSpecRow(IconData icon, String title, String? value) {
+    if (value == null || value.isEmpty) return const SizedBox.shrink();
+    return ListTile(
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+    );
+  }
+
+  Widget _buildNextButton() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 50),
+          textStyle: const TextStyle(fontSize: 18),
         ),
+        onPressed: _onNext,
+        child: Text(_getNextQCode() == 'Q_FINISH' ? '결과 보기' : '다음'),
       ),
     );
   }
