@@ -67,6 +67,21 @@ abstract class Part {
     this.packaging,
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'partId': partId,
+      'category': category.name,
+      'brand': brand,
+      'modelName': modelName,
+      'referencePrice': referencePrice,
+      'imageUrl': imageUrl,
+      'powerConsumptionW': powerConsumptionW,
+      'generation': generation,
+      'codename': codename,
+      'packaging': packaging,
+    };
+  }
+
   // 4. Firestore 데이터를 category에 따라 적절한 객체로 변환
   factory Part.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
@@ -155,6 +170,23 @@ class CpuPart extends Part {
       memory: MemorySpec.fromMap(map['memory'] ?? {}),
       coolerIncluded: map['cooler_included'] ?? false,
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      ...super.toMap(),
+      'socket': socket,
+      'hasIntegratedGraphics': hasIntegratedGraphics,
+      'cores': cores,
+      'threads': threads,
+      'baseClockGhz': baseClockGhz,
+      'boostClockGhz': boostClockGhz,
+      'l3CacheMb': l3CacheMb,
+      'igpuName': igpuName,
+      'igpuFreqMhz': igpuFreqMhz,
+      'memory': memory.toMap(),
+      'coolerIncluded': coolerIncluded,
+    };
   }
 }
 

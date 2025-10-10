@@ -45,9 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Scaffold(
       appBar: AppBar(
         title: const Text('내 정보'),
-        backgroundColor: Colors.white,
         elevation: 0,
-        leading: const BackButton(color: Colors.black),
       ),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance.collection('users').doc(widget.userId).snapshots(),
@@ -106,9 +104,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget _buildTabBar() {
     return TabBar(
       controller: _tabController,
-      labelColor: Colors.black,
-      unselectedLabelColor: Colors.grey,
-      indicatorColor: Colors.black,
       tabs: const [
         Tab(text: '배송현황'),
         Tab(text: '구매내역'),
