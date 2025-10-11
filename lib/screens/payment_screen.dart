@@ -2,15 +2,18 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-
+import '../services/cart_service.dart';
 import '../models/cart_item_model.dart';
 import '../services/order_service.dart';
 
 class PaymentScreen extends StatefulWidget {
   final List<CartItem> cartItems;
-
-  const PaymentScreen({super.key, required this.cartItems});
-
+  final bool isBundle;
+  const PaymentScreen({
+    super.key,
+    required this.cartItems,
+    this.isBundle = false, // 기본값은 false (일반 장바구니 주문)
+  });
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
 }

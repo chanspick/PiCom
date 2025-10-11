@@ -5,9 +5,21 @@ import '../models/listing_model.dart';
 class ListingService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+
+  Stream<List<Listing>> getListingsForBasePart(String basePartId) {
+    return _firestore
+        .collection('listings')
+        .where('basePartId', isEqualTo: basePartId)
+        .where('status', isEqualTo: ListingStatus.available.name)
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs.map((doc) => Listing.fromFirestore(doc)).toList());
+  }
   // Get a stream of listings with optional filtering and sorting
   Stream<List<Listing>> getListings({String? category, String? sortBy}) {
     Query query = _firestore.collection('listings').where('status', isEqualTo: 'available');
+
+
 
     // Apply category filter
     if (category != null && category != 'All') {
