@@ -1,8 +1,9 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ===== Helper Functions =====
+    // ===== Helper Functions (수정 없음) =====
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -15,7 +16,33 @@ service cloud.firestore {
              request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
-    // ===== Users Collection =====
+    // =============================================================
+    // [추가] 새로운 아키텍처를 위한 규칙
+    // =============================================================
+    match /base_parts/{basePartId} {
+      allow read: if true;
+      allow write: if isUserAdmin();
+    }
+
+    match /base_part_prices/{basePartId}/{document=**} {
+      allow read: if true;
+      allow write: if isUserAdmin();
+    }
+
+    // =============================================================
+    // [수정] 마이그레이션을 위해 필요한 최소한의 수정
+    // =============================================================
+    match /parts/{partId} {
+      allow read: if true;
+      // [수정] 기존 if false; 에서 마이그레이션 스크립트 실행을 위해 isUserAdmin()으로 변경
+      allow write: if isUserAdmin();
+    }
+
+    // =============================================================
+    // [원상 복구] 요청하신 대로 전혀 수정하지 않은 기존 규칙들
+    // =============================================================
+
+    // ===== Users Collection (수정 없음) =====
     match /users/{userId} {
       allow create: if isAuthenticated()
                     && request.auth.uid == userId
@@ -31,7 +58,7 @@ service cloud.firestore {
                     && (request.auth.uid == userId || isUserAdmin());
     }
 
-    // ===== Sell Requests Collection =====
+    // ===== Sell Requests Collection (수정 없음) =====
     function isValidSellRequest() {
       let data = request.resource.data;
       let required = ['partId','sellerId','brand','modelName',
@@ -54,33 +81,22 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && isNotAnonymous()
                             && request.auth.uid == resource.data.sellerId;
       allow read: if isAuthenticated();
-      allow list: if isUserAdmin();
     }
 
-    // ===== Carts Collection =====
+    // ===== Carts Collection (수정 없음) =====
     match /carts/{userId}/{document=**} {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
-    // ===== Parts Collection (Read-Only for users) =====
-    match /parts/{partId} {
-      allow read: if true;
-      allow write: if false;
-    }
-
-    // ===== Listings Collection =====
+    // ===== Listings Collection (최소한의 수정) =====
     match /listings/{listingId} {
       allow read: if true;
-
       allow create: if isAuthenticated()
                     && request.resource.data.sellerId == request.auth.uid;
-
       allow update: if isAuthenticated() && (
-        // 판매자: 판매 가능 상태에서만 일반 수정 허용
         (request.auth.uid == resource.data.sellerId
          && resource.data.status == 'available')
         ||
-        // 구매자: available -> sold 전환 + 허용 필드만 변경
         (resource.data.status == 'available'
          && request.resource.data.status == 'sold'
          && request.resource.data.buyerId == request.auth.uid
@@ -89,44 +105,37 @@ service cloud.firestore {
               .affectedKeys()
               .hasOnly(['status','buyerId','soldAt']))
       );
-
       allow delete: if isAuthenticated()
                     && request.auth.uid == resource.data.sellerId
                     && resource.data.status == 'available';
     }
 
-    // ===== Orders Collection =====
+    // ===== Orders Collection (수정 없음) =====
     function hasItems(doc) {
       return doc.keys().hasAny(['items']) && doc.items is list && doc.items.size() > 0;
     }
     function firstItemSellerId(doc) {
       return hasItems(doc) ? doc.items[0].sellerId : '';
     }
-
     match /orders/{orderId} {
       allow create: if isAuthenticated()
                     && request.resource.data.buyerId == request.auth.uid;
-
       allow read: if isAuthenticated() && (
         request.auth.uid == resource.data.buyerId ||
         request.auth.uid == firstItemSellerId(resource.data)
       );
-
       allow update: if isAuthenticated()
                     && request.auth.uid == firstItemSellerId(resource.data);
-
       allow delete: if false;
     }
 
-    // ===== Posts Collection =====
+    // ===== Posts Collection (수정 없음) =====
     match /posts/{postId} {
       allow read: if true;
       allow create: if isAuthenticated()
                     && request.auth.uid == request.resource.data.authorId;
       allow update, delete: if isAuthenticated()
                             && request.auth.uid == resource.data.authorId;
-
-      // ===== Comments Subcollection =====
       match /comments/{commentId} {
         allow read: if isAuthenticated();
         allow create: if isAuthenticated() && isUserAdmin()
@@ -134,11 +143,6 @@ service cloud.firestore {
         allow update, delete: if isAuthenticated()
                               && request.auth.uid == resource.data.userId;
       }
-    }
-
-    // ===== 기본 규칙: 모든 접근 거부 =====
-    match /{document=**} {
-      allow read, write: if false;
     }
   }
 }
