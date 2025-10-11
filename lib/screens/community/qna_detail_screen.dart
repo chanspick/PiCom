@@ -36,10 +36,17 @@ class _QnaDetailScreenState extends State<QnaDetailScreen> {
     }
   }
 
-  void _postComment() {
+  void _postComment() async {
     if (_commentController.text.isEmpty || _currentUser == null) return;
 
-    _qnaService.addComment(
+    // Force refresh the token to get the latest custom claims.
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.getIdTokenResult(true);
+      print('관리자 토큰 새로고침 완료');
+    }
+
+    await _qnaService.addComment(
       postId: widget.postId,
       content: _commentController.text,
       authorId: _currentUser!.uid,

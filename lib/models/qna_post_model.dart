@@ -1,16 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum QnaCategory { app, payment, etc }
+enum QnaCategory { system, payment, product, transaction, etc }
 
 extension QnaCategoryExtension on QnaCategory {
   String get koreanName {
     switch (this) {
-      case QnaCategory.app:
-        return '앱문의';
+      case QnaCategory.system:
+        return '시스템문의';
       case QnaCategory.payment:
         return '결제문의';
+      case QnaCategory.product:
+        return '제품문의';
+      case QnaCategory.transaction:
+        return '거래문의';
       case QnaCategory.etc:
-        return '기타요청';
+        return '기타';
     }
   }
 }

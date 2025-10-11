@@ -57,20 +57,20 @@ class QnaService {
     });
   }
 
-  Future<void> addComment({
-    required String postId,
-    required String authorId,
-    required String authorName,
-    required String content,
-  }) async {
-    await _firestore.collection(_collection).doc(postId).collection('comments').add({
-      'authorId': authorId,
-      'authorName': authorName,
-      'content': content,
-      'createdAt': Timestamp.now(),
-      'likedBy': [],
-    });
-  }
+Future<void> addComment({
+  required String postId,
+  required String authorId, 
+  required String authorName,
+  required String content,
+}) async {
+  await _firestore.collection(_collection).doc(postId).collection('comments').add({
+    'userId': authorId, 
+    'authorName': authorName,
+    'content': content,
+    'createdAt': Timestamp.now(),
+    'likedBy': [],
+  });
+}
 
   Future<void> togglePostLike(String postId, String userId) async {
     final docRef = _firestore.collection(_collection).doc(postId);

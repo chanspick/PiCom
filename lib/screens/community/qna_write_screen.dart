@@ -14,7 +14,7 @@ class QnaWriteScreen extends StatefulWidget {
 
 class _QnaWriteScreenState extends State<QnaWriteScreen> {
   final _formKey = GlobalKey<FormState>();
-  QnaCategory _selectedCategory = QnaCategory.app;
+  QnaCategory _selectedCategory = QnaCategory.system;
   bool _isPrivate = false;
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
