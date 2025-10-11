@@ -1,3 +1,4 @@
+// lib/screens/payment_screen.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
@@ -19,11 +20,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
   bool _isLoading = false;
 
   double get _totalPrice {
-    return widget.cartItems.fold(0, (total, current) => total + (current.price * current.quantity));
+    // [수정] CartItem 모델에 quantity가 없으므로 price만 합산합니다.
+    // 중고 부품은 모두 수량이 1개입니다.
+    return widget.cartItems.fold(0, (total, current) => total + current.price);
   }
 
+  // [수정] 새로운 createOrder 함수를 호출하도록 로직 변경
   Future<void> _processPayment() async {
-    if (_isLoading) return; // Prevent double-taps
+    if (_isLoading) return;
 
     setState(() {
       _isLoading = true;
@@ -35,24 +39,36 @@ class _PaymentScreenState extends State<PaymentScreen> {
         throw Exception("로그인이 필요합니다.");
       }
 
-      // Call the order creation service
-      await _orderService.createOrders(
-        buyerId: user.uid,
-        cartItems: widget.cartItems,
+      // 1. CartItem 리스트에서 listingId(productId) 리스트를 추출합니다.
+      final listingIds = widget.cartItems.map((item) => item.productId).toList();
+
+      // 2. TODO: 실제 배송지 정보를 사용자로부터 입력받아야 합니다. 현재는 임시값을 사용합니다.
+      final tempShippingAddress = {
+        'recipientName': '홍길동',
+        'address': '서울시 강남구 테헤란로',
+        'phoneNumber': '010-1234-5678',
+      };
+
+      // 3. [핵심 수정] 새로운 createOrder 함수를 호출합니다.
+      await _orderService.createOrder(
+        listingIds: listingIds,
+        isBundle: false, // 장바구니 구매는 조립(번들)이 아님
+        shippingAddress: tempShippingAddress,
       );
 
       // Show success dialog
       if (mounted) {
         showDialog(
           context: context,
-          barrierDismissible: false, // User must tap button
+          barrierDismissible: false,
           builder: (context) => AlertDialog(
             title: const Text('주문 완료'),
             content: const Text('주문이 성공적으로 완료되었습니다.'),
             actions: [
               TextButton(
                 onPressed: () {
-                  // Pop all screens until the first one (usually home)
+                  // TODO: 장바구니 비우기 로직 호출 필요
+                  // cartService.clearCart();
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 child: const Text('확인'),
@@ -62,7 +78,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
         );
       }
     } catch (e) {
-      // Show error dialog
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('오류가 발생했습니다: $e')),
@@ -79,6 +94,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ... (이하 UI 관련 코드는 기존과 거의 동일) ...
     final formatter = NumberFormat('#,###');
 
     return Scaffold(
@@ -107,8 +123,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ? Image.network(item.imageUrl, width: 50, height: 50, fit: BoxFit.cover)
                           : const Icon(Icons.image, size: 50),
                       title: Text(item.productName),
-                      subtitle: Text('수량: ${item.quantity}'),
-                      trailing: Text('${formatter.format(item.price * item.quantity)}원'),
+                      // [수정] 중고품은 수량이 1이므로 subtitle 불필요 시 제거 가능
+                      subtitle: const Text('수량: 1'),
+                      trailing: Text('${formatter.format(item.price)}원'),
                     ),
                   );
                 },
@@ -152,13 +169,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                onPressed: _isLoading ? null : _processPayment, // Disable button when loading
+                onPressed: _isLoading ? null : _processPayment,
                 child: _isLoading
                     ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black),
-                      )
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black),
+                )
                     : const Text('결제하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ),

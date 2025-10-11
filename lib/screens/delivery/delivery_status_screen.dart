@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 
 import '../../models/order_model.dart';
 import '../../services/order_service.dart';
-
 class DeliveryStatusScreen extends StatefulWidget {
   const DeliveryStatusScreen({super.key});
 
@@ -13,53 +12,74 @@ class DeliveryStatusScreen extends StatefulWidget {
 
 class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
   final OrderService _orderService = OrderService();
-  late Future<List<OrderModel>> _ordersFuture;
+  // [수정] Future -> Stream으로 변경
+  late Stream<List<OrderModel>> _ordersStream;
 
   @override
   void initState() {
     super.initState();
-    _ordersFuture = _orderService.getOrdersForCurrentUser();
+    // [수정] Stream을 구독하도록 변경
+    _ordersStream = _orderService.getOrdersForCurrentUser();
   }
 
-  String _statusToString(DeliveryStatus status) {
+  // [전면 재작성] 새로운 OrderStatus Enum에 맞춰 텍스트 반환
+  String _statusToString(OrderStatus status) {
     switch (status) {
-      case DeliveryStatus.processing:
-        return '주문 처리중';
-      case DeliveryStatus.preparing:
-        return '배송 준비중';
-      case DeliveryStatus.shipped:
+      case OrderStatus.paymentComplete:
+        return '결제 완료';
+      case OrderStatus.awaitingSellerShipment:
+        return '판매자 발송 대기';
+      case OrderStatus.partiallyArrived:
+        return '부분 입고';
+      case OrderStatus.allItemsArrived:
+        return '전체 입고';
+      case OrderStatus.inspecting:
+        return '플랫폼 검수중';
+      case OrderStatus.assembling:
+        return '조립중';
+      case OrderStatus.shippedToBuyer:
         return '배송중';
-      case DeliveryStatus.delivered:
+      case OrderStatus.delivered:
         return '배송 완료';
-      case DeliveryStatus.cancelled:
+      case OrderStatus.completed:
+        return '구매 확정';
+      case OrderStatus.cancelled:
         return '주문 취소';
-      case DeliveryStatus.returned:
-        return '반품 완료';
     }
   }
 
-  IconData _statusToIcon(DeliveryStatus status) {
+  // [전면 재작성] 새로운 OrderStatus Enum에 맞춰 아이콘 반환
+  IconData _statusToIcon(OrderStatus status) {
     switch (status) {
-      case DeliveryStatus.processing:
-        return Icons.pending_actions_outlined;
-      case DeliveryStatus.preparing:
+      case OrderStatus.paymentComplete:
+        return Icons.credit_card;
+      case OrderStatus.awaitingSellerShipment:
+        return Icons.forward_to_inbox_outlined;
+      case OrderStatus.partiallyArrived:
+        return Icons.rule_folder_outlined;
+      case OrderStatus.allItemsArrived:
         return Icons.inventory_2_outlined;
-      case DeliveryStatus.shipped:
+      case OrderStatus.inspecting:
+        return Icons.fact_check_outlined;
+      case OrderStatus.assembling:
+        return Icons.build_circle_outlined;
+      case OrderStatus.shippedToBuyer:
         return Icons.local_shipping_outlined;
-      case DeliveryStatus.delivered:
+      case OrderStatus.delivered:
         return Icons.check_circle_outline;
-      case DeliveryStatus.cancelled:
+      case OrderStatus.completed:
+        return Icons.verified_outlined;
+      case OrderStatus.cancelled:
         return Icons.cancel_outlined;
-      case DeliveryStatus.returned:
-        return Icons.assignment_return_outlined;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<OrderModel>>(
-        future: _ordersFuture,
+      // [수정] FutureBuilder -> StreamBuilder로 변경
+      body: StreamBuilder<List<OrderModel>>(
+        stream: _ordersStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -84,7 +104,8 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
   }
 
   Widget _buildStatusCard(OrderModel order) {
-    final representativeItemName = order.items.isNotEmpty ? order.items.first.productName : '상품 정보 없음';
+    // [수정] productName -> modelName 으로 변경
+    final representativeItemName = order.items.isNotEmpty ? order.items.first.modelName : '상품 정보 없음';
     final extraItemsCount = order.items.length - 1;
 
     return Card(
@@ -100,7 +121,8 @@ class _DeliveryStatusScreenState extends State<DeliveryStatusScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '주문일자: ${DateFormat('yyyy.MM.dd').format(order.orderDate.toDate())}',
+                  // [수정] orderDate -> createdAt 으로 변경
+                  '주문일자: ${DateFormat('yyyy.MM.dd').format(order.createdAt.toDate())}',
                   style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 Row(

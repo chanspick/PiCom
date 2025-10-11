@@ -1,13 +1,12 @@
-
+// lib/models/cart_item_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CartItem {
-  final String productId;
-  final String productName;
+  final String productId;     // Firestore 문서 ID (listingId와 동일)
+  final String productName;   // 'modelName' 필드에서 읽어온 값
   final double price;
-  int quantity;
+  final int quantity;         // 항상 1
   final String imageUrl;
-  final Map<String, dynamic> options;
   final Timestamp addedAt;
 
   CartItem({
@@ -16,31 +15,20 @@ class CartItem {
     required this.price,
     required this.quantity,
     required this.imageUrl,
-    required this.options,
     required this.addedAt,
   });
 
   factory CartItem.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map<String, dynamic>;
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return CartItem(
       productId: doc.id,
-      productName: data['productName'] ?? '',
-      price: (data['price'] ?? 0).toDouble(),
-      quantity: data['quantity'] ?? 0,
+      // [수정] 'productName' -> 'modelName'으로 Firestore 필드명 변경
+      productName: data['modelName'] ?? '이름 없음',
+      price: (data['price'] as num?)?.toDouble() ?? 0.0,
+      // [수정] Firestore의 quantity 필드를 읽도록 변경 (항상 1)
+      quantity: (data['quantity'] as num?)?.toInt() ?? 1,
       imageUrl: data['imageUrl'] ?? '',
-      options: Map<String, dynamic>.from(data['options'] ?? {}),
       addedAt: data['addedAt'] ?? Timestamp.now(),
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'productName': productName,
-      'price': price,
-      'quantity': quantity,
-      'imageUrl': imageUrl,
-      'options': options,
-      'addedAt': addedAt,
-    };
   }
 }

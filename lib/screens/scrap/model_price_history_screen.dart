@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import '../../widgets/price_history_chart.dart';
 
 // 이 파일은 사용자의 요청에 따라 기존의 가격 변동 그래프 코드를 보관하기 위해 생성되었습니다.
 // 현재 앱 내에서 직접적으로 사용되지 않으며, 향후 '모델별' 가격 추이 분석 화면을 만들 때 재사용될 수 있습니다.

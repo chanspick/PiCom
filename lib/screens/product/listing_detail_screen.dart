@@ -1,3 +1,4 @@
+// lib/screens/product/listing_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,9 +6,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../models/listing_model.dart';
 import '../../models/part_model.dart';
+import '../../models/cart_item_model.dart'; // [추가] CartItem 모델 import
 import '../../services/listing_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/order_service.dart';
+import '../payment_screen.dart'; // [추가] PaymentScreen import
 
 class ListingDetailScreen extends StatefulWidget {
   final String listingId;
@@ -19,6 +22,7 @@ class ListingDetailScreen extends StatefulWidget {
 }
 
 class _ListingDetailScreenState extends State<ListingDetailScreen> {
+  // [수정] 클래스 멤버 변수들을 build 메소드 위로 이동
   final ListingService _listingService = ListingService();
   final OrderService _orderService = OrderService();
   final AuthService _authService = AuthService();
@@ -27,7 +31,6 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   Future<void> _purchaseItem(Listing listing) async {
     if (!_authService.requireAuth(context)) return;
 
-    // Prevent user from buying their own item
     if (_authService.currentUser?.uid == listing.sellerId) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('자신의 판매 상품은 구매할 수 없습니다.')),
@@ -35,26 +38,22 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       return;
     }
 
-    setState(() => _isPurchasing = true);
+    final singleCartItem = CartItem(
+      productId: listing.listingId,
+      productName: listing.modelName,
+      price: listing.price.toDouble(),
+      quantity: 1,
+      imageUrl: listing.imageUrls.isNotEmpty ? listing.imageUrls.first : '',
+      addedAt: Timestamp.now(),
+    );
 
-    try {
-      await _orderService.purchaseListing(widget.listingId);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('상품을 성공적으로 구매했습니다!')),
-        );
-        Navigator.of(context).pop(); // Go back to the list view
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('구매 중 오류가 발생했습니다: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isPurchasing = false);
-      }
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentScreen(cartItems: [singleCartItem]),
+        ),
+      );
     }
   }
 
@@ -104,8 +103,6 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     _buildHeader(listing, part),
                     _buildPriceInfo(listing),
                     _buildSectionDivider(),
-                    // _buildDescription('판매자 코멘트', listing.description), // Removed as Listing model has no description
-                    // _buildSectionDivider(), // Removed corresponding divider
                   ],
                 ),
               );
@@ -119,7 +116,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
   Widget _buildImageCarousel(List<String> imageUrls) {
     return SizedBox(
-      height: MediaQuery.of(context).size.width, // Square aspect ratio
+      height: MediaQuery.of(context).size.width,
       child: PageView.builder(
         itemCount: imageUrls.length,
         itemBuilder: (context, index) {
@@ -145,10 +142,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text(part.modelName, style: const TextStyle(fontSize: 16)), // Changed from part.name to part.modelName
+          Text(part.modelName, style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 4),
           Text(
-            '컨디션: ${listing.conditionScore}', // Changed from listing.condition to listing.conditionScore
+            '컨디션: ${listing.conditionScore}',
             style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
         ],
@@ -180,48 +177,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     );
   }
 
-  Widget _buildDescription(String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(content, style: const TextStyle(fontSize: 16, height: 1.5)),
-        ],
-      ),
-    );
-  }
-
-  // Widget _buildSpecs(Part part) { // Removed as Part model has no specs
-  //   return Padding(
-  //     padding: const EdgeInsets.all(16.0),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         const Text('주요 사양', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-  //         const SizedBox(height: 8),
-  //         if (part.specs.isNotEmpty)
-  //           ...part.specs.entries.map((entry) => Padding(
-  //                 padding: const EdgeInsets.only(bottom: 4.0),
-  //                 child: Row(
-  //                   children: [
-  //                     SizedBox(width: 100, child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.bold))),
-  //                     Expanded(child: Text(entry.value.toString())),
-  //                   ],
-  //                 )),
-  //           else
-  //             const Text('등록된 사양 정보가 없습니다.'),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildSectionDivider() => Divider(thickness: 8, color: Colors.grey[100]);
 
   Widget _buildBottomPurchaseBar(BuildContext context, Listing listing) {
-    final bool isSold = listing.status == 'sold';
+    final bool isSold = listing.status == ListingStatus.sold;
     final bool isMyItem = _authService.currentUser?.uid == listing.sellerId;
     final bool canPurchase = !isSold && !isMyItem;
 
@@ -251,7 +210,11 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               ),
               onPressed: (canPurchase && !_isPurchasing) ? () => _purchaseItem(listing) : null,
               child: _isPurchasing
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.0),
+              )
                   : Text(isSold ? '판매 완료' : (isMyItem ? '내 판매 상품' : '구매하기')),
             ),
           ),
@@ -259,4 +222,4 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       ),
     );
   }
-}
+} // [수정] 클래스의 닫는 중괄호를 파일의 맨 끝으로 이동

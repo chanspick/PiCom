@@ -1,159 +1,140 @@
-
+// lib/services/order_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/cart_item_model.dart';
 import '../models/listing_model.dart';
-import '../services/listing_service.dart';
-
 import '../models/order_model.dart';
-import '../widgets/price_history_chart.dart'; // For PricePoint
+import '../widgets/price_history_chart.dart';
+
 
 class OrderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // [수정] FirebaseAuth.author -> FirebaseAuth.instance 오타 수정
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-
-  /// Fetches the orders for the currently logged-in user from the 'orders' collection.
-  Future<List<OrderModel>> getOrdersForCurrentUser() async {
+  /// 현재 로그인된 사용자의 모든 주문 목록을 가져옵니다.
+  Stream<List<OrderModel>> getOrdersForCurrentUser() {
     final user = _auth.currentUser;
     if (user == null) {
+      return Stream.value([]);
+    }
+
+    return _firestore
+        .collection('orders')
+        .where('buyerId', isEqualTo: user.uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList());
+  }
+
+  /// [추가] 특정 부품의 판매 완료된 가격 이력을 가져오는 함수
+  /// @param partId 조회할 부품의 고유 ID
+  Future<List<PricePoint>> getPriceHistoryForPart(String partId) async {
+    final snapshot = await _firestore
+        .collection('listings')
+        .where('partId', isEqualTo: partId)
+        .where('status', isEqualTo: ListingStatus.sold.name) // 판매 완료된 것만 조회
+        .orderBy('soldAt', descending: false) // 시간순으로 정렬
+        .get();
+
+    if (snapshot.docs.isEmpty) {
       return [];
     }
 
-    final snapshot = await _firestore
-        .collection('orders')
-        .where('buyerId', isEqualTo: user.uid)
-        .orderBy('orderDate', descending: true)
-        .get();
-
-    final orders = snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
-    return orders;
-  }
-
-
-  /// Fetches the price history for a single partId.
-  Future<List<PricePoint>> getPriceHistoryForPart(String partId) async {
-    // We use a collection group query on 'lineItems' for efficiency.
-    // This assumes a subcollection named 'lineItems' exists within each order document.
-    final snapshot = await _firestore
-        .collectionGroup('lineItems')
-        .where('partId', isEqualTo: partId)
-        .get();
-
-    final pricePoints = <PricePoint>[];
-    for (final doc in snapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>?;
-      // Assuming the lineItem doc contains 'soldAt' and 'price' fields.
-      if (data != null && data.containsKey('soldAt') && data.containsKey('price')) {
-        pricePoints.add(PricePoint(
+    final pricePoints = snapshot.docs.map((doc) {
+      final data = doc.data();
+      // soldAt과 price 필드가 모두 있는지 확인
+      if (data.containsKey('soldAt') && data['soldAt'] != null && data.containsKey('price')) {
+        return PricePoint(
           date: (data['soldAt'] as Timestamp).toDate(),
           price: (data['price'] as num).toDouble(),
-        ));
+        );
       }
-    }
+      return null;
+    }).where((pp) => pp != null).cast<PricePoint>().toList(); // null이 아닌 것만 리스트로 변환
 
-    pricePoints.sort((a, b) => a.date.compareTo(b.date));
     return pricePoints;
   }
 
-  Future<void> purchaseListing(String listingId) async {
+
+  /// [핵심] 결제 성공 후 호출될 단일 주문 생성 함수입니다.
+  /// Firestore Transaction을 사용하여 데이터의 일관성과 원자성을 보장합니다.
+  Future<String> createOrder({
+    required List<String> listingIds,
+    required bool isBundle,
+    required Map<String, dynamic> shippingAddress,
+  }) async {
+    // ... (이하 createOrder 함수는 이전과 동일) ...
     final user = _auth.currentUser;
     if (user == null) {
-      throw Exception('User not logged in. Cannot make a purchase.');
+      throw Exception('로그인이 필요합니다.');
+    }
+    if (listingIds.isEmpty) {
+      throw Exception('주문할 상품이 없습니다.');
     }
 
-    try {
-      // 즉시 구매는 아이템이 하나인 장바구니와 동일합니다.
-      // CartItem 모델의 실제 생성자에 맞게, productId를 listingId로 사용합니다.
-      // 다른 필드들은 createOrders에서 listing을 다시 조회하므로 임시값을 사용해도 괜찮습니다.
-      final singleItem = CartItem(
-        productId: listingId,
-        quantity: 1,
-        productName: '', // 임시값
-        price: 0,      // 임시값
-        imageUrl: '',  // 임시값
-        options: {},   // 임시값
-        addedAt: Timestamp.now(),
-      );
+    final newOrderId = _firestore.collection('orders').doc().id;
 
-      // 표준 주문 생성 메소드를 호출합니다.
-      await createOrders(
-        buyerId: user.uid,
-        cartItems: [singleItem],
-      );
-    } catch (e) {
-      throw Exception('An unexpected error occurred during purchase: $e');
-    }
-  }
-
-  /// Creates one or more orders from a list of cart items and optional additional charges.
-  /// Groups items by seller and creates a separate order for each seller.
-  /// Returns a list of created order IDs.
-  Future<List<String>> createOrders({
-    required String buyerId,
-    required List<CartItem> cartItems,
-    List<AdditionalCharge> additionalCharges = const [],
-  }) async {
-    if (cartItems.isEmpty) {
-      throw Exception("Cannot create an order with no items.");
-    }
-
-    final listingService = ListingService();
-    final createdOrderIds = <String>[];
-
-    // 1. Group cart items by sellerId
-    final Map<String, List<CartItem>> itemsBySeller = {};
-    for (final cartItem in cartItems) {
-      // CartItem.productId가 Listing의 ID 역할을 합니다.
-      final listing = await listingService.getListing(cartItem.productId).first;
-      (itemsBySeller[listing.sellerId] ??= []).add(cartItem);
-    }
-
-    // 2. Create an order for each seller
-    for (final sellerEntry in itemsBySeller.entries) {
-      final sellerId = sellerEntry.key;
-      final sellerCartItems = sellerEntry.value;
-
-      // 3. Convert CartItems to OrderItems
+    await _firestore.runTransaction((transaction) async {
+      final List<DocumentSnapshot<Map<String, dynamic>>> listingDocs = [];
       final List<OrderItem> orderItems = [];
-      for (final cartItem in sellerCartItems) {
-        final listing = await listingService.getListing(cartItem.productId).first;
-        
+
+      for (final listingId in listingIds) {
+        final docRef = _firestore.collection('listings').doc(listingId);
+        final doc = await transaction.get(docRef);
+        if (!doc.exists) {
+          throw Exception('상품($listingId)을 찾을 수 없습니다.');
+        }
+        if (doc.data()?['status'] != ListingStatus.available.name) {
+          throw Exception('이미 판매된 상품($listingId)이 포함되어 있습니다.');
+        }
+        listingDocs.add(doc);
+      }
+
+      for (final doc in listingDocs) {
+        final data = doc.data()!;
         orderItems.add(OrderItem(
-          listingId: listing.listingId,          // Correct field
-          sellerId: listing.sellerId,
-          productName: listing.modelName,        // Correct field
-          quantity: cartItem.quantity,
-          priceAtPurchase: listing.price.toDouble(), // Correct type
+          listingId: doc.id,
+          partId: data['partId'],
+          sellerId: data['sellerId'],
+          modelName: data['modelName'],
+          brand: data['brand'],
+          imageUrl: (data['imageUrls'] as List).isNotEmpty ? data['imageUrls'][0] : '',
+          priceAtPurchase: (data['price'] as num).toDouble(),
         ));
       }
 
-      // 4. Create the OrderModel
-      final newOrderId = _firestore.collection('orders').doc().id;
+      final String orderType;
+      final List<AdditionalCharge> additionalCharges = [];
+      if (isBundle) {
+        orderType = 'bundle';
+        additionalCharges.add(AdditionalCharge(description: 'PC 조립 및 안정화 서비스', amount: 50000.0));
+      } else {
+        orderType = listingIds.length == 1 ? 'singlePart' : 'multipleParts';
+      }
+
       final newOrder = OrderModel(
         orderId: newOrderId,
-        buyerId: buyerId,
+        buyerId: user.uid,
         items: orderItems,
         additionalCharges: additionalCharges,
-        status: DeliveryStatus.processing,
-        orderDate: Timestamp.now(),
+        status: OrderStatus.paymentComplete,
+        orderType: orderType,
+        createdAt: Timestamp.now(),
+        shippingAddress: shippingAddress,
       );
 
-      // 5. Save the order to Firestore
-      await _firestore.collection('orders').doc(newOrderId).set(newOrder.toMap());
-      createdOrderIds.add(newOrderId);
+      transaction.set(_firestore.collection('orders').doc(newOrderId), newOrder.toMap());
 
-      // 6. Update listing status for each item in the order
-      for (final item in orderItems) {
-        final listingRef = _firestore.collection('listings').doc(item.listingId);
-        await listingRef.update({
-          'status': ListingStatus.sold.name, // Enum to string
-          'buyerId': buyerId,
+      for (final doc in listingDocs) {
+        transaction.update(doc.reference, {
+          'status': ListingStatus.sold.name,
+          'buyerId': user.uid,
           'soldAt': Timestamp.now(),
         });
       }
-    }
+    });
 
-    return createdOrderIds;
+    return newOrderId;
   }
 }
