@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../models/user_model.dart';
 import '../../models/listing_model.dart';
 import '../../models/part_model.dart';
-import '../../models/order_model.dart' as order_model;
+import '../../models/order_model.dart';
 import '../../services/listing_service.dart';
 import '../../services/order_service.dart';
 import '../product/listing_detail_screen.dart';
@@ -26,7 +26,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ListingService _listingService = ListingService();
-  final OrderService _orderService = OrderService(); // OrderService 추가
+  final OrderService _orderService = OrderService();
 
   @override
   void initState() {
@@ -68,7 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   controller: _tabController,
                   children: [
                     const DeliveryStatusScreen(),
-                    _OrderHistoryView(orderService: _orderService), // 구매내역 뷰 변경
+                    _OrderHistoryView(orderService: _orderService),
                     _HistoryListView(stream: _listingService.getMySalesHistory(user.id), isPurchaseHistory: false),
                   ],
                 ),
@@ -79,7 +79,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       ),
     );
   }
-
   Widget _buildProfileHeader(UserModel user) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -121,8 +120,9 @@ class _OrderHistoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<order_model.OrderModel>>(
-      future: orderService.getOrdersForCurrentUser(),
+    // [수정] FutureBuilder -> StreamBuilder로 변경
+    return StreamBuilder<List<OrderModel>>(
+      stream: orderService.getOrdersForCurrentUser(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -166,14 +166,15 @@ class _OrderHistoryView extends StatelessWidget {
 
 // 새로운 주문 내역 카드 위젯
 class _OrderHistoryCard extends StatelessWidget {
-  final order_model.OrderModel order;
+  final OrderModel order;
 
   const _OrderHistoryCard({required this.order});
 
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat('#,###');
-    final representativeItem = order.items.isNotEmpty ? order.items.first.productName : '주문 정보 없음';
+    // [수정] order.items.first.productName -> modelName 으로 변경
+    final representativeItem = order.items.isNotEmpty ? order.items.first.modelName : '주문 정보 없음';
     final extraItemsCount = order.items.length - 1;
 
     return Card(
@@ -186,16 +187,15 @@ class _OrderHistoryCard extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text('${formatter.format(order.finalTotal)}원'),
-        trailing: Text(DateFormat('yy/MM/dd').format(order.orderDate.toDate())),
+        // [수정] order.orderDate -> createdAt 으로 변경
+        trailing: Text(DateFormat('yy/MM/dd').format(order.createdAt.toDate())),
         onTap: () {
           // TODO: 주문 상세 화면으로 이동하는 로직 구현
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(orderId: order.orderId)));
         },
       ),
     );
   }
 }
-
 // 기존 판매 내역 뷰 (수정 없음)
 class _HistoryListView extends StatelessWidget {
   final Stream<List<Listing>> stream;
