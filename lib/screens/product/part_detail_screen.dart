@@ -6,6 +6,7 @@ import '../../services/part_service.dart';
 import 'package:picom/services/cart_service.dart';
 import 'package:picom/services/order_service.dart'; // 시세 그래프를 위해 추가
 import 'package:picom/widgets/price_history_chart.dart'; // 상세 그래프 위젯
+import 'package:picom/widgets/part_review_section.dart';
 import 'sell_request_screen.dart';
 import 'part_comment_screen.dart';
 
@@ -115,33 +116,75 @@ class _PartDetailScreenState extends State<PartDetailScreen> {
     );
   }
 
+  void _showReviewSheet(BuildContext context, String partId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // 키보드가 올라올 때 시트가 함께 올라가도록 설정
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return PartReviewSection(partId: partId);
+      },
+    );
+  }
+
   BottomAppBar _buildBottomAppBar(Part part) {
     return BottomAppBar(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Expanded(
+              flex: 2,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.shopping_cart_checkout),
                 label: const Text('구매'),
-                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Colors.white),
-                onPressed: () { /* 구매 로직 */ },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12)),
+                onPressed: () {
+                  /* 구매 로직 */
+                },
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
+              flex: 2,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.add_shopping_cart),
                 label: const Text('담기'),
+                style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12)),
                 onPressed: () async {
                   try {
                     await _cartService.addToCart(part.partId, 1);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('장바구니에 담았습니다.')));
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('장바구니에 담았습니다.')));
+                    }
                   } catch (e) {
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('오류: $e')));
+                    if (mounted) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text('오류: $e')));
+                    }
                   }
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.reviews_outlined),
+                label: const Text('리뷰'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  side: BorderSide(color: Theme.of(context).primaryColor),
+                ),
+                onPressed: () {
+                  _showReviewSheet(context, part.partId);
                 },
               ),
             ),
