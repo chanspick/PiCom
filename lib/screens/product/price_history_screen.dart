@@ -110,8 +110,13 @@ class _ListingTile extends StatelessWidget {
         subtitle: Text('컨디션: ${listing.conditionScore}점'),
         trailing: Text('${NumberFormat('#,###').format(listing.price)}원', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         onTap: () {
-          // [핵심] 사용자가 이 매물을 선택했음을 알리고, Listing 객체를 이전 화면(PcAssemblyScreen)으로 반환합니다.
-          Navigator.of(context).pop(listing);
+          // [수정] ListingDetailScreen으로 listingId를 전달하고, 문법 오류를 수정합니다.
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ListingDetailScreen(listingId: listing.listingId),
+            ),
+          );
         },
       ),
     );

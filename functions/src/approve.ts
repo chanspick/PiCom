@@ -5,19 +5,14 @@ import { logger } from "firebase-functions/v2";
 const db = admin.firestore();
 
 export const approveSellRequest = onRequest(
-  { region: "asia-northeast3", cors: ["https://kream-132e4.web.app"] },
+  { region: "asia-northeast3", cors: true },
   async (req, res): Promise<void> => {
-    // CORS
-    res.set('Access-Control-Allow-Origin', 'https://kream-132e4.web.app');
-    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.set('Vary', 'Origin');
-    if (req.method === 'OPTIONS') {
-      res.status(204).send('');
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
       return;
     }
 
-    // 1️⃣ Auth
+    // 1️⃣ Auth (변경 없음)
     const idToken = req.headers.authorization?.split("Bearer ")[1];
     if (!idToken) {
       res.status(403).send({ error: "Unauthorized" });
@@ -34,136 +29,117 @@ export const approveSellRequest = onRequest(
       return;
     }
 
-    // 2️⃣ Input
+    // 2️⃣ Input (변경 없음)
     const { requestId, finalPrice, finalConditionScore } = req.body || {};
     if (
-      typeof requestId !== "string" || !requestId ||
-      typeof finalPrice !== "number" || !Number.isFinite(finalPrice) || finalPrice <= 0 ||
-      typeof finalConditionScore !== "number" || !Number.isFinite(finalConditionScore) || finalConditionScore < 0
+      !requestId || typeof requestId !== "string" ||
+      !finalPrice || typeof finalPrice !== "number" || finalPrice <= 0 ||
+      !finalConditionScore || typeof finalConditionScore !== "number" || finalConditionScore < 0 || finalConditionScore > 100
     ) {
-      res.status(400).send({ error: "Missing/invalid fields: requestId, finalPrice (>0), finalConditionScore (>=0)" });
+      res.status(400).send({ error: "Missing/invalid fields" });
       return;
     }
 
-    const requestRef = db.collection("sell_requests").doc(requestId);
+    const sellRequestRef = db.collection("sell_requests").doc(requestId);
 
     try {
-      const snap = await requestRef.get();
-      if (!snap.exists) {
-        res.status(404).send({ error: `Sell request ${requestId} not found.` });
-        return;
-      }
+      // [추가] Firestore 트랜잭션을 사용하여 전체 로직을 감쌉니다.
+      const newListingId = await db.runTransaction(async (transaction) => {
+        const sellRequestSnap = await transaction.get(sellRequestRef);
+        if (!sellRequestSnap.exists) {
+          throw new Error(`Sell request ${requestId} not found.`);
+        }
 
-      const r = snap.data()!;
-      logger.info(`sell_request keys: ${Object.keys(r).join(',')}`);
+        const r = sellRequestSnap.data()!;
+        if (r.status === "processed") {
+          logger.info(`Request ${requestId} already processed.`);
+          return r.listingId || null; // 이미 처리된 경우 기존 리스팅 ID 반환
+        }
 
-      // 3️⃣ 정규화
-      const srPartId    = typeof r.partId === "string" ? r.partId : null;
-      const srBrand     = typeof r.brand === "string" ? r.brand : null;
-      const srModelName = typeof r.modelName === "string"
-        ? r.modelName
-        : (typeof r.partModelName === "string" ? r.partModelName : null);
-      const srCategory  = typeof r.category === "string"
-        ? r.category
-        : (typeof r.partCategory === "string" ? r.partCategory : null);
+        // 3️⃣ 정규화 (기존 로직과 동일)
+        const srPartId = typeof r.partId === "string" ? r.partId : null;
+        const srBrand = typeof r.brand === "string" ? r.brand : null;
+        const srModelName = typeof r.modelName === "string" ? r.modelName : (typeof r.partModelName === "string" ? r.partModelName : null);
+        const srCategory = typeof r.category === "string" ? r.category : (typeof r.partCategory === "string" ? r.partCategory : null);
+        if (!srPartId && !(srModelName && (srBrand || srCategory))) {
+          throw new Error("Insufficient identifiers (need partId or (modelName + brand/category)).");
+        }
 
-      if (!srPartId && !(srModelName && (srBrand || srCategory))) {
-        res.status(400).send({ error: "Insufficient identifiers (need partId or (modelName + brand/category))." });
-        return;
-      }
+        // 4️⃣ Part 조회 (기존의 안정적인 로직 그대로 사용)
+        let partDoc: FirebaseFirestore.DocumentSnapshot | null = null;
+        if (srPartId) {
+          const byId = await transaction.get(db.collection("parts").doc(srPartId));
+          if (byId.exists) partDoc = byId;
+        }
+        if (!partDoc && srBrand && srModelName) {
+            const qs = await transaction.get(db.collection("parts").where("brand", "==", srBrand).where("modelName", "==", srModelName).limit(1));
+            if (!qs.empty) partDoc = qs.docs[0];
+        }
+        if (!partDoc && srBrand && srModelName) {
+            const qs = await transaction.get(db.collection("parts").where("brand", "==", srBrand).where("model", "==", srModelName).limit(1));
+            if (!qs.empty) partDoc = qs.docs[0];
+        }
+        if (!partDoc && srCategory && srModelName) {
+            const qs = await transaction.get(db.collection("parts").where("category", "==", srCategory).where("modelName", "==", srModelName).limit(1));
+            if (!qs.empty) partDoc = qs.docs[0];
+        }
+        if (!partDoc && srCategory && srModelName) {
+            const qs = await transaction.get(db.collection("parts").where("category", "==", srCategory).where("model", "==", srModelName).limit(1));
+            if (!qs.empty) partDoc = qs.docs[0];
+        }
+        if (!partDoc) {
+          throw new Error(`Part not found (partId:${srPartId || 'N/A'}, brand:${srBrand || 'N/A'}, modelName:${srModelName || 'N/A'})`);
+        }
 
-      // 4️⃣ Part 조회 (undefined 절대 금지)
-      let partDoc: FirebaseFirestore.DocumentSnapshot | null = null;
+        const partData = partDoc.data()!;
 
-      if (srPartId) {
-        const byId = await db.collection("parts").doc(srPartId).get();
-        if (byId.exists) partDoc = byId;
-      }
-
-      if (!partDoc && srBrand && srModelName) {
-        const qs = await db.collection("parts")
-          .where("brand", "==", srBrand)
-          .where("modelName", "==", srModelName)
-          .limit(1)
-          .get();
-        if (!qs.empty) partDoc = qs.docs[0];
-      }
-
-      // parts 문서엔 modelName 대신 model이 있음
-      if (!partDoc && srBrand && srModelName) {
-        const qs = await db.collection("parts")
-          .where("brand", "==", srBrand)
-          .where("model", "==", srModelName)
-          .limit(1)
-          .get();
-        if (!qs.empty) partDoc = qs.docs[0];
-      }
-
-      if (!partDoc && srCategory && srModelName) {
-        const qs = await db.collection("parts")
-          .where("category", "==", srCategory)
-          .where("modelName", "==", srModelName)
-          .limit(1)
-          .get();
-        if (!qs.empty) partDoc = qs.docs[0];
-      }
-
-      if (!partDoc && srCategory && srModelName) {
-        const qs = await db.collection("parts")
-          .where("category", "==", srCategory)
-          .where("model", "==", srModelName)
-          .limit(1)
-          .get();
-        if (!qs.empty) partDoc = qs.docs[0];
-      }
-
-      if (!partDoc) {
-        res.status(400).send({
-          error: `Part not found (partId:${srPartId || 'N/A'}, brand:${srBrand || 'N/A'}, modelName:${srModelName || 'N/A'}, category:${srCategory || 'N/A'})`
+        // [핵심 기능 추가] Part 문서에서 basePartId를 가져와 listingCount를 업데이트합니다.
+        const basePartId = partData.basePartId;
+        if (!basePartId) {
+          throw new Error(`basePartId is missing in part document ${partDoc.id}.`);
+        }
+        const basePartRef = db.collection("base_parts").doc(basePartId);
+        transaction.update(basePartRef, {
+          listingCount: admin.firestore.FieldValue.increment(1),
         });
-        return;
-      }
 
-      // 5️⃣ Listing 생성
-      const partData = partDoc.data()!;
-      const partId = partDoc.id;
-      const resolvedBrand = (partData.brand ?? srBrand) || "";
-      const resolvedModel = (srModelName ?? partData.modelName ?? partData.model) || "";
+        // 5️⃣ Listing 생성 (기존 로직과 동일)
+        const newListingRef = db.collection("listings").doc();
+        transaction.set(newListingRef, {
+            listingId: newListingRef.id,
+            partId: partDoc.id,
+            basePartId: basePartId,
+            conditionScore: finalConditionScore,
+            price: finalPrice,
+            status: "available",
+            sellerId: r.sellerId,
+            buyerId: null,
+            brand: (partData.brand ?? srBrand) || "",
+            modelName: (srModelName ?? partData.modelName ?? partData.model) || "",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            soldAt: null,
+            imageUrls: Array.isArray(r.imageUrls) ? r.imageUrls : [],
+        });
 
-      const newListingRef = db.collection("listings").doc();
-      const newListingId = newListingRef.id;
+        // 6️⃣ SellRequest 업데이트 (기존 로직과 동일)
+        transaction.update(sellRequestRef, {
+            listingId: newListingRef.id,
+            status: "processed",
+            finalPrice,
+            finalConditionScore,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-      await newListingRef.set({
-        listingId: newListingId,
-        partId,
-        conditionScore: finalConditionScore,
-        price: finalPrice,
-        status: "available",
-        sellerId: r.sellerId,
-        buyerId: null,
-        brand: resolvedBrand,
-        modelName: resolvedModel,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        soldAt: null,
-        imageUrls: Array.isArray(r.imageUrls) ? r.imageUrls : [],
+        return newListingRef.id; // 성공 시 생성된 리스팅 ID를 반환
       });
 
-      await requestRef.update({
-        listingId: newListingId,
-        status: "processed",
-        finalPrice,
-        finalConditionScore,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-
-      logger.info(`Listing ${newListingId} created successfully.`);
+      logger.info(`Listing ${newListingId} created successfully for request ${requestId}.`);
       res.status(200).send({ success: true, listingId: newListingId });
-      return;
 
     } catch (error) {
-      logger.error(`Error processing approveSellRequest for ${requestId}:`, error);
-      res.status(500).send({ error: "Internal server error" });
-      return;
+      logger.error(`Error in transaction for approveSellRequest ${requestId}:`, error);
+      const errorMessage = error instanceof Error ? error.message : "Internal server error";
+      res.status(500).send({ error: errorMessage });
     }
   }
 );

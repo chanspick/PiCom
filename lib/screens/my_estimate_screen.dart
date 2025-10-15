@@ -1,4 +1,3 @@
-// lib/screens/my_estimate_screen.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -211,9 +210,39 @@ class _MyEstimateScreenState extends State<MyEstimateScreen> {
           const SizedBox(height: 24),
           _buildRecommendationCard(_specProfile!.recommendationText!),
           const SizedBox(height: 32),
-          SizedBox(width: double.infinity, child: ElevatedButton.icon(icon: const Icon(Icons.search), label: const Text('이 사양으로 중고 부품 찾기'), style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), backgroundColor: Theme.of(context).primaryColor, foregroundColor: Colors.white,), onPressed: () { Navigator.push(context, MaterialPageRoute(builder: (context) => PcAssemblyScreen(specProfile: _specProfile),),);},),),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.search),
+              label: const Text('이 사양으로 중고 부품 찾기'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+              ),
+              // ★★★★★★★★★★★★★★★★★★★★ 여기가 수정된 부분입니다 ★★★★★★★★★★★★★★★★★★★★
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PcAssemblyScreen(
+                      specProfile: _specProfile,
+                      // [수정] '조립 모드'로 실행되도록 mode: AssemblyMode.build 파라미터를 명시적으로 추가했습니다.
+                      mode: AssemblyMode.build,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
           const SizedBox(height: 16),
-          Center(child: TextButton(onPressed: _onRestart, child: const Text('견적 다시 만들기'),),),
+          Center(
+            child: TextButton(
+              onPressed: _onRestart,
+              child: const Text('견적 다시 만들기'),
+            ),
+          ),
         ],
       ),
     );

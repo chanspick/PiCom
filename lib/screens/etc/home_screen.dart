@@ -193,12 +193,17 @@ class _CircleMenuSection extends StatelessWidget {
     {
       'icon': Icons.desktop_mac,
       'label': '나만의 컴퓨터',
-      'screen': const PcAssemblyScreen(),
+      'screen': const PcAssemblyScreen(mode: AssemblyMode.build),
     },
     {
       'icon': Icons.add_box_outlined,
-      'label': '판매 요청',
+      'label': '부품 판매',
       'screen': const SellRequestScreen(),
+    },
+    {
+      'icon': Icons.desktop_windows,
+      'label': '완제품 판매',
+      'screen': const PcAssemblyScreen(mode: AssemblyMode.sell), // <-- 새로 만들 화면으로 연결
     },
   ];
 

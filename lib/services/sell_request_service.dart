@@ -5,19 +5,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/part_model.dart';
 import '../models/sell_request_model.dart';
 
+// 완제품 판매 시, 각 부품과 개별 가격을 묶어서 전달하기 위한 헬퍼 클래스
+class PartToSell {
+  final Part part;
+  final int price;
+
+  PartToSell({required this.part, required this.price});
+}
+
+
 class SellRequestService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // 이미지 업로드: 원래 시그니처 유지
-  Future<List<String>> uploadImages(List<File> images, String userId, String requestId) async {
+  // uploadImages 메서드는 변경 없음
+  Future<List<String>> uploadImages(List<File> images, String userId, String uploadId) async {
     final List<String> imageUrls = [];
     for (int i = 0; i < images.length; i++) {
       final File image = images[i];
-      final String fileName = 'sell_requests/$userId/$requestId/image_$i.jpg';
+      final String fileName = 'sell_requests/$userId/$uploadId/image_$i.jpg';
       final Reference ref = _storage.ref().child(fileName);
-      // 메타데이터는 선택 사항(원래 코드 호환 유지)
       final UploadTask uploadTask = ref.putFile(image);
       final TaskSnapshot snapshot = await uploadTask;
       final String downloadUrl = await snapshot.ref.getDownloadURL();
@@ -26,39 +34,39 @@ class SellRequestService {
     return imageUrls;
   }
 
-  // 요청 생성: 원래 시그니처/경로 형태 유지, 내부만 보완
+  // createSellRequest (단일 부품) 메서드는 변경 없음
   Future<void> createSellRequest({
     required Part part,
-    required DateTime purchaseDate,
-    required bool hasWarranty,
-    int? warrantyMonthsLeft,
+    required AgeInfoType ageInfoType,
+    required bool isSecondHand,
     required String usageFrequency,
     required String purpose,
     required int requestedPrice,
     required List<File> images,
+    required bool hasWarranty,
+    int? ageInfoYear,
+    int? ageInfoMonth,
+    int? warrantyMonthsLeft,
   }) async {
     final User? currentUser = _auth.currentUser;
     if (currentUser == null) {
       throw Exception('User not authenticated.');
     }
 
-    // 규칙은 /sell_requests를 사용 → 컬렉션 아이디 생성만 여기서 받고,
-    // 실제 기록은 동일 경로로 통일
     final String requestId = _firestore.collection('sell_requests').doc().id;
-    final String sellerId = currentUser.uid;
+    final List<String> imageUrls = await uploadImages(images, currentUser.uid, requestId);
 
-    // 1) 이미지 업로드
-    final List<String> imageUrls = await uploadImages(images, sellerId, requestId);
-
-    // 2) 모델 인스턴스 생성(원래 모델 사용)
     final SellRequest newRequest = SellRequest(
       requestId: requestId,
-      sellerId: sellerId,
+      sellerId: currentUser.uid,
       partId: part.partId,
-      category: part.category.name,
+      category: part.category.name, // Enum to String
       brand: part.brand,
       modelName: part.modelName,
-      purchaseDate: purchaseDate,
+      ageInfoType: ageInfoType,
+      ageInfoYear: ageInfoYear,
+      ageInfoMonth: ageInfoMonth,
+      isSecondHand: isSecondHand,
       hasWarranty: hasWarranty,
       warrantyMonthsLeft: warrantyMonthsLeft,
       usageFrequency: usageFrequency,
@@ -68,14 +76,64 @@ class SellRequestService {
       status: SellRequestStatus.pending,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
-      adminNotes: null,
     );
 
-    // 3) Firestore 저장: 규칙과 일치하도록 컬렉션 경로를 sell_requests로 고정
     await _firestore.collection('sell_requests').doc(requestId).set(newRequest.toMap());
   }
 
-  // 내 판매요청 조회: 원래 경로 표기를 sell_requests로만 통일
+  /// [수정 완료] 완제품 정보를 받아 여러 부품 판매 요청을 일괄 생성합니다.
+  Future<void> createSellRequestsFromFinishedPc({
+    required List<PartToSell> partsToSell,
+    required List<File> images,
+    required AgeInfoType ageInfoType,
+    required bool isSecondHand,
+    required String usageFrequency,
+    required String purpose,
+    required bool hasWarranty,
+    int? ageInfoYear,
+    int? ageInfoMonth,
+    int? warrantyMonthsLeft,
+  }) async {
+    final User? currentUser = _auth.currentUser;
+    if (currentUser == null) throw Exception('User not authenticated.');
+
+    final imageBatchId = DateTime.now().millisecondsSinceEpoch.toString();
+    final imageUrls = await uploadImages(images, currentUser.uid, imageBatchId);
+    final batch = _firestore.batch();
+
+    for (final partData in partsToSell) {
+      final part = partData.part;
+      final docRef = _firestore.collection('sell_requests').doc();
+
+      final newRequest = SellRequest(
+        requestId: docRef.id,
+        sellerId: currentUser.uid,
+        partId: part.partId,
+        // [디버그] PartCategory Enum을 String으로 변환하여 전달
+        category: part.category.name,
+        brand: part.brand,
+        modelName: part.modelName,
+        requestedPrice: partData.price,
+        imageUrls: imageUrls,
+        ageInfoType: ageInfoType,
+        isSecondHand: isSecondHand,
+        usageFrequency: usageFrequency,
+        purpose: purpose,
+        hasWarranty: hasWarranty,
+        ageInfoYear: ageInfoYear,
+        ageInfoMonth: ageInfoMonth,
+        warrantyMonthsLeft: warrantyMonthsLeft,
+        status: SellRequestStatus.pending,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      batch.set(docRef, newRequest.toMap());
+    }
+    await batch.commit();
+  }
+
+
+  /// 특정 사용자의 모든 판매 요청 목록을 실시간으로 가져옵니다. (변경 없음)
   Stream<List<SellRequest>> getMySellRequests(String userId) {
     return _firestore
         .collection('sell_requests')

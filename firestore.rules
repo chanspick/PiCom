@@ -61,9 +61,10 @@ service cloud.firestore {
     // ===== Sell Requests Collection (수정 없음) =====
     function isValidSellRequest() {
       let data = request.resource.data;
-      let required = ['partId','sellerId','brand','modelName',
-                      'purchaseDate','requestedPrice','imageUrls','status'];
-      return data.keys().hasAll(required)
+      let required = ['requestId', 'sellerId', 'partId', 'category', 'brand',
+                        'modelName', 'ageInfoType', 'isSecondHand', 'hasWarranty',
+                        'usageFrequency', 'purpose', 'requestedPrice', 'imageUrls', 'status'];
+        return data.keys().hasAll(required)
              && data.partId is string && data.partId.size() > 0
              && data.sellerId == request.auth.uid
              && data.requestedPrice is number && data.requestedPrice > 0
