@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
+import { onDocumentCreated} from "firebase-functions/v2/firestore";
 import { logger } from "firebase-functions/v2";
 
 const db = admin.firestore();

@@ -63,7 +63,15 @@
       <button id="revoke-admin-btn">Revoke Admin</button>
       <div id="result-message" class="message hidden"></div>
     </div>
-
+      <div id="notification-panel" class="hidden">
+          <h2>Send Notification to All Users</h2>
+          <input type="text" id="notif-title" placeholder="Notification Title" style="margin-bottom: 10px;">
+          <textarea id="notif-body" placeholder="Notification Body" style="width: calc(100% - 22px); height: 80px; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;"></textarea>
+          <input type="text" id="notif-link" placeholder="Link To (e.g., /events/promo2025)" style="margin-bottom: 10px;">
+          <input type="text" id="notif-image" placeholder="Image URL (Optional)" style="margin-bottom: 10px;">
+          <button id="send-notif-btn">Send Notification</button>
+          <div id="notif-result-message" class="message hidden"></div>
+      </div>
     <div id="sell-requests-panel" class="hidden">
         <h2 id="sell-requests-title">Pending Sell Requests</h2>
         <div id="filter-container">
@@ -124,7 +132,8 @@
     const adminPanel = document.getElementById('admin-panel');
     const sellRequestsPanel = document.getElementById('sell-requests-panel');
     const accessDenied = document.getElementById('access-denied');
-    
+
+
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     
@@ -135,7 +144,9 @@
     const setAdminBtn = document.getElementById('set-admin-btn');
     const revokeAdminBtn = document.getElementById('revoke-admin-btn');
     const resultMessage = document.getElementById('result-message');
-
+    const notificationPanel = document.getElementById('notification-panel');
+    const sendNotifBtn = document.getElementById('send-notif-btn');
+    const notifResultMessage = document.getElementById('notif-result-message');
     let sellRequestsUnsubscribe = null;
 
     // --- Authentication ---
@@ -170,10 +181,12 @@
           if (isAdmin) {
             sellRequestsPanel.classList.remove('hidden');
             accessDenied.classList.add('hidden');
+            notificationPanel.classList.remove('hidden')
             listenToSellRequests(); // Load initial data (pending)
           } else {
             sellRequestsPanel.classList.add('hidden');
-            accessDenied.classList.add('hidden'); 
+            accessDenied.classList.add('hidden');
+            notificationPanel.classList.add('hidden')
           }
         });
       } else {
@@ -182,6 +195,7 @@
         adminPanel.classList.add('hidden');
         sellRequestsPanel.classList.add('hidden');
         accessDenied.classList.add('hidden');
+        notificationPanel.classList.add('hidden');
         userDisplay.textContent = "";
         userStatus.textContent = "";
         if (sellRequestsUnsubscribe) {
@@ -189,6 +203,75 @@
         }
       }
     });
+
+    async function handleSendNotification() {
+        const button = sendNotifBtn;
+        button.disabled = true;
+        button.textContent = 'Sending...';
+
+        const title = document.getElementById('notif-title').value;
+        const body = document.getElementById('notif-body').value;
+        const linkTo = document.getElementById('notif-link').value;
+        const imageUrl = document.getElementById('notif-image').value;
+
+        if (!title || !body) {
+            alert('Title and Body are required.');
+            button.disabled = false;
+            button.textContent = 'Send Notification';
+            return;
+        }
+
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Error: You are not logged in.');
+            button.disabled = false;
+            button.textContent = 'Send Notification';
+            return;
+        }
+
+        showNotifResult("Processing...", false);
+
+        try {
+            const idToken = await user.getIdToken();
+            // [주의] 함수 이름은 배포된 Cloud Function 이름과 일치해야 합니다.
+            const response = await fetch('https://asia-northeast3-kream-132e4.cloudfunctions.net/sendMarketingNotification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + idToken,
+                },
+                body: JSON.stringify({ title, body, linkTo, imageUrl }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'An unknown error occurred.');
+            }
+
+            showNotifResult(data.message, false);
+            document.getElementById('notif-title').value = '';
+            document.getElementById('notif-body').value = '';
+            document.getElementById('notif-link').value = '';
+            document.getElementById('notif-image').value = '';
+
+        } catch (error) {
+            console.error("Error sending notification:", error);
+            showNotifResult(`Error: ${error.message}`, true);
+        } finally {
+            button.disabled = false;
+            button.textContent = 'Send Notification';
+        }
+    }
+
+    function showNotifResult(message, isError) {
+        notifResultMessage.textContent = message;
+        notifResultMessage.className = isError ? 'message error' : 'message success';
+        notifResultMessage.classList.remove('hidden');
+    }
+
+    // 이벤트 리스너 등록
+    sendNotifBtn.addEventListener('click', handleSendNotification);
 
     // --- Sell Request Management ---
     function listenToSellRequests(status = 'pending') {

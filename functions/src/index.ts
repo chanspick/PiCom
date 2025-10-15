@@ -7,6 +7,7 @@ import {
   Change,
   QueryDocumentSnapshot,
 } from "firebase-functions/v2/firestore";
+import { onRequest, Request } from "firebase-functions/v2/https"; // 👈 이 줄 추가
 import {defineString} from "firebase-functions/params";
 import {logger} from "firebase-functions/v2";
 import algoliasearch, {SearchClient} from "algoliasearch";
@@ -316,12 +317,259 @@ export const cleanupExpiredBids = onDocumentCreated(
   },
 );
 
+export const onOrderStatusUpdate = onDocumentUpdated(
+  {
+    document: "orders/{orderId}",
+    region: "asia-northeast3", // 서울 리전
+  },
+  async (event: FirestoreEvent<Change<QueryDocumentSnapshot> | undefined>) => {
+    const change = event.data;
+    if (!change) {
+      logger.error("No data associated with the event");
+      return;
+    }
+
+    // 1. 업데이트 이전/이후 데이터 가져오기
+    const beforeData = change.before.data();
+    const afterData = change.after.data();
+
+    // 2. status 필드가 변경되었는지 확인
+    if (beforeData.status === afterData.status) {
+      logger.info("Status not changed. No notification needed.");
+      return;
+    }
+
+    const userId = afterData.buyerId;
+    if (!userId) {
+      logger.error(`Order ${change.after.id} has no buyerId.`);
+      return;
+    }
+
+    const orderId = change.after.id;
+    const newStatus = afterData.status;
+
+    // 3. 새로운 status 값에 따라 알림 내용 결정
+    let notificationPayload: { title: string; body: string } | null = null;
+
+    switch (newStatus) {
+      case "awaitingSellerShipment":
+        notificationPayload = {
+          title: "결제가 완료되었습니다 ✅",
+          body: `주문(${orderId.substring(
+            0,
+            6
+          )}...)이(가) 정상적으로 처리되었습니다. 판매자의 상품 발송을 기다려주세요.`,
+        };
+        break;
+      case "allItemsArrived":
+        notificationPayload = {
+          title: "상품이 센터에 도착했습니다 📦",
+          body: "주문하신 모든 상품이 저희 검수 센터에 도착하여 곧 검수가 시작됩니다.",
+        };
+        break;
+      case "shippedToBuyer":
+        notificationPayload = {
+          title: "상품이 발송되었습니다 🚚",
+          body: `주문(${orderId.substring(
+            0,
+            6
+          )}...) 상품의 검수/조립이 완료되어 고객님께 발송되었습니다.`,
+        };
+        break;
+      case "cancelled":
+        notificationPayload = {
+          title: "주문이 취소되었습니다 ❌",
+          body: `주문(${orderId.substring(
+            0,
+            6
+          )}...)이(가) 취소되었습니다. 자세한 내용은 주문 내역을 확인해주세요.`,
+        };
+        break;
+      // TODO: 다른 상태에 대한 알림 메시지도 추가할 수 있습니다.
+    }
+
+    // 4. 알림 생성 및 발송
+    if (notificationPayload) {
+      // 4-1. Firestore에 알림 저장
+      await db
+        .collection("users")
+        .doc(userId)
+        .collection("notifications")
+        .add({
+          ...notificationPayload,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          isRead: false,
+          type: "orderUpdate",
+          linkTo: `/orders/${orderId}`,
+        });
+
+      logger.info(
+        `Notification created for user ${userId} for order ${orderId}`
+      );
+
+      // 4-2. FCM 푸시 알림 발송 (FCM 토큰 관리 로직 필요)
+      // const userDoc = await db.collection("users").doc(userId).get();
+      // const fcmToken = userDoc.data()?.fcmToken;
+      // ... FCM 발송 로직 ...
+    }
+  }
+);
+
+export const onNewQnaComment = onDocumentCreated(
+  {
+    document: "posts/{postId}/comments/{commentId}",
+    region: "asia-northeast3", // 서울 리전
+  },
+  async (event: FirestoreEvent<QueryDocumentSnapshot | undefined>) => {
+    const snapshot = event.data;
+    if (!snapshot) {
+      logger.error("No data associated with the event");
+      return;
+    }
+
+    const commentData = snapshot.data();
+    const postId = event.params.postId;
+
+    // 1. 댓글 작성자가 관리자인지 확인합니다.
+    // 참고: QnaService의 addComment 함수에서는 'userId'를 사용하고 있으므로
+    //      필드명을 'userId'로 가정합니다. 다르다면 수정이 필요합니다.
+    const commentAuthorId = commentData.userId;
+
+    // TODO: 실제 관리자의 UID 목록을 여기에 정의해야 합니다.
+    // Firestore 보안 규칙에 있던 isUserAdmin() 함수와 동일한 로직을 사용합니다.
+    const adminUids = ["Xfzi3IEX5LXA13wbyJYxjftmJ9p2", "y1C8XaVM1EZkt2zjMHsykQFYlRM2"];
+
+    if (!adminUids.includes(commentAuthorId)) {
+      logger.info(`Comment by a non-admin user (${commentAuthorId}). No notification sent.`);
+      return;
+    }
+
+    // 2. 원본 게시물 정보를 가져와 작성자 ID 확인
+    const postRef = db.collection("posts").doc(postId);
+    const postDoc = await postRef.get();
+    if (!postDoc.exists) {
+      logger.error(`Post ${postId} not found.`);
+      return;
+    }
+    const postAuthorId = postDoc.data()?.authorId;
+
+    if (!postAuthorId) {
+      logger.error(`Post ${postId} has no authorId.`);
+      return;
+    }
+
+    // 3. 관리자가 자신의 글에 댓글 다는 경우는 알림을 보내지 않음
+    if (postAuthorId === commentAuthorId) {
+        logger.info("Admin commented on their own post. No notification sent.");
+        return;
+    }
+
+    // 4. 게시물 작성자에게 알림 데이터 생성 및 발송
+    const notificationPayload = {
+      title: "문의하신 QnA에 답변이 등록되었습니다. 💬",
+      body: `"${postDoc.data()?.title}" 게시물에 관리자의 답변이 달렸습니다.`,
+      type: "qnaReply",
+      linkTo: `/posts/${postId}`,
+    };
+
+    await db
+      .collection("users")
+      .doc(postAuthorId)
+      .collection("notifications")
+      .add({
+        ...notificationPayload,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        isRead: false,
+      });
+
+    logger.info(`Notification sent to ${postAuthorId} for new comment on post ${postId}.`);
+
+    // TODO: FCM 푸시 알림 발송 로직 (onOrderStatusUpdate 함수와 동일한 패턴)
+    // const userDoc = await db.collection("users").doc(postAuthorId).get();
+    // const fcmToken = userDoc.data()?.fcmToken;
+    // ... FCM 발송 로직 ...
+
+    return;
+  }
+);
+
+export const sendMarketingNotification = onRequest(
+  { region: "asia-northeast3", cors: true }, // CORS를 간단하게 설정
+  async (req: Request, res): Promise<void> => {
+    // 1. 관리자 인증 (approveSellRequest 함수와 동일한 로직)
+    const idToken = req.headers.authorization?.split("Bearer ")[1];
+    if (!idToken) {
+      res.status(403).send({ error: "Unauthorized" });
+      return;
+    }
+    try {
+      const decoded = await admin.auth().verifyIdToken(idToken);
+      // TODO: 보안 규칙과 마찬가지로 실제 admin UID 목록으로 교체하는 것을 권장
+      const adminUids = ["Xfzi3IEX5LXA13wbyJYxjftmJ9p2", "y1C8XaVM1EZktzjMHsykQFYlRM2"];
+      if (decoded.admin !== true && !adminUids.includes(decoded.uid)) {
+        res.status(403).send({ error: "Forbidden: Not an admin" });
+        return;
+      }
+    } catch {
+      res.status(403).send({ error: "Unauthorized: Invalid token" });
+      return;
+    }
+
+    // 2. 입력 값 검증
+    const { title, body, linkTo, imageUrl } = req.body;
+    if (!title || !body) {
+      res.status(400).send({ error: "Missing required fields: title, body" });
+      return;
+    }
+
+    try {
+      // 3. 모든 사용자에게 알림 생성
+      const usersSnapshot = await db.collection("users").get();
+      if (usersSnapshot.empty) {
+        res.status(200).send({ success: true, message: "No users to notify." });
+        return;
+      }
+
+      const batch = db.batch();
+      usersSnapshot.forEach((userDoc) => {
+        const userId = userDoc.id;
+        const notificationRef = db
+          .collection("users")
+          .doc(userId)
+          .collection("notifications")
+          .doc(); // 새 문서 참조 생성
+
+        batch.set(notificationRef, {
+          title,
+          body,
+          linkTo: linkTo || "/", // 링크가 없으면 기본값 설정
+          imageUrl: imageUrl || null,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          isRead: false,
+          type: "event",
+        });
+      });
+
+      await batch.commit(); // 배치 쓰기로 모든 알림 문서를 한 번에 생성
+
+      // TODO: FCM 푸시 알림 로직 추가 (선택 사항)
+      // 사용자가 많을 경우, 모든 유저의 토큰을 가져와 한번에 보내는 로직(sendMulticast)이 효율적입니다.
+
+      logger.info(`Marketing notification sent to ${usersSnapshot.size} users.`);
+      res.status(200).send({ success: true, message: `Notification sent to ${usersSnapshot.size} users.` });
+
+    } catch (error) {
+      logger.error("Error sending marketing notifications:", error);
+      res.status(500).send({ error: "Internal server error" });
+    }
+  }
+);
 // V1 style function exports
 import { createPart } from "./parts";
 import { buyListing } from "./listings";
 import { onPartUpdatedDenormalizeListings } from "./parts_denormalization";
 import { onListingCreatedFraudCheck } from "./fraud_detection";
-import { addToCart, updateCartItemQuantity, removeFromCart } from "./cart";
+import { addToCart, removeFromCart } from "./cart";
 import { searchProducts } from "./search";
 import { setAdmin } from "./admin";
 import { approveSellRequest } from "./approve";
@@ -333,10 +581,11 @@ export {
   onPartUpdatedDenormalizeListings,
   onListingCreatedFraudCheck,
   addToCart,
-  updateCartItemQuantity,
   removeFromCart,
   searchProducts,
   setAdmin,
   approveSellRequest,
   setupPartsData,
+
+
 };
