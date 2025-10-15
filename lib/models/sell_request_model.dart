@@ -1,57 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// --- Enums ---
+// --- Enums (수정 없음) ---
 
 /// 부품의 연식 정보를 어떤 기준으로 받았는지 정의합니다.
 enum AgeInfoType {
-  /// 최초 신품 구매일 기준 (가장 신뢰도 높음)
   originalPurchaseDate,
-
-  /// 제조년월 기준 (차선책)
   manufactureDate,
-
-  /// 정보를 알 수 없음
   unknown,
 }
 
 /// 판매 요청의 현재 상태를 정의합니다.
 enum SellRequestStatus {
-  /// 검토 대기 중
   pending,
-
-  /// 관리자 승인
   approved,
-
-  /// 관리자 반려
   rejected,
-
-  /// 판매 완료
   sold,
 }
 
-// --- Model Class ---
+// --- Model Class (brand 필드 제거됨) ---
 
 class SellRequest {
   final String requestId;
   final String sellerId;
 
-  // 부품 정보
-  final String partId;
+  // 부품 정보 (BasePart 기반)
+  final String partId; // BasePart의 ID (basePartId)가 저장됩니다.
   final String category;
-  final String brand;
   final String modelName;
 
-  // **핵심 정보: 부품 연식 및 소유 이력**
+  // 핵심 정보: 부품 연식 및 소유 이력
   final AgeInfoType ageInfoType;
   final int? ageInfoYear;
   final int? ageInfoMonth;
-  final bool isSecondHand; // true: 판매자가 중고로 구매, false: 판매자가 신품으로 구매
+  final bool isSecondHand;
 
   // 기타 정보
   final bool hasWarranty;
   final int? warrantyMonthsLeft;
-  final String usageFrequency; // 예: "매일 8시간 이상", "주 2-3회"
-  final String purpose; // 예: "게이밍", "사무용"
+  final String usageFrequency;
+  final String purpose;
   final int requestedPrice;
   final List<String> imageUrls;
 
@@ -66,7 +53,7 @@ class SellRequest {
     required this.sellerId,
     required this.partId,
     required this.category,
-    required this.brand,
+    // brand 필드 제거됨
     required this.modelName,
     required this.ageInfoType,
     this.ageInfoYear,
@@ -91,7 +78,7 @@ class SellRequest {
       'sellerId': sellerId,
       'partId': partId,
       'category': category,
-      'brand': brand,
+      // brand 필드 제거됨
       'modelName': modelName,
       'ageInfoType': ageInfoType.name,
       'ageInfoYear': ageInfoYear,
@@ -118,12 +105,12 @@ class SellRequest {
       sellerId: data['sellerId'],
       partId: data['partId'],
       category: data['category'],
-      brand: data['brand'],
+      // brand 필드 제거됨
       modelName: data['modelName'],
       ageInfoType: AgeInfoType.values.byName(data['ageInfoType'] ?? 'unknown'),
       ageInfoYear: data['ageInfoYear'],
       ageInfoMonth: data['ageInfoMonth'],
-      isSecondHand: data['isSecondHand'] ?? false, // 데이터가 없을 경우 기본값 false
+      isSecondHand: data['isSecondHand'] ?? false,
       hasWarranty: data['hasWarranty'],
       warrantyMonthsLeft: data['warrantyMonthsLeft'],
       usageFrequency: data['usageFrequency'],
