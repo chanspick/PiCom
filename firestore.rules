@@ -58,29 +58,29 @@ service cloud.firestore {
                     && (request.auth.uid == userId || isUserAdmin());
     }
 
-    // ===== Sell Requests Collection (수정 없음) =====
     function isValidSellRequest() {
       let data = request.resource.data;
-      let required = ['requestId', 'sellerId', 'partId', 'category', 'brand',
-                        'modelName', 'ageInfoType', 'isSecondHand', 'hasWarranty',
-                        'usageFrequency', 'purpose', 'requestedPrice', 'imageUrls', 'status'];
-        return data.keys().hasAll(required)
-             && data.partId is string && data.partId.size() > 0
-             && data.sellerId == request.auth.uid
-             && data.requestedPrice is number && data.requestedPrice > 0
-             && data.imageUrls is list
-             && data.imageUrls.size() > 0 && data.imageUrls.size() <= 10;
+      let required = ['requestId', 'sellerId', 'partId', 'category',
+                      'modelName', 'ageInfoType', 'isSecondHand', 'hasWarranty',
+                      'usageFrequency', 'purpose', 'requestedPrice', 'imageUrls', 'status'];
+      return data.keys().hasAll(required)
+        && data.partId is string && data.partId.size() > 0
+        && data.sellerId == request.auth.uid
+        && data.requestedPrice is number && data.requestedPrice > 0
+        && data.imageUrls is list
+        && data.imageUrls.size() > 0 && data.imageUrls.size() <= 10;
     }
+
     match /sell_requests/{requestId} {
       allow create: if isAuthenticated() && isNotAnonymous()
-                    && request.auth.uid == request.resource.data.sellerId
-                    && isValidSellRequest();
+          && request.auth.uid == request.resource.data.sellerId
+          && isValidSellRequest();
       allow update: if isAuthenticated() && (
-                      (isNotAnonymous() && request.auth.uid == resource.data.sellerId) ||
-                      (isUserAdmin() && request.resource.data.keys().hasAny(['status', 'finalPrice', 'finalConditionScore', 'processedAt']))
-                    );
+          (isNotAnonymous() && request.auth.uid == resource.data.sellerId) ||
+          (isUserAdmin() && request.resource.data.keys().hasAny(['status', 'finalPrice', 'finalConditionScore', 'processedAt']))
+        );
       allow delete: if isAuthenticated() && isNotAnonymous()
-                            && request.auth.uid == resource.data.sellerId;
+          && request.auth.uid == resource.data.sellerId;
       allow read: if isAuthenticated();
     }
 
