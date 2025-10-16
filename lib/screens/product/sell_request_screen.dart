@@ -1,13 +1,13 @@
 // lib/screens/product/sell_request_screen.dart
 
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-// === BasePart로 변경 ===
 import '../../models/base_part_model.dart';
 import '../../models/sell_request_model.dart';
-import 'part_search_screen.dart'; // PartSearchScreen으로 변경
+import 'part_search_screen.dart';
 import '../../services/sell_request_service.dart';
 import '../../services/auth_service.dart';
 
@@ -23,13 +23,14 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
   final _sellRequestService = SellRequestService();
   final _authService = AuthService();
 
-  // === BasePart로 변경 ===
   BasePart? _selectedPart;
   bool _hasWarranty = false;
   int? _usageDaysPerWeek;
   int? _usageHoursPerDay;
   String? _selectedPurpose;
-  List<File> _images = [];
+
+  // ✅ 올바른 타입 선언
+  List<XFile> _images = [];
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
   bool _isUnused = false;
@@ -40,6 +41,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
 
   AgeInfoType _selectedAgeInfoType = AgeInfoType.unknown;
   bool _isSecondHand = false;
+
   final _yearController = TextEditingController();
   final _monthController = TextEditingController();
 
@@ -55,15 +57,28 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     super.dispose();
   }
 
+  // ✅ XFile로 직접 받기
   Future<void> _pickImages() async {
-    final List<XFile>? pickedFiles = await _picker.pickMultiImage(
-      imageQuality: 70,
-      maxWidth: 1000,
-    );
-    if (pickedFiles != null && pickedFiles.isNotEmpty) {
-      setState(() {
-        _images = pickedFiles.map((file) => File(file.path)).toList();
-      });
+    try {
+      final List<XFile>? pickedFiles = await _picker.pickMultiImage(
+        imageQuality: 70,
+        maxWidth: 1000,
+      );
+
+      if (pickedFiles != null && pickedFiles.isNotEmpty) {
+        setState(() {
+          _images = pickedFiles;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미지 선택 오류: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -71,10 +86,10 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const PartSearchScreen(), // 변경
+        builder: (context) => const PartSearchScreen(),
       ),
     );
-    // === BasePart 타입으로 받기 ===
+
     if (result != null && result is BasePart) {
       setState(() {
         _selectedPart = result;
@@ -85,14 +100,20 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
   Future<void> _submitRequest() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('입력되지 않은 필수 항목이 있습니다.'), backgroundColor: Colors.orange),
+        const SnackBar(
+          content: Text('입력되지 않은 필수 항목이 있습니다.'),
+          backgroundColor: Colors.orange,
+        ),
       );
       return;
     }
 
     if (_images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('사진을 1장 이상 추가해주세요.'), backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text('사진을 1장 이상 추가해주세요.'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -101,7 +122,11 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       String purpose = _selectedPurpose!;
       if (purpose == '기타') {
@@ -119,10 +144,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
           ? '미사용'
           : '주 $_usageDaysPerWeek일, 하루 $_usageHoursPerDay시간';
 
-      // === File을 XFile로 변환 ===
-      final List<XFile> xFileImages = _images.map((file) => XFile(file.path)).toList();
-
-      // === XFile 리스트로 전달 ===
+      // ✅ XFile 직접 전달
       await _sellRequestService.createSellRequestFromBasePart(
         basePart: _selectedPart!,
         ageInfoType: _selectedAgeInfoType,
@@ -130,11 +152,13 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
         ageInfoMonth: month,
         isSecondHand: _isSecondHand,
         hasWarranty: _hasWarranty,
-        warrantyMonthsLeft: _hasWarranty ? int.tryParse(_warrantyMonthsController.text) : null,
+        warrantyMonthsLeft: _hasWarranty
+            ? int.tryParse(_warrantyMonthsController.text)
+            : null,
         usageFrequency: usageFrequency,
         purpose: purpose,
         requestedPrice: int.parse(_requestedPriceController.text),
-        images: xFileImages, // XFile 리스트로 전달
+        images: _images,
       );
 
       if (mounted) {
@@ -146,12 +170,17 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('오류가 발생했습니다: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('오류가 발생했습니다: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -160,7 +189,10 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('제품 사진 (최대 5장)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text(
+          '제품 사진 (최대 5장)',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: _pickImages,
@@ -177,7 +209,10 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.camera_alt, color: Colors.grey[600]),
-                  Text('사진 추가', style: TextStyle(color: Colors.grey[600])),
+                  Text(
+                    '사진 추가',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
                 ],
               ),
             )
@@ -187,9 +222,48 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: Image.file(_images[index], width: 90, height: 90, fit: BoxFit.cover),
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: kIsWeb
+                            ? Image.network(
+                          _images[index].path,
+                          width: 90,
+                          height: 90,
+                          fit: BoxFit.cover,
+                        )
+                            : Image.file(
+                          File(_images[index].path),
+                          width: 90,
+                          height: 90,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _images.removeAt(index);
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
@@ -205,9 +279,15 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        Text('부품 연식 정보 📝', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          '부품 연식 정보 📝',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 8),
-        Text('부품의 연식을 정확히 입력하면 더 높은 컨디션 스코어를 받을 수 있습니다.', style: Theme.of(context).textTheme.bodySmall),
+        Text(
+          '부품의 연식을 정확히 입력하면 더 높은 컨디션 스코어를 받을 수 있습니다.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
         RadioListTile<AgeInfoType>(
           title: const Text('최초 신품 구매일'),
           value: AgeInfoType.originalPurchaseDate,
@@ -255,11 +335,18 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _yearController,
-                    decoration: const InputDecoration(labelText: '년도 (YYYY)', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(
+                      labelText: '년도 (YYYY)',
+                      border: OutlineInputBorder(),
+                    ),
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
                     validator: (value) {
-                      if (_selectedAgeInfoType != AgeInfoType.unknown && (value == null || value.isEmpty || value.length < 4)) {
+                      if (_selectedAgeInfoType != AgeInfoType.unknown &&
+                          (value == null || value.isEmpty || value.length < 4)) {
                         return '4자리 년도';
                       }
                       return null;
@@ -270,11 +357,18 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _monthController,
-                    decoration: const InputDecoration(labelText: '월 (MM)', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(
+                      labelText: '월 (MM)',
+                      border: OutlineInputBorder(),
+                    ),
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(2)],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(2),
+                    ],
                     validator: (value) {
-                      if (_selectedAgeInfoType != AgeInfoType.unknown && (value == null || value.isEmpty)) {
+                      if (_selectedAgeInfoType != AgeInfoType.unknown &&
+                          (value == null || value.isEmpty)) {
                         return '월 입력';
                       }
                       if (_selectedAgeInfoType != AgeInfoType.unknown) {
@@ -299,7 +393,10 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        Text('소유 이력 🤝', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          '소유 이력 🤝',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 8),
         RadioListTile<bool>(
           title: const Text('제가 신품으로 직접 구매했어요.'),
@@ -337,8 +434,13 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                       errorText: state.errorText,
                     ),
                     child: _selectedPart == null
-                        ? Text('탭하여 부품 검색', style: TextStyle(color: Theme.of(context).hintColor))
-                        : Text('${_selectedPart!.category} - ${_selectedPart!.modelName}'),
+                        ? Text(
+                      '탭하여 부품 검색',
+                      style: TextStyle(color: Theme.of(context).hintColor),
+                    )
+                        : Text(
+                      '${_selectedPart!.category} - ${_selectedPart!.modelName}',
+                    ),
                   ),
                 );
               },
@@ -361,17 +463,25 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                 padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
                 child: TextFormField(
                   controller: _warrantyMonthsController,
-                  decoration: const InputDecoration(labelText: '남은 AS 개월 수', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: '남은 AS 개월 수',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   validator: (value) {
-                    if (_hasWarranty && (value == null || value.isEmpty)) return '개월 수를 입력해주세요.';
+                    if (_hasWarranty && (value == null || value.isEmpty)) {
+                      return '개월 수를 입력해주세요.';
+                    }
                     return null;
                   },
                 ),
               ),
             const SizedBox(height: 16),
-            const Text('사용 빈도', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              '사용 빈도',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             CheckboxListTile(
               title: const Text("미사용 (개봉 후 보관만 했어요)"),
               value: _isUnused,
@@ -395,9 +505,17 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<int>(
-                        decoration: const InputDecoration(labelText: '주', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                          labelText: '주',
+                          border: OutlineInputBorder(),
+                        ),
                         value: _usageDaysPerWeek,
-                        items: List.generate(7, (i) => i + 1).map((d) => DropdownMenuItem(value: d, child: Text('$d일'))).toList(),
+                        items: List.generate(7, (i) => i + 1)
+                            .map((d) => DropdownMenuItem(
+                          value: d,
+                          child: Text('$d일'),
+                        ))
+                            .toList(),
                         onChanged: (value) => setState(() => _usageDaysPerWeek = value),
                         validator: (v) {
                           if (!_isUnused && v == null) return '선택';
@@ -408,9 +526,17 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<int>(
-                        decoration: const InputDecoration(labelText: '하루', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                          labelText: '하루',
+                          border: OutlineInputBorder(),
+                        ),
                         value: _usageHoursPerDay,
-                        items: List.generate(24, (i) => i + 1).map((h) => DropdownMenuItem(value: h, child: Text('$h시간'))).toList(),
+                        items: List.generate(24, (i) => i + 1)
+                            .map((h) => DropdownMenuItem(
+                          value: h,
+                          child: Text('$h시간'),
+                        ))
+                            .toList(),
                         onChanged: (value) => setState(() => _usageHoursPerDay = value),
                         validator: (v) {
                           if (!_isUnused && v == null) return '선택';
@@ -423,29 +549,47 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text('주 사용 용도', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              '주 사용 용도',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8.0,
-              children: _purposes.map((purpose) => ChoiceChip(
+              children: _purposes
+                  .map((purpose) => ChoiceChip(
                 label: Text(purpose),
                 selected: _selectedPurpose == purpose,
-                onSelected: (selected) => setState(() => _selectedPurpose = selected ? purpose : null),
-              )).toList(),
+                onSelected: (selected) => setState(() =>
+                _selectedPurpose = selected ? purpose : null),
+              ))
+                  .toList(),
             ),
             if (_selectedPurpose == null)
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),
-                child: Text('용도를 선택해주세요.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+                child: Text(
+                  '용도를 선택해주세요.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             if (_selectedPurpose == '기타')
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: TextFormField(
                   controller: _otherPurposeController,
-                  decoration: const InputDecoration(labelText: '기타 용도 입력', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: '기타 용도 입력',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
-                    if (_selectedPurpose == '기타' && (value == null || value.isEmpty)) return '기타 용도를 입력해주세요.';
+                    if (_selectedPurpose == '기타' &&
+                        (value == null || value.isEmpty)) {
+                      return '기타 용도를 입력해주세요.';
+                    }
                     return null;
                   },
                 ),
@@ -453,12 +597,18 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _requestedPriceController,
-              decoration: const InputDecoration(labelText: '희망 판매 가격', border: OutlineInputBorder(), suffixText: '원'),
+              decoration: const InputDecoration(
+                labelText: '희망 판매 가격',
+                border: OutlineInputBorder(),
+                suffixText: '원',
+              ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               validator: (value) {
                 if (value == null || value.isEmpty) return '가격을 입력해주세요.';
-                if (int.tryParse(value) == null || int.parse(value) <= 0) return '유효한 가격을 입력해주세요.';
+                if (int.tryParse(value) == null || int.parse(value) <= 0) {
+                  return '유효한 가격을 입력해주세요.';
+                }
                 return null;
               },
             ),
@@ -469,7 +619,10 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
               onPressed: _isLoading ? null : _submitRequest,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textStyle: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               child: _isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
