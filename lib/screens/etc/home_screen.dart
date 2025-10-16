@@ -15,6 +15,8 @@ import '../../widgets/circle_category.dart';
 import '../community/community_screen.dart';
 import '../pc_assembly_screen.dart';
 import '../product/part_shop_screen.dart';
+import '../selling/finished_pc_sell_screen.dart';
+
 import 'part_name.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -193,7 +195,7 @@ class _CircleMenuSection extends StatelessWidget {
     {
       'icon': Icons.desktop_mac,
       'label': '나만의 컴퓨터',
-      'screen': const PcAssemblyScreen(mode: AssemblyMode.build),
+      'screen': const PcAssemblyScreen(),
     },
     {
       'icon': Icons.add_box_outlined,
@@ -203,7 +205,7 @@ class _CircleMenuSection extends StatelessWidget {
     {
       'icon': Icons.desktop_windows,
       'label': '완제품 판매',
-      'screen': const PcAssemblyScreen(mode: AssemblyMode.sell), // <-- 새로 만들 화면으로 연결
+      'screen': const FinishedPcSellScreen(), // <-- 새로 만들 화면으로 연결
     },
   ];
 

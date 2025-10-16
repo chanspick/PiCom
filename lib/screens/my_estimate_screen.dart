@@ -229,7 +229,7 @@ class _MyEstimateScreenState extends State<MyEstimateScreen> {
                     builder: (context) => PcAssemblyScreen(
                       specProfile: _specProfile,
                       // [수정] '조립 모드'로 실행되도록 mode: AssemblyMode.build 파라미터를 명시적으로 추가했습니다.
-                      mode: AssemblyMode.build,
+
                     ),
                   ),
                 );

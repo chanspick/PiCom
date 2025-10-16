@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -15,7 +14,7 @@ class SellRequestService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  /// 단일 BasePart를 기반으로 판매 요청을 생성합니다. (개별 부품 판매용)
+  /// 1️⃣ 단일 부품 판매 요청 (개별 부품 판매용)
   Future<void> createSellRequestFromBasePart({
     required BasePart basePart,
     required AgeInfoType ageInfoType,
@@ -31,20 +30,22 @@ class SellRequestService {
   }) async {
     final currentUser = _auth.currentUser;
     if (currentUser == null) {
-      throw Exception('User not authenticated.');
+      throw Exception('사용자 인증이 필요합니다.');
     }
 
     const uuid = Uuid();
     final requestId = uuid.v4();
+
+    // 이미지 업로드
     final imageUrls = await _uploadImages(currentUser.uid, requestId, images);
 
+    // SellRequest 생성
     final newRequest = SellRequest(
       requestId: requestId,
       sellerId: currentUser.uid,
       partId: basePart.basePartId,
       category: basePart.category,
       modelName: basePart.modelName,
-      // brand 필드 제거됨
       ageInfoType: ageInfoType,
       ageInfoYear: ageInfoYear,
       ageInfoMonth: ageInfoMonth,
@@ -60,21 +61,22 @@ class SellRequestService {
       updatedAt: DateTime.now(),
     );
 
+    // Firestore에 저장
     await _firestore
         .collection('sell_requests')
         .doc(requestId)
         .set(newRequest.toMap());
   }
 
-  /// 여러 BasePart를 기반으로 다수의 판매 요청을 일괄 생성합니다. (완제품 판매용)
-  Future<void> createMultipleSellRequestsFromBaseParts({
+  /// 2️⃣ 완제품 판매 요청 (여러 부품을 개별 가격으로)
+  Future<void> createMultipleSellRequests({
     required List<BasePart> baseParts,
+    required List<int> prices, // 각 부품의 개별 가격
     required List<XFile> images,
     required AgeInfoType ageInfoType,
     int? ageInfoYear,
     int? ageInfoMonth,
     required bool isSecondHand,
-    required int totalPrice,
     required bool hasWarranty,
     int? warrantyMonthsLeft,
     required String usageFrequency,
@@ -82,22 +84,29 @@ class SellRequestService {
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
-      throw Exception('인증되지 않은 사용자입니다.');
+      throw Exception('사용자 인증이 필요합니다.');
+    }
+
+    if (baseParts.length != prices.length) {
+      throw Exception('부품 개수와 가격 개수가 일치하지 않습니다.');
     }
 
     const uuid = Uuid();
-    final uploadGroupId = uuid.v4(); // 모든 이미지들을 그룹화할 고유 ID
+    final uploadGroupId = uuid.v4(); // 모든 요청이 동일한 이미지 공유
+
+    // 이미지 한 번만 업로드
     final imageUrls = await _uploadImages(user.uid, uploadGroupId, images);
     if (imageUrls.isEmpty) {
       throw Exception('이미지 업로드에 실패했습니다.');
     }
 
+    // Firestore Batch 작업
     final batch = _firestore.batch();
     final now = DateTime.now();
-    final pricePerPart =
-    (baseParts.isNotEmpty) ? (totalPrice / baseParts.length).round() : 0;
 
-    for (final basePart in baseParts) {
+    for (int i = 0; i < baseParts.length; i++) {
+      final basePart = baseParts[i];
+      final price = prices[i];
       final requestId = uuid.v4();
       final docRef = _firestore.collection('sell_requests').doc(requestId);
 
@@ -107,13 +116,12 @@ class SellRequestService {
         partId: basePart.basePartId,
         category: basePart.category,
         modelName: basePart.modelName,
-        // brand 필드 제거됨
         ageInfoType: ageInfoType,
         ageInfoYear: ageInfoYear,
         ageInfoMonth: ageInfoMonth,
         isSecondHand: isSecondHand,
-        requestedPrice: pricePerPart, // 가격 균등 분배
-        imageUrls: imageUrls,
+        requestedPrice: price, // 개별 가격 사용
+        imageUrls: imageUrls, // 모든 요청이 동일 이미지 공유
         status: SellRequestStatus.pending,
         createdAt: now,
         updatedAt: now,
@@ -127,15 +135,17 @@ class SellRequestService {
       batch.set(docRef, newRequest.toMap());
     }
 
+    // 일괄 커밋
     await batch.commit();
   }
 
-  /// 사용자의 모든 판매 요청 목록을 실시간으로 가져옵니다.
+  /// 사용자의 판매 요청 목록 실시간 조회
   Stream<List<SellRequest>> getMySellRequests() {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
-      return Stream.value([]); // 로그인하지 않은 경우 빈 목록 반환
+      return Stream.value([]);
     }
+
     return _firestore
         .collection('sell_requests')
         .where('sellerId', isEqualTo: userId)
@@ -146,10 +156,14 @@ class SellRequestService {
         .toList());
   }
 
-  /// [PRIVATE] 여러 이미지를 Storage에 업로드하고 URL 목록을 반환합니다.
+  /// [PRIVATE] 이미지 업로드
   Future<List<String>> _uploadImages(
-      String userId, String uploadId, List<XFile> images) async {
+      String userId,
+      String uploadId,
+      List<XFile> images,
+      ) async {
     final List<String> downloadUrls = [];
+
     for (int i = 0; i < images.length; i++) {
       final image = images[i];
       final fileName = 'image_$i.jpg';
@@ -167,6 +181,7 @@ class SellRequestService {
       final downloadUrl = await snapshot.ref.getDownloadURL();
       downloadUrls.add(downloadUrl);
     }
+
     return downloadUrls;
   }
 }

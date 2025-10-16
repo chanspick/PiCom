@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
           routes: {
             '/home': (context) => HomeScreen(),
             '/auth': (context) => const AuthScreen(),
-            '/pc_assembly': (context) => const PcAssemblyScreen(mode: AssemblyMode.build),
+            '/pc_assembly': (context) => const PcAssemblyScreen(),
           },
         );
       },

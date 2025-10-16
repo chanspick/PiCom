@@ -1,11 +1,13 @@
 // lib/screens/product/sell_request_screen.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../models/part_model.dart';
-import '../../models/sell_request_model.dart'; // AgeInfoType Enum을 위해 import
-import 'search_screen.dart';
+// === BasePart로 변경 ===
+import '../../models/base_part_model.dart';
+import '../../models/sell_request_model.dart';
+import 'part_search_screen.dart'; // PartSearchScreen으로 변경
 import '../../services/sell_request_service.dart';
 import '../../services/auth_service.dart';
 
@@ -17,13 +19,12 @@ class SellRequestScreen extends StatefulWidget {
 }
 
 class _SellRequestScreenState extends State<SellRequestScreen> {
-  // --- Services and Keys ---
   final _formKey = GlobalKey<FormState>();
   final _sellRequestService = SellRequestService();
   final _authService = AuthService();
 
-  // --- State Variables ---
-  Part? _selectedPart;
+  // === BasePart로 변경 ===
+  BasePart? _selectedPart;
   bool _hasWarranty = false;
   int? _usageDaysPerWeek;
   int? _usageHoursPerDay;
@@ -31,18 +32,14 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
   List<File> _images = [];
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
-
-  // +++ '미사용' 옵션을 위한 상태 변수 +++
   bool _isUnused = false;
 
-  // --- Controllers ---
   final _warrantyMonthsController = TextEditingController();
   final _otherPurposeController = TextEditingController();
   final _requestedPriceController = TextEditingController();
 
-  // --- New State Variables for Age and Ownership ---
   AgeInfoType _selectedAgeInfoType = AgeInfoType.unknown;
-  bool _isSecondHand = false; // false: 신품 구매, true: 중고 구매
+  bool _isSecondHand = false;
   final _yearController = TextEditingController();
   final _monthController = TextEditingController();
 
@@ -57,8 +54,6 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     _monthController.dispose();
     super.dispose();
   }
-
-  // --- Methods ---
 
   Future<void> _pickImages() async {
     final List<XFile>? pickedFiles = await _picker.pickMultiImage(
@@ -76,11 +71,11 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const SearchScreen(),
+        builder: (context) => const PartSearchScreen(), // 변경
       ),
     );
-
-    if (result != null && result is Part) {
+    // === BasePart 타입으로 받기 ===
+    if (result != null && result is BasePart) {
       setState(() {
         _selectedPart = result;
       });
@@ -107,33 +102,39 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
     }
 
     setState(() => _isLoading = true);
-
     try {
       String purpose = _selectedPurpose!;
       if (purpose == '기타') {
         purpose = _otherPurposeController.text;
       }
 
-      final int? year = _selectedAgeInfoType != AgeInfoType.unknown ? int.tryParse(_yearController.text) : null;
-      final int? month = _selectedAgeInfoType != AgeInfoType.unknown ? int.tryParse(_monthController.text) : null;
+      final int? year = _selectedAgeInfoType != AgeInfoType.unknown
+          ? int.tryParse(_yearController.text)
+          : null;
+      final int? month = _selectedAgeInfoType != AgeInfoType.unknown
+          ? int.tryParse(_monthController.text)
+          : null;
 
-      // +++ '미사용' 여부에 따라 usageFrequency 값 결정 +++
       final String usageFrequency = _isUnused
           ? '미사용'
-          : '주 ${_usageDaysPerWeek}일, 하루 ${_usageHoursPerDay}시간';
+          : '주 $_usageDaysPerWeek일, 하루 $_usageHoursPerDay시간';
 
-      await _sellRequestService.createSellRequest(
-        part: _selectedPart!,
+      // === File을 XFile로 변환 ===
+      final List<XFile> xFileImages = _images.map((file) => XFile(file.path)).toList();
+
+      // === XFile 리스트로 전달 ===
+      await _sellRequestService.createSellRequestFromBasePart(
+        basePart: _selectedPart!,
         ageInfoType: _selectedAgeInfoType,
         ageInfoYear: year,
         ageInfoMonth: month,
         isSecondHand: _isSecondHand,
         hasWarranty: _hasWarranty,
         warrantyMonthsLeft: _hasWarranty ? int.tryParse(_warrantyMonthsController.text) : null,
-        usageFrequency: usageFrequency, // 결정된 값을 전달
+        usageFrequency: usageFrequency,
         purpose: purpose,
         requestedPrice: int.parse(_requestedPriceController.text),
-        images: _images,
+        images: xFileImages, // XFile 리스트로 전달
       );
 
       if (mounted) {
@@ -154,8 +155,6 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
       }
     }
   }
-
-  // --- Widget Builders ---
 
   Widget _buildImagePicker() {
     return Column(
@@ -209,7 +208,6 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
         Text('부품 연식 정보 📝', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         Text('부품의 연식을 정확히 입력하면 더 높은 컨디션 스코어를 받을 수 있습니다.', style: Theme.of(context).textTheme.bodySmall),
-
         RadioListTile<AgeInfoType>(
           title: const Text('최초 신품 구매일'),
           value: AgeInfoType.originalPurchaseDate,
@@ -228,7 +226,6 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
           groupValue: _selectedAgeInfoType,
           onChanged: (value) => setState(() => _selectedAgeInfoType = value!),
         ),
-
         if (_selectedAgeInfoType == AgeInfoType.unknown)
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -250,7 +247,6 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
               ],
             ),
           ),
-
         if (_selectedAgeInfoType != AgeInfoType.unknown)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -307,13 +303,13 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
         const SizedBox(height: 8),
         RadioListTile<bool>(
           title: const Text('제가 신품으로 직접 구매했어요.'),
-          value: false, // isSecondHand = false
+          value: false,
           groupValue: _isSecondHand,
           onChanged: (value) => setState(() => _isSecondHand = value!),
         ),
         RadioListTile<bool>(
           title: const Text('저도 중고로 구매했어요.'),
-          value: true, // isSecondHand = true
+          value: true,
           groupValue: _isSecondHand,
           onChanged: (value) => setState(() => _isSecondHand = value!),
         ),
@@ -330,8 +326,8 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            FormField<Part>(
-              builder: (FormFieldState<Part> state) {
+            FormField<BasePart>(
+              builder: (FormFieldState<BasePart> state) {
                 return InkWell(
                   onTap: _navigateToSearchScreen,
                   child: InputDecorator(
@@ -342,7 +338,7 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                     ),
                     child: _selectedPart == null
                         ? Text('탭하여 부품 검색', style: TextStyle(color: Theme.of(context).hintColor))
-                        : Text('${_selectedPart!.brand} ${_selectedPart!.modelName}'),
+                        : Text('${_selectedPart!.category} - ${_selectedPart!.modelName}'),
                   ),
                 );
               },
@@ -351,10 +347,8 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                 return null;
               },
             ),
-
             _buildAgeInfoSection(),
             _buildOwnershipSection(),
-
             const SizedBox(height: 16),
             SwitchListTile(
               title: const Text('AS 기간 남음'),
@@ -369,15 +363,13 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                   controller: _warrantyMonthsController,
                   decoration: const InputDecoration(labelText: '남은 AS 개월 수', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   validator: (value) {
                     if (_hasWarranty && (value == null || value.isEmpty)) return '개월 수를 입력해주세요.';
                     return null;
                   },
                 ),
               ),
-
-            // +++ '사용 빈도' 섹션 UI 업데이트 +++
             const SizedBox(height: 16),
             const Text('사용 빈도', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             CheckboxListTile(
@@ -430,7 +422,6 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
             const Text('주 사용 용도', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
@@ -447,7 +438,6 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text('용도를 선택해주세요.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
               ),
-
             if (_selectedPurpose == '기타')
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -460,20 +450,18 @@ class _SellRequestScreenState extends State<SellRequestScreen> {
                   },
                 ),
               ),
-
             const SizedBox(height: 16),
             TextFormField(
               controller: _requestedPriceController,
               decoration: const InputDecoration(labelText: '희망 판매 가격', border: OutlineInputBorder(), suffixText: '원'),
               keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               validator: (value) {
                 if (value == null || value.isEmpty) return '가격을 입력해주세요.';
                 if (int.tryParse(value) == null || int.parse(value) <= 0) return '유효한 가격을 입력해주세요.';
                 return null;
               },
             ),
-
             const SizedBox(height: 24),
             _buildImagePicker(),
             const SizedBox(height: 24),
