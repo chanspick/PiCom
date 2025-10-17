@@ -71,8 +71,8 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
   Future<void> _pickImages() async {
     try {
       final List<XFile>? pickedFiles = await _picker.pickMultiImage(
-        imageQuality: 70,
-        maxWidth: 1000,
+        imageQuality: 50,
+        maxWidth: 800,
       );
       if (pickedFiles != null && pickedFiles.isNotEmpty) {
         setState(() {
@@ -91,7 +91,6 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
     }
   }
 
-  // ✅ createMultipleSellRequests 사용으로 변경
   Future<void> _submitRequests() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -117,7 +116,6 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
       return;
     }
 
-    // ✅ 로딩 시작
     if (!mounted) return;
     setState(() => _isLoading = true);
 
@@ -137,10 +135,12 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
           ? '미사용'
           : '주 $_usageDaysPerWeek일, 하루 $_usageHoursPerDay시간';
 
-      // ✅ 대표 가격 사용 (첫 번째 부품 가격)
-      final int representativePrice = int.parse(_priceControllers[0].text);
+      // ✅ 각 부품별 가격을 List로 변환
+      final List<int> prices = _priceControllers
+          .map((controller) => int.parse(controller.text))
+          .toList();
 
-      // ✅ createMultipleSellRequests 사용 (이미지 한 번만 업로드)
+      // ✅ createMultipleSellRequests 호출 (prices 파라미터 사용)
       await _sellRequestService.createMultipleSellRequests(
         baseParts: widget.selectedBaseParts,
         ageInfoType: _selectedAgeInfoType,
@@ -153,7 +153,7 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
             : null,
         usageFrequency: usageFrequency,
         purpose: purpose,
-        requestedPrice: representativePrice,
+        prices: prices,
         images: _images,
       );
 
@@ -173,7 +173,6 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
         );
       }
     } finally {
-      // ✅ 항상 로딩 해제
       if (mounted) {
         setState(() => _isLoading = false);
       }
