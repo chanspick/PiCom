@@ -1,8 +1,8 @@
 // lib/screens/selling/finished_pc_sell_screen.dart
 
 import 'package:flutter/material.dart';
-import '../../models/base_part_model.dart'; // BasePart 모델 import
-import '../../models/part_model.dart' show PartCategory; // PartCategory Enum만 사용
+import '../../models/base_part_model.dart';
+import '../../models/part_model.dart' show PartCategory;
 import '../product/search_screen.dart';
 import '../../widgets/pc_part_list_view.dart';
 import 'sell_request_details_screen.dart';
@@ -15,7 +15,6 @@ class FinishedPcSellScreen extends StatefulWidget {
 }
 
 class _FinishedPcSellScreenState extends State<FinishedPcSellScreen> {
-  // === BasePart? 타입으로 Map 선언 ===
   final Map<PartCategory, BasePart?> _selectedComponents = {
     PartCategory.cpu: null,
     PartCategory.mainboard: null,
@@ -27,9 +26,7 @@ class _FinishedPcSellScreenState extends State<FinishedPcSellScreen> {
     PartCategory.pccase: null,
   };
 
-  /// SearchScreen을 호출하여 특정 카테고리의 BasePart를 선택하게 하는 함수
   Future<void> _selectBasePartForCategory(PartCategory category) async {
-    // SearchScreen이 BasePart 객체를 반환
     final selectedBasePart = await Navigator.push<BasePart>(
       context,
       MaterialPageRoute(
@@ -37,15 +34,15 @@ class _FinishedPcSellScreenState extends State<FinishedPcSellScreen> {
       ),
     );
 
-    if (selectedBasePart != null && mounted) {
+    if (selectedBasePart != null) {
       setState(() {
         _selectedComponents[category] = selectedBasePart;
+        print('✅ 선택됨: ${category.name} - ${selectedBasePart.modelName}');
       });
     }
   }
 
   void _goToDetailsScreen() {
-    // === 선택된 BasePart만 추출 (null 제거) ===
     final selectedBaseParts = _selectedComponents.values
         .whereType<BasePart>()
         .toList();
@@ -60,7 +57,6 @@ class _FinishedPcSellScreenState extends State<FinishedPcSellScreen> {
       return;
     }
 
-    // === 상세 정보 입력 화면으로 BasePart 리스트 전달 ===
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -73,7 +69,6 @@ class _FinishedPcSellScreenState extends State<FinishedPcSellScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // === 선택된 부품 개수 계산 ===
     final selectedCount = _selectedComponents.values
         .where((part) => part != null)
         .length;
@@ -99,7 +94,7 @@ class _FinishedPcSellScreenState extends State<FinishedPcSellScreen> {
       ),
       body: Column(
         children: [
-          // === 안내 메시지 ===
+          // 안내 메시지
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16.0),
@@ -120,14 +115,17 @@ class _FinishedPcSellScreenState extends State<FinishedPcSellScreen> {
               ],
             ),
           ),
-          // === 부품 선택 리스트 ===
+
+          // ✅ PcPartListView 사용 (파라미터 이름 수정)
           Expanded(
             child: PcPartListView(
-              selectedComponents: _selectedComponents,
-              onSelectComponent: _selectBasePartForCategory,
+              key: ValueKey(_selectedComponents.hashCode),
+              selectedComponents: Map<PartCategory, dynamic>.from(_selectedComponents),
+              onSelectComponent: _selectBasePartForCategory, // ✅ 올바른 파라미터명
             ),
           ),
-          // === 다음 버튼 ===
+
+          // 다음 버튼
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
@@ -159,7 +157,7 @@ class _FinishedPcSellScreenState extends State<FinishedPcSellScreen> {
                 onPressed: selectedCount > 0 ? _goToDetailsScreen : null,
                 child: Text(
                   selectedCount > 0
-                      ? '다음 (상세 정보 입력)'
+                      ? '다음 단계 (상세 정보 입력)'
                       : '부품을 선택해주세요',
                 ),
               ),
