@@ -69,17 +69,29 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
   }
 
   Future<void> _pickImages() async {
-    final List<XFile>? pickedFiles = await _picker.pickMultiImage(
-      imageQuality: 70,
-      maxWidth: 1000,
-    );
-    if (pickedFiles != null && pickedFiles.isNotEmpty) {
-      setState(() {
-        _images = pickedFiles;
-      });
+    try {
+      final List<XFile>? pickedFiles = await _picker.pickMultiImage(
+        imageQuality: 70,
+        maxWidth: 1000,
+      );
+      if (pickedFiles != null && pickedFiles.isNotEmpty) {
+        setState(() {
+          _images = pickedFiles;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미지 선택 오류: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
+  // ✅ createMultipleSellRequests 사용으로 변경
   Future<void> _submitRequests() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -105,7 +117,10 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
       return;
     }
 
+    // ✅ 로딩 시작
+    if (!mounted) return;
     setState(() => _isLoading = true);
+
     try {
       String purpose = _selectedPurpose!;
       if (purpose == '기타') {
@@ -118,36 +133,29 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
       final int? month = _selectedAgeInfoType != AgeInfoType.unknown
           ? int.tryParse(_monthController.text)
           : null;
-
       final String usageFrequency = _isUnused
           ? '미사용'
           : '주 $_usageDaysPerWeek일, 하루 $_usageHoursPerDay시간';
 
-      // TODO: SellRequestService에 아래 메서드 구현 필요
-      // createMultipleSellRequestsFromBaseParts() 메서드가 필요합니다.
-      // 각 BasePart와 개별 가격을 받아서 여러 개의 SellRequest를 생성해야 합니다.
+      // ✅ 대표 가격 사용 (첫 번째 부품 가격)
+      final int representativePrice = int.parse(_priceControllers[0].text);
 
-      // 임시로 각 부품마다 개별 요청 생성
-      for (int i = 0; i < widget.selectedBaseParts.length; i++) {
-        final basePart = widget.selectedBaseParts[i];
-        final requestedPrice = int.parse(_priceControllers[i].text);
-
-        await _sellRequestService.createSellRequestFromBasePart(
-          basePart: basePart,
-          ageInfoType: _selectedAgeInfoType,
-          ageInfoYear: year,
-          ageInfoMonth: month,
-          isSecondHand: _isSecondHand,
-          hasWarranty: _hasWarranty,
-          warrantyMonthsLeft: _hasWarranty
-              ? int.tryParse(_warrantyMonthsController.text)
-              : null,
-          usageFrequency: usageFrequency,
-          purpose: purpose,
-          requestedPrice: requestedPrice,
-          images: _images,
-        );
-      }
+      // ✅ createMultipleSellRequests 사용 (이미지 한 번만 업로드)
+      await _sellRequestService.createMultipleSellRequests(
+        baseParts: widget.selectedBaseParts,
+        ageInfoType: _selectedAgeInfoType,
+        ageInfoYear: year,
+        ageInfoMonth: month,
+        isSecondHand: _isSecondHand,
+        hasWarranty: _hasWarranty,
+        warrantyMonthsLeft: _hasWarranty
+            ? int.tryParse(_warrantyMonthsController.text)
+            : null,
+        usageFrequency: usageFrequency,
+        purpose: purpose,
+        requestedPrice: representativePrice,
+        images: _images,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -165,6 +173,7 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
         );
       }
     } finally {
+      // ✅ 항상 로딩 해제
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -267,8 +276,7 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('각 부품별 희망 가격 💰',
-            style: Theme.of(context).textTheme.titleLarge),
+        Text('각 부품별 희망 가격 💰', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(
           '각 부품의 희망 판매 가격을 개별적으로 입력해주세요.',
@@ -513,11 +521,9 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
                     ),
                     value: _usageDaysPerWeek,
                     items: List.generate(7, (i) => i + 1)
-                        .map((d) =>
-                        DropdownMenuItem(value: d, child: Text('$d일')))
+                        .map((d) => DropdownMenuItem(value: d, child: Text('$d일')))
                         .toList(),
-                    onChanged: (value) =>
-                        setState(() => _usageDaysPerWeek = value),
+                    onChanged: (value) => setState(() => _usageDaysPerWeek = value),
                     validator: (v) {
                       if (!_isUnused && v == null) return '선택';
                       return null;
@@ -533,11 +539,9 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
                     ),
                     value: _usageHoursPerDay,
                     items: List.generate(24, (i) => i + 1)
-                        .map((h) => DropdownMenuItem(
-                        value: h, child: Text('$h시간')))
+                        .map((h) => DropdownMenuItem(value: h, child: Text('$h시간')))
                         .toList(),
-                    onChanged: (value) =>
-                        setState(() => _usageHoursPerDay = value),
+                    onChanged: (value) => setState(() => _usageHoursPerDay = value),
                     validator: (v) {
                       if (!_isUnused && v == null) return '선택';
                       return null;
@@ -591,8 +595,7 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
-                if (_selectedPurpose == '기타' &&
-                    (value == null || value.isEmpty)) {
+                if (_selectedPurpose == '기타' && (value == null || value.isEmpty)) {
                   return '기타 용도를 입력해주세요.';
                 }
                 return null;
@@ -630,8 +633,7 @@ class _SellRequestDetailsScreenState extends State<SellRequestDetailsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add_a_photo,
-                      size: 40, color: Colors.grey[600]),
+                  Icon(Icons.add_a_photo, size: 40, color: Colors.grey[600]),
                   const SizedBox(height: 8),
                   Text(
                     '사진 추가 (최대 5장)',

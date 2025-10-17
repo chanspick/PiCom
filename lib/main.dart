@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';  // ✅ 추가
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'firebase_options.dart';
 import 'widgets/auth_wrapper.dart';
@@ -71,8 +71,8 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             primaryColor: Colors.deepPurple,
-            scaffoldBackgroundColor: const Color(0xFF121212), // Very dark grey
-            cardColor: const Color(0xFF1E1E1E), // Slightly lighter grey for cards
+            scaffoldBackgroundColor: const Color(0xFF121212),
+            cardColor: const Color(0xFF1E1E1E),
             textTheme: const TextTheme(
               bodyLarge: TextStyle(color: Colors.white),
               bodyMedium: TextStyle(color: Colors.white70),
@@ -86,8 +86,8 @@ class MyApp extends StatelessWidget {
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Colors.deepPurple),
-                foregroundColor: WidgetStateProperty.all(Colors.white),
+                backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
+                foregroundColor: MaterialStateProperty.all(Colors.white),
               ),
             ),
             colorScheme: ColorScheme.fromSwatch(
@@ -97,13 +97,13 @@ class MyApp extends StatelessWidget {
               secondary: Colors.amber,
               surface: const Color(0xFF1E1E1E),
               onSurface: Colors.white,
-              onPrimary: Colors.white, // Explicitly set onPrimary for text on buttons
+              onPrimary: Colors.white,
             ),
             useMaterial3: true,
           ),
           themeMode: themeProvider.themeMode,
           debugShowCheckedModeBanner: false,
-          home: AuthWrapper(),
+          home: AuthWrapper(),  // ✅ 기존 진입점 유지
           routes: {
             '/home': (context) => HomeScreen(),
             '/auth': (context) => const AuthScreen(),
