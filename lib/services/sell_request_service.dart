@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
@@ -15,7 +17,7 @@ class SellRequestService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /// 1️⃣ 단일 부품 판매 요청 (개별 부품 판매용)
-  Future<void> createSellRequestFromBasePart({
+  Future<String> createSellRequestFromBasePart({
     required BasePart basePart,
     required AgeInfoType ageInfoType,
     required bool isSecondHand,
@@ -28,21 +30,30 @@ class SellRequestService {
     int? ageInfoMonth,
     int? warrantyMonthsLeft,
   }) async {
-    final currentUser = _auth.currentUser;
-    if (currentUser == null) {
-      throw Exception('사용자 인증이 필요합니다.');
+    // ⚠️ App Check 토큰 강제 갱신
+    try {
+      await FirebaseAppCheck.instance.getToken(true); // forceRefresh = true
+      print('✅ App Check token refreshed successfully');
+    } catch (e) {
+      print('⚠️ App Check token refresh failed: $e');
+      // 계속 진행 (debug mode에서는 괜찮음)
+    }
+
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      throw Exception('User not logged in');
     }
 
     const uuid = Uuid();
     final requestId = uuid.v4();
 
     // 이미지 업로드
-    final imageUrls = await _uploadImages(currentUser.uid, requestId, images);
+    final imageUrls = await _uploadImages(userId, requestId, images);
 
     // SellRequest 생성
     final newRequest = SellRequest(
       requestId: requestId,
-      sellerId: currentUser.uid,
+      sellerId: userId,
       partId: basePart.basePartId,
       category: basePart.category,
       modelName: basePart.modelName,
@@ -66,6 +77,9 @@ class SellRequestService {
         .collection('sell_requests')
         .doc(requestId)
         .set(newRequest.toMap());
+
+    print('✅ Sell request created successfully: $requestId');
+    return requestId; // ⚠️ requestId 반환 추가
   }
 
   /// 2️⃣ 완제품 판매 요청 (여러 부품을 개별 가격으로)
@@ -137,6 +151,7 @@ class SellRequestService {
 
     // 일괄 커밋
     await batch.commit();
+    print('✅ Multiple sell requests created successfully: ${baseParts.length} parts');
   }
 
   /// 사용자의 판매 요청 목록 실시간 조회
@@ -156,7 +171,7 @@ class SellRequestService {
         .toList());
   }
 
-  /// [PRIVATE] 이미지 업로드
+  /// [PRIVATE] 이미지 업로드 (타임아웃 및 에러 핸들링 추가)
   Future<List<String>> _uploadImages(
       String userId,
       String uploadId,
@@ -165,21 +180,46 @@ class SellRequestService {
     final List<String> downloadUrls = [];
 
     for (int i = 0; i < images.length; i++) {
-      final image = images[i];
-      final fileName = 'image_$i.jpg';
-      final ref =
-      _storage.ref().child('sell_requests/$userId/$uploadId/$fileName');
+      try {
+        final image = images[i];
+        final fileName = 'image_$i.jpg';
+        final ref = _storage.ref().child('sell_requests/$userId/$uploadId/$fileName');
 
-      UploadTask uploadTask;
-      if (kIsWeb) {
-        uploadTask = ref.putData(await image.readAsBytes());
-      } else {
-        uploadTask = ref.putFile(File(image.path));
+        UploadTask uploadTask;
+        if (kIsWeb) {
+          uploadTask = ref.putData(await image.readAsBytes());
+        } else {
+          uploadTask = ref.putFile(File(image.path));
+        }
+
+        // 업로드 진행 상황 로깅
+        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+          final progress = (snapshot.bytesTransferred / snapshot.totalBytes * 100).toStringAsFixed(2);
+          print('📤 Uploading image $i: $progress%');
+        });
+
+        // ⚠️ 타임아웃 설정 추가 (60초)
+        final snapshot = await uploadTask.timeout(
+          const Duration(seconds: 60),
+          onTimeout: () {
+            uploadTask.cancel();
+            throw TimeoutException('Upload timeout after 60 seconds');
+          },
+        );
+
+        final downloadUrl = await snapshot.ref.getDownloadURL();
+        downloadUrls.add(downloadUrl);
+        print('✅ Successfully uploaded image $i: $downloadUrl');
+      } on TimeoutException catch (e) {
+        print('⏱️ Timeout uploading image $i: $e');
+        throw Exception('이미지 업로드 시간 초과. App Check 설정을 확인하세요.');
+      } on FirebaseException catch (e) {
+        print('❌ Firebase error uploading image $i: ${e.code} - ${e.message}');
+        throw Exception('이미지 업로드 실패: ${e.message}');
+      } catch (e) {
+        print('❌ Error uploading image $i: $e');
+        throw Exception('이미지 업로드 중 오류 발생: $e');
       }
-
-      final snapshot = await uploadTask.whenComplete(() => {});
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-      downloadUrls.add(downloadUrl);
     }
 
     return downloadUrls;

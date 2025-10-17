@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "222126078513-87dm24q92tnsnnncu6rlkrfijd1h5rf4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.picom.app",
+            "certificate_hash": "b9b55a8b2fb75c83ac38fc1e0ef1bb9989b2948f"
+          }
+        },
+        {
           "client_id": "222126078513-gud2gesn3gkei4pebeohe51b0psrdbsb.apps.googleusercontent.com",
           "client_type": 3
         }
