@@ -12,12 +12,13 @@ export const approveSellRequest = onRequest(
       return;
     }
 
-    // 1️⃣ Auth (변경 없음)
+    // 1️⃣ Auth
     const idToken = req.headers.authorization?.split("Bearer ")[1];
     if (!idToken) {
       res.status(403).send({ error: "Unauthorized" });
       return;
     }
+
     try {
       const decoded = await admin.auth().verifyIdToken(idToken);
       if (decoded.admin !== true) {
@@ -29,117 +30,151 @@ export const approveSellRequest = onRequest(
       return;
     }
 
-    // 2️⃣ Input (변경 없음)
+    // 2️⃣ Input
     const { requestId, finalPrice, finalConditionScore } = req.body || {};
     if (
       !requestId || typeof requestId !== "string" ||
       !finalPrice || typeof finalPrice !== "number" || finalPrice <= 0 ||
-      !finalConditionScore || typeof finalConditionScore !== "number" || finalConditionScore < 0 || finalConditionScore > 100
+      !finalConditionScore || typeof finalConditionScore !== "number" ||
+      finalConditionScore < 1 || finalConditionScore > 100
     ) {
-      res.status(400).send({ error: "Missing/invalid fields" });
+      res.status(400).send({ error: "Invalid input" });
       return;
     }
 
-    const sellRequestRef = db.collection("sell_requests").doc(requestId);
-
     try {
-      // [추가] Firestore 트랜잭션을 사용하여 전체 로직을 감쌉니다.
-      const newListingId = await db.runTransaction(async (transaction) => {
-        const sellRequestSnap = await transaction.get(sellRequestRef);
-        if (!sellRequestSnap.exists) {
-          throw new Error(`Sell request ${requestId} not found.`);
+      // 3️⃣ Transaction으로 처리
+      await db.runTransaction(async (transaction) => {
+        const requestRef = db.collection("sell_requests").doc(requestId);
+        const requestSnap = await transaction.get(requestRef);
+
+        if (!requestSnap.exists) {
+          throw new Error("SellRequest not found");
         }
 
-        const r = sellRequestSnap.data()!;
-        if (r.status === "processed") {
-          logger.info(`Request ${requestId} already processed.`);
-          return r.listingId || null; // 이미 처리된 경우 기존 리스팅 ID 반환
+        const requestData = requestSnap.data()!;
+        if (requestData.status !== "pending") {
+          throw new Error(`Invalid status: ${requestData.status}`);
         }
 
-        // 3️⃣ 정규화 (기존 로직과 동일)
-        const srPartId = typeof r.partId === "string" ? r.partId : null;
-        const srBrand = typeof r.brand === "string" ? r.brand : null;
-        const srModelName = typeof r.modelName === "string" ? r.modelName : (typeof r.partModelName === "string" ? r.partModelName : null);
-        const srCategory = typeof r.category === "string" ? r.category : (typeof r.partCategory === "string" ? r.partCategory : null);
-        if (!srPartId && !(srModelName && (srBrand || srCategory))) {
-          throw new Error("Insufficient identifiers (need partId or (modelName + brand/category)).");
+        const sellerId = requestData.userId;
+        const partId = requestData.partId;
+
+        if (!sellerId || !partId) {
+          throw new Error("Missing userId or partId in SellRequest");
         }
 
-        // 4️⃣ Part 조회 (기존의 안정적인 로직 그대로 사용)
-        let partDoc: FirebaseFirestore.DocumentSnapshot | null = null;
-        if (srPartId) {
-          const byId = await transaction.get(db.collection("parts").doc(srPartId));
-          if (byId.exists) partDoc = byId;
+        // 4️⃣ Part 정보 조회 (basePartId 가져오기)
+        const partRef = db.collection("parts").doc(partId);
+        const partSnap = await transaction.get(partRef);
+        if (!partSnap.exists) {
+          throw new Error("Part not found");
         }
-        if (!partDoc && srBrand && srModelName) {
-            const qs = await transaction.get(db.collection("parts").where("brand", "==", srBrand).where("modelName", "==", srModelName).limit(1));
-            if (!qs.empty) partDoc = qs.docs[0];
-        }
-        if (!partDoc && srBrand && srModelName) {
-            const qs = await transaction.get(db.collection("parts").where("brand", "==", srBrand).where("model", "==", srModelName).limit(1));
-            if (!qs.empty) partDoc = qs.docs[0];
-        }
-        if (!partDoc && srCategory && srModelName) {
-            const qs = await transaction.get(db.collection("parts").where("category", "==", srCategory).where("modelName", "==", srModelName).limit(1));
-            if (!qs.empty) partDoc = qs.docs[0];
-        }
-        if (!partDoc && srCategory && srModelName) {
-            const qs = await transaction.get(db.collection("parts").where("category", "==", srCategory).where("model", "==", srModelName).limit(1));
-            if (!qs.empty) partDoc = qs.docs[0];
-        }
-        if (!partDoc) {
-          throw new Error(`Part not found (partId:${srPartId || 'N/A'}, brand:${srBrand || 'N/A'}, modelName:${srModelName || 'N/A'})`);
-        }
-
-        const partData = partDoc.data()!;
-
-        // [핵심 기능 추가] Part 문서에서 basePartId를 가져와 listingCount를 업데이트합니다.
+        const partData = partSnap.data()!;
         const basePartId = partData.basePartId;
+
         if (!basePartId) {
-          throw new Error(`basePartId is missing in part document ${partDoc.id}.`);
+          throw new Error("basePartId not found in Part");
         }
+
+        // ✅ 추가: BasePart 존재 여부 확인
         const basePartRef = db.collection("base_parts").doc(basePartId);
-        transaction.update(basePartRef, {
-          listingCount: admin.firestore.FieldValue.increment(1),
-        });
+        const basePartSnap = await transaction.get(basePartRef);
+        if (!basePartSnap.exists) {
+          throw new Error(`BasePart ${basePartId} not found. Please create BasePart first.`);
+        }
 
-        // 5️⃣ Listing 생성 (기존 로직과 동일)
+        // 5️⃣ Listing 생성
         const newListingRef = db.collection("listings").doc();
-        transaction.set(newListingRef, {
-            listingId: newListingRef.id,
-            partId: partDoc.id,
-            basePartId: basePartId,
-            conditionScore: finalConditionScore,
-            price: finalPrice,
-            status: "available",
-            sellerId: r.sellerId,
-            buyerId: null,
-            brand: (partData.brand ?? srBrand) || "",
-            modelName: (srModelName ?? partData.modelName ?? partData.model) || "",
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            soldAt: null,
-            imageUrls: Array.isArray(r.imageUrls) ? r.imageUrls : [],
+        const newListing = {
+          listingId: newListingRef.id,
+          basePartId: basePartId,
+          partId: partId,
+          brand: partData.brand || "",
+          modelName: partData.modelName || "",
+          conditionScore: finalConditionScore,
+          price: finalPrice,
+          status: "available",
+          sellerId: sellerId,
+          buyerId: null,
+          imageUrls: requestData.imageUrls || [],
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          soldAt: null,
+        };
+        transaction.set(newListingRef, newListing);
+
+        // 6️⃣ 가격 통계 계산 및 업데이트
+        // 현재 해당 basePartId의 available Listing들 조회
+        const existingListingsSnap = await transaction.get(
+          db.collection("listings")
+            .where("basePartId", "==", basePartId)
+            .where("status", "==", "available")
+        );
+
+        // 기존 매물 가격들 + 새로 추가되는 가격
+        const allPrices = existingListingsSnap.docs.map(doc => doc.data().price as number);
+        allPrices.push(finalPrice);
+
+        // 최저가, 평균가, 매물수 계산
+        const lowestPrice = Math.min(...allPrices);
+        const averagePrice = allPrices.reduce((sum, price) => sum + price, 0) / allPrices.length;
+        const listingCount = allPrices.length;
+
+        // BasePart 업데이트
+        transaction.update(basePartRef, {
+          lowestPrice: lowestPrice,
+          averagePrice: Math.round(averagePrice),
+          listingCount: listingCount,
         });
 
-        // 6️⃣ SellRequest 업데이트 (기존 로직과 동일)
-        transaction.update(sellRequestRef, {
-            listingId: newListingRef.id,
-            status: "processed",
-            finalPrice,
-            finalConditionScore,
+        // 7️⃣ 가격 히스토리 기록 (일별)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dateKey = today.toISOString().split('T')[0];
+
+        const historyRef = db
+          .collection("base_part_prices")
+          .doc(basePartId)
+          .collection("daily_stats")
+          .doc(dateKey);
+
+        const historySnap = await transaction.get(historyRef);
+
+        if (historySnap.exists) {
+          transaction.update(historyRef, {
+            lowestPrice: lowestPrice,
+            averagePrice: Math.round(averagePrice),
+            listingCount: listingCount,
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        } else {
+          transaction.set(historyRef, {
+            date: admin.firestore.Timestamp.fromDate(today),
+            lowestPrice: lowestPrice,
+            averagePrice: Math.round(averagePrice),
+            listingCount: listingCount,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+
+        // 8️⃣ SellRequest 상태 업데이트
+        transaction.update(requestRef, {
+          status: "approved",
+          reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
+          finalPrice: finalPrice,
+          finalConditionScore: finalConditionScore,
+          listingId: newListingRef.id,
         });
 
-        return newListingRef.id; // 성공 시 생성된 리스팅 ID를 반환
+        logger.info(`✅ Approved request ${requestId}, created listing ${newListingRef.id}`);
+        logger.info(`📊 Updated basePartId ${basePartId}: lowest=${lowestPrice}, avg=${Math.round(averagePrice)}, count=${listingCount}`);
       });
 
-      logger.info(`Listing ${newListingId} created successfully for request ${requestId}.`);
-      res.status(200).send({ success: true, listingId: newListingId });
-
-    } catch (error) {
-      logger.error(`Error in transaction for approveSellRequest ${requestId}:`, error);
-      const errorMessage = error instanceof Error ? error.message : "Internal server error";
-      res.status(500).send({ error: errorMessage });
+      res.status(200).send({ success: true });
+    } catch (error: any) {
+      logger.error("approveSellRequest error:", error);
+      res.status(500).send({ error: error.message || "Internal server error" });
     }
   }
 );

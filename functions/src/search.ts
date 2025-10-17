@@ -1,4 +1,5 @@
 // search.ts
+
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { defineString } from "firebase-functions/params";
 import algoliasearch, { SearchClient } from "algoliasearch";
@@ -6,7 +7,6 @@ import { logger } from "firebase-functions/v2";
 
 const algoliaAppId = defineString("ALGOLIA_APP_ID");
 const algoliaApiKey = defineString("ALGOLIA_API_KEY");
-// === 수정: default 값을 명확하게 지정 ===
 const indexName = defineString("ALGOLIA_INDEX_NAME", { default: "base_parts" });
 
 let _algoliaClient: SearchClient | null = null;
@@ -46,22 +46,19 @@ export const searchProducts = onCall(
       );
     }
 
-    // === 수정: indexName.value()로 명확하게 값 가져오기 ===
     const index = indexName.value();
     logger.info(`🔍 Searching in index: "${index}" with keyword: "${keyword}"`);
 
     try {
-      const results = await client.searchSingleIndex({
-        indexName: index,
-        searchParams: {
-          query: keyword,
-          hitsPerPage: 50,
-        },
+      // ✅ Algolia v5: initIndex 방식 사용
+      const searchIndex = client.initIndex(index);
+      const result = await searchIndex.search(keyword, {
+        hitsPerPage: 50,
       });
 
-      logger.info(`✅ Found ${results.hits.length} results`);
-      return results.hits;
-
+      const hits = result.hits || [];
+      logger.info(`✅ Found ${hits.length} results`);
+      return hits;
     } catch (error: any) {
       logger.error("❌ Algolia search error:", error);
       throw new HttpsError(

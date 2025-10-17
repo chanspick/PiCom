@@ -7,7 +7,7 @@ import {
   Change,
   QueryDocumentSnapshot,
 } from "firebase-functions/v2/firestore";
-import { onRequest, Request } from "firebase-functions/v2/https"; // 👈 이 줄 추가
+import { onRequest, Request } from "firebase-functions/v2/https";
 import {defineString} from "firebase-functions/params";
 import {logger} from "firebase-functions/v2";
 import algoliasearch, {SearchClient} from "algoliasearch";
@@ -23,11 +23,9 @@ const indexName = defineString("ALGOLIA_INDEX_NAME", {default: "parts"});
 
 // Algolia 클라이언트 지연 초기화
 let _algoliaClient: SearchClient | null = null;
-
 const getAlgoliaClient = () => {
   const appId = algoliaAppId.value();
   const apiKey = algoliaApiKey.value();
-
   if (_algoliaClient) {
     return _algoliaClient;
   }
@@ -41,6 +39,7 @@ const getAlgoliaClient = () => {
   return null;
 };
 
+// ==================== 기존 Functions (변경 없음) ====================
 
 export const validateBid = onDocumentCreated(
   {
@@ -53,6 +52,7 @@ export const validateBid = onDocumentCreated(
       logger.error("No data associated with the event");
       return;
     }
+
     const bidData = snapshot.data();
     const bidId = snapshot.id;
     const userId = bidData.userId;
@@ -61,6 +61,7 @@ export const validateBid = onDocumentCreated(
       await snapshot.ref.delete();
       return;
     }
+
     logger.info(`Validating new bid ${bidId} from user ${userId}`);
     const {productId, bidAmount} = bidData;
     if (typeof productId !== "string" || !productId) {
@@ -68,11 +69,13 @@ export const validateBid = onDocumentCreated(
       await snapshot.ref.delete();
       return;
     }
+
     if (typeof bidAmount !== "number" || bidAmount <= 0) {
       logger.error("Error: bidAmount must be a positive number.");
       await snapshot.ref.delete();
       return;
     }
+
     try {
       const productDoc = await db.collection("products").doc(productId).get();
       if (!productDoc.exists) {
@@ -80,6 +83,7 @@ export const validateBid = onDocumentCreated(
         await snapshot.ref.delete();
         return;
       }
+
       const productData = productDoc.data();
       if (!productData || productData.status !== "active") {
         logger.error(`Product ${productId} is not active.`);
@@ -91,6 +95,7 @@ export const validateBid = onDocumentCreated(
       await snapshot.ref.delete();
       return;
     }
+
     logger.info(`Bid ${bidId} is valid. Enriching data.`);
     try {
       await snapshot.ref.update({
@@ -115,12 +120,14 @@ export const onPartCreated = onDocumentCreated(
       logger.error("No data associated with the event");
       return;
     }
+
     try {
       const client = getAlgoliaClient();
       if (!client) {
         logger.error("Could not initialize Algolia client.");
         return;
       }
+
       const index = client.initIndex(indexName.value());
       const data = {
         ...snapshot.data(),
@@ -157,6 +164,7 @@ export const onPartUpdated = onDocumentUpdated(
       logger.error("No data associated with the event");
       return;
     }
+
     const beforeData = change.before.data();
     const afterData = change.after.data();
     const partId = change.after.id;
@@ -164,16 +172,19 @@ export const onPartUpdated = onDocumentUpdated(
     const hasSearchableChanges = searchableFields.some(
       (field) => JSON.stringify(beforeData[field]) !== JSON.stringify(afterData[field]),
     );
+
     if (!hasSearchableChanges) {
       logger.info(`Part ${partId} updated but no indexing needed`);
       return;
     }
+
     try {
       const client = getAlgoliaClient();
       if (!client) {
         logger.error("Could not initialize Algolia client.");
         return;
       }
+
       const index = client.initIndex(indexName.value());
       const data = {
         ...afterData,
@@ -210,12 +221,14 @@ export const onPartDeleted = onDocumentDeleted(
       logger.error("No partId in event params");
       return;
     }
+
     try {
       const client = getAlgoliaClient();
       if (!client) {
         logger.error("Could not initialize Algolia client.");
         return;
       }
+
       const index = client.initIndex(indexName.value());
       await index.deleteObject(partId);
       logger.info(`Part ${partId} deleted from Algolia successfully`);
@@ -237,6 +250,7 @@ export const onUserCreated = onDocumentCreated(
       logger.error("No data associated with the event");
       return;
     }
+
     const userId = snapshot.id;
     try {
       await snapshot.ref.update({
@@ -305,6 +319,7 @@ export const cleanupExpiredBids = onDocumentCreated(
         logger.info("No expired bids to clean up");
         return;
       }
+
       const batch = db.batch();
       expiredBids.docs.forEach((doc) => {
         batch.delete(doc.ref);
@@ -320,7 +335,7 @@ export const cleanupExpiredBids = onDocumentCreated(
 export const onOrderStatusUpdate = onDocumentUpdated(
   {
     document: "orders/{orderId}",
-    region: "asia-northeast3", // 서울 리전
+    region: "asia-northeast3",
   },
   async (event: FirestoreEvent<Change<QueryDocumentSnapshot> | undefined>) => {
     const change = event.data;
@@ -329,11 +344,9 @@ export const onOrderStatusUpdate = onDocumentUpdated(
       return;
     }
 
-    // 1. 업데이트 이전/이후 데이터 가져오기
     const beforeData = change.before.data();
     const afterData = change.after.data();
 
-    // 2. status 필드가 변경되었는지 확인
     if (beforeData.status === afterData.status) {
       logger.info("Status not changed. No notification needed.");
       return;
@@ -348,9 +361,7 @@ export const onOrderStatusUpdate = onDocumentUpdated(
     const orderId = change.after.id;
     const newStatus = afterData.status;
 
-    // 3. 새로운 status 값에 따라 알림 내용 결정
     let notificationPayload: { title: string; body: string } | null = null;
-
     switch (newStatus) {
       case "awaitingSellerShipment":
         notificationPayload = {
@@ -385,12 +396,9 @@ export const onOrderStatusUpdate = onDocumentUpdated(
           )}...)이(가) 취소되었습니다. 자세한 내용은 주문 내역을 확인해주세요.`,
         };
         break;
-      // TODO: 다른 상태에 대한 알림 메시지도 추가할 수 있습니다.
     }
 
-    // 4. 알림 생성 및 발송
     if (notificationPayload) {
-      // 4-1. Firestore에 알림 저장
       await db
         .collection("users")
         .doc(userId)
@@ -402,23 +410,17 @@ export const onOrderStatusUpdate = onDocumentUpdated(
           type: "orderUpdate",
           linkTo: `/orders/${orderId}`,
         });
-
       logger.info(
         `Notification created for user ${userId} for order ${orderId}`
       );
-
-      // 4-2. FCM 푸시 알림 발송 (FCM 토큰 관리 로직 필요)
-      // const userDoc = await db.collection("users").doc(userId).get();
-      // const fcmToken = userDoc.data()?.fcmToken;
-      // ... FCM 발송 로직 ...
     }
-  }
+  },
 );
 
 export const onNewQnaComment = onDocumentCreated(
   {
     document: "posts/{postId}/comments/{commentId}",
-    region: "asia-northeast3", // 서울 리전
+    region: "asia-northeast3",
   },
   async (event: FirestoreEvent<QueryDocumentSnapshot | undefined>) => {
     const snapshot = event.data;
@@ -429,42 +431,31 @@ export const onNewQnaComment = onDocumentCreated(
 
     const commentData = snapshot.data();
     const postId = event.params.postId;
-
-    // 1. 댓글 작성자가 관리자인지 확인합니다.
-    // 참고: QnaService의 addComment 함수에서는 'userId'를 사용하고 있으므로
-    //      필드명을 'userId'로 가정합니다. 다르다면 수정이 필요합니다.
     const commentAuthorId = commentData.userId;
-
-    // TODO: 실제 관리자의 UID 목록을 여기에 정의해야 합니다.
-    // Firestore 보안 규칙에 있던 isUserAdmin() 함수와 동일한 로직을 사용합니다.
     const adminUids = ["Xfzi3IEX5LXA13wbyJYxjftmJ9p2", "y1C8XaVM1EZkt2zjMHsykQFYlRM2"];
-
     if (!adminUids.includes(commentAuthorId)) {
       logger.info(`Comment by a non-admin user (${commentAuthorId}). No notification sent.`);
       return;
     }
 
-    // 2. 원본 게시물 정보를 가져와 작성자 ID 확인
     const postRef = db.collection("posts").doc(postId);
     const postDoc = await postRef.get();
     if (!postDoc.exists) {
       logger.error(`Post ${postId} not found.`);
       return;
     }
-    const postAuthorId = postDoc.data()?.authorId;
 
+    const postAuthorId = postDoc.data()?.authorId;
     if (!postAuthorId) {
       logger.error(`Post ${postId} has no authorId.`);
       return;
     }
 
-    // 3. 관리자가 자신의 글에 댓글 다는 경우는 알림을 보내지 않음
     if (postAuthorId === commentAuthorId) {
-        logger.info("Admin commented on their own post. No notification sent.");
-        return;
+      logger.info("Admin commented on their own post. No notification sent.");
+      return;
     }
 
-    // 4. 게시물 작성자에게 알림 데이터 생성 및 발송
     const notificationPayload = {
       title: "문의하신 QnA에 답변이 등록되었습니다. 💬",
       body: `"${postDoc.data()?.title}" 게시물에 관리자의 답변이 달렸습니다.`,
@@ -481,30 +472,22 @@ export const onNewQnaComment = onDocumentCreated(
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         isRead: false,
       });
-
     logger.info(`Notification sent to ${postAuthorId} for new comment on post ${postId}.`);
-
-    // TODO: FCM 푸시 알림 발송 로직 (onOrderStatusUpdate 함수와 동일한 패턴)
-    // const userDoc = await db.collection("users").doc(postAuthorId).get();
-    // const fcmToken = userDoc.data()?.fcmToken;
-    // ... FCM 발송 로직 ...
-
     return;
-  }
+  },
 );
 
 export const sendMarketingNotification = onRequest(
-  { region: "asia-northeast3", cors: true }, // CORS를 간단하게 설정
+  { region: "asia-northeast3", cors: true },
   async (req: Request, res): Promise<void> => {
-    // 1. 관리자 인증 (approveSellRequest 함수와 동일한 로직)
     const idToken = req.headers.authorization?.split("Bearer ")[1];
     if (!idToken) {
       res.status(403).send({ error: "Unauthorized" });
       return;
     }
+
     try {
       const decoded = await admin.auth().verifyIdToken(idToken);
-      // TODO: 보안 규칙과 마찬가지로 실제 admin UID 목록으로 교체하는 것을 권장
       const adminUids = ["Xfzi3IEX5LXA13wbyJYxjftmJ9p2", "y1C8XaVM1EZktzjMHsykQFYlRM2"];
       if (decoded.admin !== true && !adminUids.includes(decoded.uid)) {
         res.status(403).send({ error: "Forbidden: Not an admin" });
@@ -515,7 +498,6 @@ export const sendMarketingNotification = onRequest(
       return;
     }
 
-    // 2. 입력 값 검증
     const { title, body, linkTo, imageUrl } = req.body;
     if (!title || !body) {
       res.status(400).send({ error: "Missing required fields: title, body" });
@@ -523,7 +505,6 @@ export const sendMarketingNotification = onRequest(
     }
 
     try {
-      // 3. 모든 사용자에게 알림 생성
       const usersSnapshot = await db.collection("users").get();
       if (usersSnapshot.empty) {
         res.status(200).send({ success: true, message: "No users to notify." });
@@ -537,34 +518,136 @@ export const sendMarketingNotification = onRequest(
           .collection("users")
           .doc(userId)
           .collection("notifications")
-          .doc(); // 새 문서 참조 생성
-
+          .doc();
         batch.set(notificationRef, {
           title,
           body,
-          linkTo: linkTo || "/", // 링크가 없으면 기본값 설정
+          linkTo: linkTo || "/",
           imageUrl: imageUrl || null,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           isRead: false,
           type: "event",
         });
       });
-
-      await batch.commit(); // 배치 쓰기로 모든 알림 문서를 한 번에 생성
-
-      // TODO: FCM 푸시 알림 로직 추가 (선택 사항)
-      // 사용자가 많을 경우, 모든 유저의 토큰을 가져와 한번에 보내는 로직(sendMulticast)이 효율적입니다.
-
+      await batch.commit();
       logger.info(`Marketing notification sent to ${usersSnapshot.size} users.`);
       res.status(200).send({ success: true, message: `Notification sent to ${usersSnapshot.size} users.` });
-
     } catch (error) {
       logger.error("Error sending marketing notifications:", error);
       res.status(500).send({ error: "Internal server error" });
     }
+  },
+);
+
+// ==================== ✅ 새로 추가: Listing Sold 시 통계 업데이트 ====================
+
+export const onListingSold = onDocumentUpdated(
+  {
+    document: "listings/{listingId}",
+    region: "asia-northeast3",
+  },
+  async (event: FirestoreEvent<Change<QueryDocumentSnapshot> | undefined>) => {
+    const change = event.data;
+    if (!change) return;
+
+    const before = change.before.data();
+    const after = change.after.data();
+
+    // available -> sold 변경 감지
+    if (before.status === "available" && after.status === "sold") {
+      const basePartId = after.basePartId;
+
+      if (!basePartId) {
+        logger.warn(`Listing ${event.params.listingId} has no basePartId`);
+        return;
+      }
+
+      try {
+        await db.runTransaction(async (transaction) => {
+          const basePartRef = db.collection("base_parts").doc(basePartId);
+
+          // 현재 available 상태인 Listing들 조회 (sold된 것 제외)
+          const availableListingsSnap = await transaction.get(
+            db
+              .collection("listings")
+              .where("basePartId", "==", basePartId)
+              .where("status", "==", "available")
+          );
+
+          // 남은 매물 가격들
+          const remainingPrices = availableListingsSnap.docs.map(
+            (doc) => doc.data().price as number
+          );
+
+          let lowestPrice: number;
+          let averagePrice: number;
+          let listingCount: number;
+
+          if (remainingPrices.length === 0) {
+            // 매물이 모두 sold된 경우
+            lowestPrice = 0;
+            averagePrice = 0;
+            listingCount = 0;
+          } else {
+            // 통계 계산
+            lowestPrice = Math.min(...remainingPrices);
+            averagePrice =
+              remainingPrices.reduce((sum, price) => sum + price, 0) /
+              remainingPrices.length;
+            listingCount = remainingPrices.length;
+          }
+
+          // BasePart 업데이트
+          transaction.update(basePartRef, {
+            lowestPrice: lowestPrice,
+            averagePrice: Math.round(averagePrice),
+            listingCount: listingCount,
+          });
+
+          // 가격 히스토리 업데이트 (오늘 날짜)
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const dateKey = today.toISOString().split("T")[0];
+
+          const historyRef = db
+            .collection("base_part_prices")
+            .doc(basePartId)
+            .collection("daily_stats")
+            .doc(dateKey);
+
+          const historySnap = await transaction.get(historyRef);
+
+          if (historySnap.exists) {
+            transaction.update(historyRef, {
+              lowestPrice: lowestPrice,
+              averagePrice: Math.round(averagePrice),
+              listingCount: listingCount,
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          } else {
+            transaction.set(historyRef, {
+              date: admin.firestore.Timestamp.fromDate(today),
+              lowestPrice: lowestPrice,
+              averagePrice: Math.round(averagePrice),
+              listingCount: listingCount,
+              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          }
+
+          logger.info(
+            `✅ Updated basePartId ${basePartId} after listing sold: lowest=${lowestPrice}, avg=${averagePrice}, count=${listingCount}`
+          );
+        });
+      } catch (error: any) {
+        logger.error("onListingSold error:", error);
+      }
+    }
   }
 );
-// V1 style function exports
+
+// ==================== 기존 V1 Style Exports ====================
+
 import { createPart } from "./parts";
 import { buyListing } from "./listings";
 import { onPartUpdatedDenormalizeListings } from "./parts_denormalization";
@@ -577,7 +660,7 @@ import { setupPartsData } from "./setup_parts_data";
 
 export {
   createPart,
-  buyListing, // We can remove this later, but keeping for now to avoid deployment errors
+  buyListing,
   onPartUpdatedDenormalizeListings,
   onListingCreatedFraudCheck,
   addToCart,
@@ -586,6 +669,4 @@ export {
   setAdmin,
   approveSellRequest,
   setupPartsData,
-
-
 };

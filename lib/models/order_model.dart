@@ -1,62 +1,71 @@
 // lib/models/order_model.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// 주문 전체의 진행 상태를 나타내는 Enum
-/// 우리의 중앙 관리형 비즈니스 흐름에 맞춰 재정의되었습니다.
 enum OrderStatus {
-  paymentComplete,        // 결제 완료 (주문의 시작)
-  awaitingSellerShipment, // 판매자 발송 대기 (모든 판매자가 우리에게 보내길 기다림)
-  partiallyArrived,       // 일부 상품 도착 (일부 판매자만 보낸 상태)
-  allItemsArrived,        // 모든 상품 도착 (검수/조립 시작 가능)
-  inspecting,             // 검수 중
-  assembling,             // 조립 중 (조립 주문의 경우)
-  shippedToBuyer,         // 구매자에게 발송 완료
-  delivered,              // 배송 완료
-  completed,              // 정산 등 모든 절차 완료
-  cancelled,              // 주문 취소
+  paymentComplete,
+  awaitingSellerShipment,
+  partiallyArrived,
+  allItemsArrived,
+  inspecting,
+  assembling,
+  shippedToBuyer,
+  delivered,
+  completed,
+  cancelled,
 }
 
 /// 주문에 포함된 개별 상품의 물류 상태를 나타내는 Enum
 enum OrderItemStatus {
-  awaitingShipment, // 판매자가 우리에게 보내기 전
-  shippedToCenter,  // 판매자가 우리에게 발송함
-  arrivedAtCenter,  // 우리가 수령함
-  inspected,        // 검수 완료
-  failedInspection, // 검수 실패
+  awaitingShipment,
+  shippedToCenter,
+  arrivedAtCenter,
+  inspected,
+  failedInspection,
 }
 
 /// 주문에 포함된 개별 상품 정보
 class OrderItem {
   final String listingId;
-  final String partId; // 호환성 체크 및 데이터 분석을 위한 원본 부품 ID
+  final String partId;
+  final String basePartId; // ✅ 추가: BasePart 통계 업데이트용
   final String sellerId;
-  final String modelName; // 주문 시점의 모델명 (기록용)
-  final String brand;     // 주문 시점의 브랜드 (기록용)
-  final String imageUrl;  // 주문 시점의 대표 이미지 URL
-  final double priceAtPurchase;
-  final OrderItemStatus status; // 개별 아이템의 상태
+  final String modelName;
+  final String brand;
+  final String imageUrl;
+  final double priceAtPurchase; // 주문 시점 가격 (기존 유지)
+  final int conditionScore;
+  final OrderItemStatus status;
+  final String? trackingNumber;
 
   OrderItem({
     required this.listingId,
     required this.partId,
+    required this.basePartId, // ✅ 추가
     required this.sellerId,
     required this.modelName,
     required this.brand,
     required this.imageUrl,
     required this.priceAtPurchase,
-    this.status = OrderItemStatus.awaitingShipment, // 생성 시 기본값
+    required this.conditionScore,
+    required this.status,
+    this.trackingNumber,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'listingId': listingId,
       'partId': partId,
+      'basePartId': basePartId, // ✅ 추가
       'sellerId': sellerId,
       'modelName': modelName,
       'brand': brand,
       'imageUrl': imageUrl,
       'priceAtPurchase': priceAtPurchase,
+      'conditionScore': conditionScore,
       'status': status.name,
+      'trackingNumber': trackingNumber,
     };
   }
 
@@ -64,79 +73,75 @@ class OrderItem {
     return OrderItem(
       listingId: map['listingId'] ?? '',
       partId: map['partId'] ?? '',
+      basePartId: map['basePartId'] ?? '', // ✅ 추가 (기존 데이터 호환: 빈 문자열)
       sellerId: map['sellerId'] ?? '',
       modelName: map['modelName'] ?? '',
       brand: map['brand'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
       priceAtPurchase: (map['priceAtPurchase'] as num?)?.toDouble() ?? 0.0,
-      status: OrderItemStatus.values.firstWhere(
-            (e) => e.name == map['status'],
-        orElse: () => OrderItemStatus.awaitingShipment,
-      ),
+      conditionScore: (map['conditionScore'] as num?)?.toInt() ?? 0,
+      status: _parseOrderItemStatus(map['status']),
+      trackingNumber: map['trackingNumber'],
     );
   }
+
+  // ✅ 추가: 헬퍼 메서드 - int price를 double로 안전하게 변환
+  static double priceToDouble(int price) => price.toDouble();
+
+  // ✅ 추가: 헬퍼 메서드 - double을 int로 안전하게 변환
+  static int priceToInt(double price) => price.round();
 }
 
-/// 부가 비용 정보 (예: 조립비)
-class AdditionalCharge {
-  final String description;
-  final double amount;
-
-  AdditionalCharge({required this.description, required this.amount});
-
-  Map<String, dynamic> toMap() {
-    return {'description': description, 'amount': amount};
+OrderItemStatus _parseOrderItemStatus(dynamic statusStr) {
+  if (statusStr == null) return OrderItemStatus.awaitingShipment;
+  final str = statusStr.toString().toLowerCase();
+  for (var status in OrderItemStatus.values) {
+    if (status.name.toLowerCase() == str) return status;
   }
-
-  factory AdditionalCharge.fromMap(Map<String, dynamic> map) {
-    return AdditionalCharge(
-      description: map['description'] ?? '',
-      amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
-    );
-  }
+  return OrderItemStatus.awaitingShipment;
 }
 
-/// 구매자의 단일 결제 건을 나타내는 주문 모델
+/// 주문 전체 정보
 class OrderModel {
   final String orderId;
   final String buyerId;
   final List<OrderItem> items;
-  final List<AdditionalCharge> additionalCharges;
-  final double itemsTotal;
-  final double chargesTotal;
-  final double finalTotal;
   final OrderStatus status;
-  final String orderType; // 'singlePart', 'multipleParts', 'bundle'
-  final Timestamp createdAt;
-  final Map<String, dynamic> shippingAddress; // 배송지 정보
+  final double subtotal;
+  final Map<String, double> additionalCharges;
+  final double finalTotal; // 기존 필드명 유지
+  final bool isBundle; // ✅ 추가: 조립 주문 여부
+  final Map<String, dynamic> shippingAddress;
+  final Timestamp createdAt; // ✅ 기존 Timestamp 유지
+  final Timestamp? completedAt;
 
   OrderModel({
     required this.orderId,
     required this.buyerId,
     required this.items,
-    this.additionalCharges = const [],
     required this.status,
-    required this.orderType,
-    required this.createdAt,
+    required this.subtotal,
+    required this.additionalCharges,
+    required this.finalTotal,
+    this.isBundle = false, // ✅ 추가
     required this.shippingAddress,
-  })  : itemsTotal = items.fold(0.0, (sum, item) => sum + item.priceAtPurchase),
-        chargesTotal = additionalCharges.fold(0.0, (sum, charge) => sum + charge.amount),
-        finalTotal = items.fold(0.0, (sum, item) => sum + item.priceAtPurchase) +
-            additionalCharges.fold(0.0, (sum, charge) => sum + charge.amount);
+    required this.createdAt,
+    this.completedAt,
+  });
 
   Map<String, dynamic> toMap() {
     return {
       'orderId': orderId,
       'buyerId': buyerId,
       'items': items.map((item) => item.toMap()).toList(),
-      'additionalCharges': additionalCharges.map((charge) => charge.toMap()).toList(),
-      'itemsTotal': itemsTotal,
-      'chargesTotal': chargesTotal,
-      'finalTotal': finalTotal,
       'status': status.name,
-      'orderType': orderType,
-      'createdAt': createdAt,
+      'subtotal': subtotal,
+      'additionalCharges': additionalCharges,
+      'finalTotal': finalTotal,
+      'isBundle': isBundle, // ✅ 추가
       'shippingAddress': shippingAddress,
+      'createdAt': createdAt,
+      'completedAt': completedAt,
     };
   }
 
@@ -144,18 +149,29 @@ class OrderModel {
     return OrderModel(
       orderId: map['orderId'] ?? '',
       buyerId: map['buyerId'] ?? '',
-      items: List<OrderItem>.from((map['items'] as List<dynamic>?)
-          ?.map((x) => OrderItem.fromMap(x as Map<String, dynamic>)) ?? []),
-      additionalCharges: List<AdditionalCharge>.from(
-          (map['additionalCharges'] as List<dynamic>?)
-              ?.map((x) => AdditionalCharge.fromMap(x as Map<String, dynamic>)) ?? []),
-      status: OrderStatus.values.firstWhere(
-            (e) => e.name == map['status'],
-        orElse: () => OrderStatus.paymentComplete,
-      ),
-      orderType: map['orderType'] ?? 'multipleParts',
-      createdAt: map['createdAt'] ?? Timestamp.now(),
+      items: (map['items'] as List<dynamic>?)
+          ?.map((item) => OrderItem.fromMap(item as Map<String, dynamic>))
+          .toList() ??
+          [],
+      status: _parseOrderStatus(map['status']),
+      subtotal: (map['subtotal'] as num?)?.toDouble() ?? 0.0,
+      additionalCharges: (map['additionalCharges'] as Map<String, dynamic>?)
+          ?.map((key, value) => MapEntry(key, (value as num).toDouble())) ??
+          {},
+      finalTotal: (map['finalTotal'] as num?)?.toDouble() ?? 0.0,
+      isBundle: map['isBundle'] ?? false, // ✅ 추가 (기존 데이터 호환: false)
       shippingAddress: Map<String, dynamic>.from(map['shippingAddress'] ?? {}),
+      createdAt: map['createdAt'] ?? Timestamp.now(),
+      completedAt: map['completedAt'],
     );
   }
+}
+
+OrderStatus _parseOrderStatus(dynamic statusStr) {
+  if (statusStr == null) return OrderStatus.paymentComplete;
+  final str = statusStr.toString().toLowerCase();
+  for (var status in OrderStatus.values) {
+    if (status.name.toLowerCase() == str) return status;
+  }
+  return OrderStatus.paymentComplete;
 }
